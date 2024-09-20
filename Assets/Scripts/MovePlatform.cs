@@ -10,12 +10,12 @@ using UnityEngine;
 public class MovePlatform : MonoBehaviour
 {
     public float speed = 5f;  
-    public float angleX = -37f;  
+    public float angleX = 0f;  
 
     void Update()
     {
         // Calculates the direction of movement based on the angle on the x axis
-        Vector3 direction = Quaternion.Euler(angleX, 0, 0) * Vector3.forward;
+        Vector3 direction = Vector3.forward;
         transform.position -= direction * speed * Time.deltaTime;
     }
 

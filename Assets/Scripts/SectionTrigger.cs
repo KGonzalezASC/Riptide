@@ -16,7 +16,7 @@ public class SectionTrigger : MonoBehaviour
         {
             Debug.Log("Section Triggered");
             //instantiate the section at 0,10,11.1 per prefab times 
-            Instantiate(section, new Vector3(0, 8, 10.1f), Quaternion.identity);
+            Instantiate(section, new Vector3(0, 0, 32.4f), Quaternion.identity);
         }
     }
 }
