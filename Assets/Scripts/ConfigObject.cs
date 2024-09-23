@@ -14,7 +14,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 
 //make sure to assign by Label ConfigObject to the SO in the Addressables window
-[CreateAssetMenu(fileName="ConfigObject", menuName = "ScriptableObjects/sceneIndependantManager")]
+[CreateAssetMenu(fileName = "ConfigObject", menuName = "ScriptableObjects/sceneIndependantManager")]
 public class ConfigObject : ScriptableObjectSingleton<ConfigObject>
 {
     public static event Action OnHam;
@@ -78,9 +78,31 @@ public class ConfigObject : ScriptableObjectSingleton<ConfigObject>
     private static void OnConfigObjectReady(ConfigObject configInstance)
     {
         // Now we can safely instantiate the prefab
-        //TODO HAVE THIS LOAD ALT FISH COSTUMES FOR STORE WHEN APPLICABLE:
+        // TODO: HAVE THIS LOAD ALT FISH COSTUMES FOR STORE WHEN APPLICABLE:
         configInstance.InstantiatePrefab(new Vector3(0, 1, .1f));
         Debug.Log("ConfigObject is ready and prefab instantiated.");
-    }
+        PlayerSaveData.Create();
 
+        // Test save data
+        PlayerSaveData.Instance.Save();
+
+        // Insert random high score data from 100-200 if no high scores exist
+        System.Random random = new System.Random();
+        if (PlayerSaveData.Instance.highscores.Count == 0)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                int score = random.Next(100, 201); // Random score between 100 and 200
+                string name = "Player" + i; // Unique name for each entry
+
+                PlayerSaveData.Instance.InsertScore(score, name);
+            }
+
+            //output a log file
+            Debug.Log("High scores saved.");
+        }
+
+        // Save the data again to ensure the new scores are stored
+        PlayerSaveData.Instance.Save();
+    }
 }

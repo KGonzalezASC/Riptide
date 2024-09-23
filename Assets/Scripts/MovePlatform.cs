@@ -10,11 +10,12 @@ using UnityEngine;
 public class MovePlatform : MonoBehaviour
 {
     public float speed = 5f;  
-    public float angleX = 0f;  
+    public float angleX = 0f;
+
 
     void Update()
     {
-        // Calculates the direction of movement based on the angle on the x axis
+        // Move platform forward
         Vector3 direction = Vector3.forward;
         transform.position -= direction * speed * Time.deltaTime;
     }
@@ -23,6 +24,7 @@ public class MovePlatform : MonoBehaviour
     {
         if (other.CompareTag("Destroy"))
         {
+            PlatformManager.Instance.RemovePlatform(gameObject);
             Destroy(gameObject);
         }
     }
