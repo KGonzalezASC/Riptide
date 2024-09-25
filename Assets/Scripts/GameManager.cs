@@ -8,6 +8,9 @@ public class GameManager : MonoBehaviour
     static public GameManager instance { get { return _instance; } }
 
     public gState[] gStates;
+
+    // Serialize the top state name
+    [SerializeField] private string activeState;
     public gState topState { get { return gStatesStack.Count > 0 ? gStatesStack[gStatesStack.Count - 1] : null; } }
 
     protected List<gState> gStatesStack = new List<gState>();
@@ -44,6 +47,7 @@ public class GameManager : MonoBehaviour
         state.Enter(previousState);
 
         gStatesStack.Add(state);
+        activeState = state.GetName();
     }
 
     // Pop the current state off the stack, returning to the previous state
@@ -58,6 +62,7 @@ public class GameManager : MonoBehaviour
         previousState.Enter(currentState);
 
         gStatesStack.RemoveAt(gStatesStack.Count - 1);
+        activeState = topState?.GetName();
     }
 
     // Find a state by name in the dictionary
@@ -77,6 +82,7 @@ public class GameManager : MonoBehaviour
         newState.Enter(currentState);
 
         gStatesStack[gStatesStack.Count - 1] = newState;
+        activeState = topState?.GetName();
     }
 
     // Helper method for finding a state and logging errors if not found

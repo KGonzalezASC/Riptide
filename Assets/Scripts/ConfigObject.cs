@@ -8,7 +8,6 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 ///  This can act as a scene independent manager meaning it can be used to load prefabs or other assets that are used across multiple scenes without being destroyed when the scene changes.
 ///  Use this when the same prefab is used in multiple scenes and you want to load it once and keep it loaded. or when applicable.
 ///  Yes there can be multiple scriptable object singletons in a project.
-///  
 ///  treat this like the main game manager
 /// </summary>
 
@@ -23,6 +22,8 @@ public class ConfigObject : ScriptableObjectSingleton<ConfigObject>
 
     [SerializeField]
     private AssetReferenceT<GameObject> prefab;
+    //[SerializeField]
+    //private AssetReferenceT<GameObject> uiprefab; //might need in future
     private GameObject instanceRef;
 
     public void InstantiatePrefab(Vector3 position, Transform parent = null)
@@ -48,6 +49,7 @@ public class ConfigObject : ScriptableObjectSingleton<ConfigObject>
         }
     }
 
+    // destroy the prefab instance
     public void ReleasePrefab()
     {
         if (instanceRef != null)

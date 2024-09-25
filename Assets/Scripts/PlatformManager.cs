@@ -52,8 +52,6 @@ public class PlatformManager : MonoBehaviour
         lastSectionPosition = secondNewSectionPos;
     }
 
-
-
     public void RemovePlatform(GameObject platform)
     {
         if (activePlatforms.Contains(platform))
