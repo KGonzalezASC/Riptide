@@ -16,9 +16,10 @@ public class FishMovement : MonoBehaviour
     [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
     [SerializeField] private float rotationSpeed = 100f;           // Speed of rotation
     [SerializeField] private float gravityStrength = 0.8f;
-    [SerializeField] private float jumpStrength = 100.0f;
+    [SerializeField] private float jumpStrength = 5.0f;
     private float yVel = 0;
     private bool wentUnder = false;
+    private bool canJump = true;
     private Vector2 movementInput;
     private Vector2 distFromAnchor;
 
@@ -57,8 +58,8 @@ public class FishMovement : MonoBehaviour
     private void Update()
     {
         // Move up and down directly
-        Vector3 move = new Vector3(0f, movementInput.y, 0f) * speed * Time.deltaTime;
-        transform.position += move;
+        //Vector3 move = new Vector3(0f, movementInput.y, 0f) * speed * Time.deltaTime;
+        //transform.position += move;
         gravity();
         transform.Translate(new Vector3(0, yVel * Time.deltaTime, 0));
         Debug.Log(wentUnder + " " + yVel);
@@ -67,18 +68,27 @@ public class FishMovement : MonoBehaviour
         if (movementInput.x != 0 && getAnchorDist() < 2.1f && getAnchorDist() > 1.9f)
         {
             float direction = movementInput.x < 0 ? 1f: -1f;  // Determine rotation direction (left or right)
-            transform.RotateAround(anchorPoint, Vector3.forward, direction * rotationSpeed * Time.deltaTime);
-            transform.rotation = Quaternion.identity;
+
+            if ((direction == -1f && transform.position.x < 1.2f) || (direction == 1f && transform.position.x > -1.2f))
+            {
+                transform.RotateAround(anchorPoint, Vector3.forward, direction * rotationSpeed * Time.deltaTime);
+                transform.rotation = Quaternion.identity;
+            }
         }
         else if (movementInput.x != 0 && (getAnchorDist() > 2.1f || getAnchorDist() < 1.9f))
         {
             float direction = movementInput.x < 0 ? 1f : -1f;  // Determine rotation direction (left or right)
-            transform.Translate(new Vector3(direction * -7f * Time.deltaTime, 0, 0));
+
+            if ((direction == -1f && transform.position.x < 1.2f) || (direction == 1f && transform.position.x > -1.2f))
+            {
+                transform.Translate(new Vector3(direction * -7f * Time.deltaTime, 0, 0));
+            }
         }
 
-        if (movementInput.y > 0 && getAnchorDist() < 2.1f && getAnchorDist() > 1.9f)
+        if (movementInput.y > 0 && getAnchorDist() < 2.1f && getAnchorDist() > 1.9f && canJump)
         {
-            yVel += (jumpStrength * Time.deltaTime);
+            yVel += 6.5f;
+            canJump = false;
         }
     }
 
@@ -94,22 +104,23 @@ public class FishMovement : MonoBehaviour
     {
         if (getAnchorDist() > 2.1f && distFromAnchor.y > 0 && !wentUnder)
         {
-            yVel -= 3 * gravityStrength * Time.deltaTime;
+            yVel -= 9 * gravityStrength * Time.deltaTime;
         }
         else if (getAnchorDist() > 1.95f && wentUnder)
         {
             yVel = 0f;
             wentUnder = false;
+            canJump = true;
         }
         else if (getAnchorDist() < 1.9f)
         {
             if (movementInput.y > 0)
             {
-                yVel += 10 * gravityStrength * Time.deltaTime;
+                yVel += 24 * gravityStrength * Time.deltaTime;
             }
             else
             {
-                yVel += 5 * gravityStrength * Time.deltaTime;
+                yVel += 12 * gravityStrength * Time.deltaTime;
             }
 
             wentUnder = true;
