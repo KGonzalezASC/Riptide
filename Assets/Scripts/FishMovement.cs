@@ -15,12 +15,18 @@ public class FishMovement : MonoBehaviour
     [SerializeField] private float speed = 5f;
     [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
     [SerializeField] private float rotationSpeed = 100f;           // Speed of rotation
+    [SerializeField] private float gravityStrength = 0.8f;
+    [SerializeField] private float jumpStrength = 100.0f;
+    private float yVel = 0;
+    private bool wentUnder = false;
     private Vector2 movementInput;
+    private Vector2 distFromAnchor;
 
     private void Awake()
     {
         // Initialize the input actions
         fishControls = new FishControls();
+        distFromAnchor = new Vector2(transform.position.x - anchorPoint.x, transform.position.y - anchorPoint.y);
     }
 
     private void OnEnable()
@@ -53,12 +59,60 @@ public class FishMovement : MonoBehaviour
         // Move up and down directly
         Vector3 move = new Vector3(0f, movementInput.y, 0f) * speed * Time.deltaTime;
         transform.position += move;
+        gravity();
+        transform.Translate(new Vector3(0, yVel * Time.deltaTime, 0));
+        Debug.Log(wentUnder + " " + yVel);
 
         // Rotate left or right around the anchor point when moving horizontally
-        if (movementInput.x != 0)
+        if (movementInput.x != 0 && getAnchorDist() < 2.1f && getAnchorDist() > 1.9f)
         {
             float direction = movementInput.x < 0 ? 1f: -1f;  // Determine rotation direction (left or right)
             transform.RotateAround(anchorPoint, Vector3.forward, direction * rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.identity;
+        }
+        else if (movementInput.x != 0 && (getAnchorDist() > 2.1f || getAnchorDist() < 1.9f))
+        {
+            float direction = movementInput.x < 0 ? 1f : -1f;  // Determine rotation direction (left or right)
+            transform.Translate(new Vector3(direction * -7f * Time.deltaTime, 0, 0));
+        }
+
+        if (movementInput.y > 0 && getAnchorDist() < 2.1f && getAnchorDist() > 1.9f)
+        {
+            yVel += (jumpStrength * Time.deltaTime);
+        }
+    }
+
+    private float getAnchorDist()
+    {
+        distFromAnchor.x = transform.position.x - anchorPoint.x;
+        distFromAnchor.y = transform.position.y - anchorPoint.y;
+
+        return distFromAnchor.magnitude;
+    }
+
+    private void gravity()
+    {
+        if (getAnchorDist() > 2.1f && distFromAnchor.y > 0 && !wentUnder)
+        {
+            yVel -= 3 * gravityStrength * Time.deltaTime;
+        }
+        else if (getAnchorDist() > 1.95f && wentUnder)
+        {
+            yVel = 0f;
+            wentUnder = false;
+        }
+        else if (getAnchorDist() < 1.9f)
+        {
+            if (movementInput.y > 0)
+            {
+                yVel += 10 * gravityStrength * Time.deltaTime;
+            }
+            else
+            {
+                yVel += 5 * gravityStrength * Time.deltaTime;
+            }
+
+            wentUnder = true;
         }
     }
 
