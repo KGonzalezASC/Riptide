@@ -32,7 +32,7 @@ public class LoadState : gState
         //we want to await the callback from MainMenuEvents OnPlayGameClick
         //rotate example routine only updates in this state
 
-        exampleRoutine.transform.Rotate(0, 0, 1);
+       // exampleRoutine.transform.Rotate(0, 0, 1);
 
     }
 
