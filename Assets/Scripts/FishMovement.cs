@@ -15,6 +15,7 @@ public class FishMovement : MonoBehaviour
     [SerializeField] private float speed = 5f;
     [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
     [SerializeField] private float rotationSpeed = 100f;           // Speed of rotation
+    [SerializeField] private Rigidbody rb;                        // Body with object's physics logic
     private Vector2 movementInput;
 
     private void Awake()
@@ -45,21 +46,16 @@ public class FishMovement : MonoBehaviour
 
     private void OnMoveCanceled(InputAction.CallbackContext context)
     {
-        movementInput = Vector2.zero;
+        //movementInput = Vector2.zero;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        // Move up and down directly
-        Vector3 move = new Vector3(0f, movementInput.y, 0f) * speed * Time.deltaTime;
-        transform.position += move;
+        Vector3 force = new Vector3(movementInput.x, movementInput.y, 0f) * speed;
 
-        // Rotate left or right around the anchor point when moving horizontally
-        if (movementInput.x != 0)
-        {
-            float direction = movementInput.x < 0 ? 1f: -1f;  // Determine rotation direction (left or right)
-            transform.RotateAround(anchorPoint, Vector3.forward, direction * rotationSpeed * Time.deltaTime);
-        }
+        rb.AddForce(force);
+        Debug.Log(force);
+        Debug.Log(rb.isKinematic);
     }
 
     // This function will help visualize the anchor point and movement vector in the editor

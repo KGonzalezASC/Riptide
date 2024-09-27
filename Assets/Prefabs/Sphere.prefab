@@ -130,7 +130,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
@@ -147,7 +147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6692fbdeb718e44a5474f29374b36e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  section: {fileID: 1888296270142753312, guid: 8edb1ab6d0a67d843b4ad565346c164f, type: 3}
 --- !u!114 &2313161316334820250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +159,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98975ecc0aac74a8028104ddaff58e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  speed: 1000
   anchorPoint: {x: 0, y: -1, z: 0}
   rotationSpeed: 75
+  rb: {fileID: -1397677804924074686}
