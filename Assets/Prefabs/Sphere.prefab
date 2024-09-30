@@ -159,7 +159,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98975ecc0aac74a8028104ddaff58e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 1000
-  anchorPoint: {x: 0, y: -1, z: 0}
-  rotationSpeed: 75
+  playerControls:
+    m_Name: Player Controls
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 43f86177-611d-46b3-ab36-63b35b537ee5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 2D Vector
+      m_Id: 19160551-9589-46b3-a19f-adc1a830fda2
+      m_Path: 2DVector
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Controls
+      m_Flags: 4
+    - m_Name: up
+      m_Id: 82c5412b-d4e9-41d4-83d1-b72e362dfb01
+      m_Path: <Keyboard>/w
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Controls
+      m_Flags: 8
+    - m_Name: down
+      m_Id: f3817938-ce2a-46df-baa1-c8c55c3e4e99
+      m_Path: <Keyboard>/s
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Controls
+      m_Flags: 8
+    - m_Name: left
+      m_Id: bf4f9dd9-306e-4d60-b09c-5c3aeee33ec5
+      m_Path: <Keyboard>/a
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Controls
+      m_Flags: 8
+    - m_Name: right
+      m_Id: e7bc27f1-7c31-4d79-b711-37039626cd2b
+      m_Path: <Keyboard>/d
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Controls
+      m_Flags: 8
+    m_Flags: 0
+  jumpAction:
+    m_Name: Jump
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: e1eaf962-fd63-49d6-a321-112833d219c7
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 0a728763-e8d3-4cb4-8131-7f28bb288a30
+      m_Path: <Keyboard>/space
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Jump
+      m_Flags: 0
+    m_Flags: 0
+  movementSpeed: 1000
+  jumpForce: 5
+  minHeight: 0
+  friction: 0.05
   rb: {fileID: -1397677804924074686}

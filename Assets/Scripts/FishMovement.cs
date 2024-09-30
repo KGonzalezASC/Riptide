@@ -11,51 +11,103 @@ using UnityEngine.InputSystem;
 
 public class FishMovement : MonoBehaviour
 {
-    private FishControls fishControls;
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
-    [SerializeField] private float rotationSpeed = 100f;           // Speed of rotation
-    [SerializeField] private Rigidbody rb;                        // Body with object's physics logic
-    private Vector2 movementInput;
+    [Header("Movement")]
+    [SerializeField]
+    private InputAction playerControls; // Input for Movement
 
-    private void Awake()
-    {
-        // Initialize the input actions
-        fishControls = new FishControls();
-    }
+    [SerializeField]
+    private InputAction jumpAction; // Input for jumping
+
+    [SerializeField]
+    private float movementSpeed = 100f;
+
+    [SerializeField]
+    private float jumpForce = 8f; // The force applied when jumping
+
+    [SerializeField]
+    private float minHeight = 1f; // Define the minimum height
+
+    private Vector2 moveDirection = Vector2.zero;
+    private bool isGrounded = true;
+
+    [SerializeField]
+    private float friction = 0.05f; // Friction factor for slowing down
+
+    [SerializeField]
+    private Rigidbody rb;
+
+    [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
 
     private void OnEnable()
     {
-        fishControls.Enable();
-        fishControls.Fish.Move.performed += OnMovePerformed;
-        fishControls.Fish.Move.canceled += OnMoveCanceled;
+        playerControls.Enable();
+        jumpAction.Enable();
     }
 
     private void OnDisable()
     {
-        // Unsubscribe from the input action events when disabled
-        fishControls.Fish.Move.performed -= OnMovePerformed;
-        fishControls.Fish.Move.canceled -= OnMoveCanceled;
-        fishControls.Disable();
+        playerControls.Disable();
+        jumpAction.Disable();
     }
 
-    private void OnMovePerformed(InputAction.CallbackContext context)
+    private void Update()
     {
-        movementInput = context.ReadValue<Vector2>();
+        moveDirection = playerControls.ReadValue<Vector2>();
+
+        // Check if the player is grounded
+        isGrounded = transform.position.y <= minHeight;
+
+        // Check for jump input and whether the player is grounded
+        if (jumpAction.triggered && isGrounded)
+        {
+            Jump();
+        }
     }
 
-    private void OnMoveCanceled(InputAction.CallbackContext context)
-    {
-        //movementInput = Vector2.zero;
-    }
+
+    //TODO: Check if this is depricated
+    //private void OnMovePerformed(InputAction.CallbackContext context)
+    //{
+    //    movementInput = context.ReadValue<Vector2>();
+    //}
+
+    //private void OnMoveCanceled(InputAction.CallbackContext context)
+    //{
+    //    //movementInput = Vector2.zero;
+    //}
 
     private void FixedUpdate()
     {
-        Vector3 force = new Vector3(movementInput.x, movementInput.y, 0f) * speed;
+        // Get the current velocity
+        Vector3 currentVelocity = rb.velocity;
 
-        rb.AddForce(force);
-        Debug.Log(force);
-        Debug.Log(rb.isKinematic);
+        // Apply horizontal movement based on input
+        if (moveDirection != Vector2.zero)
+        {
+            // Calculate new velocity based on input
+            currentVelocity.x = moveDirection.x * movementSpeed * Time.deltaTime;
+            currentVelocity.z = moveDirection.y * movementSpeed * Time.deltaTime;
+        }
+        else if (isGrounded) // Apply gradual slow-down when grounded and no input
+        {
+            // Gradually reduce horizontal velocity using friction
+            currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, friction);
+            currentVelocity.z = Mathf.Lerp(currentVelocity.z, 0, friction);
+        }
+
+        // Apply the updated velocity to the Rigidbody
+        rb.velocity = currentVelocity;
+
+        // Check if the player is below the minimum height
+        if (rb.position.y < minHeight)
+        {
+            Vector3 newPosition = rb.position;
+            newPosition.y = minHeight; // Reset the y-position to the minimum height
+            rb.position = newPosition;
+
+            // Reset the downward velocity to prevent falling past the minHeight
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        }
     }
 
     // This function will help visualize the anchor point and movement vector in the editor
@@ -64,10 +116,11 @@ public class FishMovement : MonoBehaviour
         // Draw the anchor point in the scene view
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(anchorPoint, 0.2f);  // Visualize the anchor point
+    }
 
-        // Draw a line representing the movement direction in world space
-        Gizmos.color = Color.blue;
-        Vector3 movementDirection = new Vector3(movementInput.x, movementInput.y, 0f).normalized;
-        Gizmos.DrawLine(transform.position, transform.position + movementDirection);
+    // Function to make the player jump
+    private void Jump()
+    {
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse); // Apply upward force to jump
     }
 }
