@@ -16,10 +16,11 @@ public class FishMovement : MonoBehaviour
     [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
     [SerializeField] private float rotationSpeed = 100f;           // Speed of rotation
     [SerializeField] private float gravityStrength = 0.8f;
-    [SerializeField] private float jumpStrength = 5.0f;
+    [SerializeField] private float jumpStrength = 200.0f;
     private float yVel = 0;
     private bool wentUnder = false;
     private bool canJump = true;
+    private bool grinding = false;
     private Vector2 movementInput;
     private Vector2 distFromAnchor;
 
@@ -27,6 +28,7 @@ public class FishMovement : MonoBehaviour
     {
         // Initialize the input actions
         fishControls = new FishControls();
+
         distFromAnchor = new Vector2(transform.position.x - anchorPoint.x, transform.position.y - anchorPoint.y);
     }
 
@@ -61,15 +63,20 @@ public class FishMovement : MonoBehaviour
         //Vector3 move = new Vector3(0f, movementInput.y, 0f) * speed * Time.deltaTime;
         //transform.position += move;
         gravity();
+
+        if (grinding)
+        {
+            yVel = 0;
+        }
+
         transform.Translate(new Vector3(0, yVel * Time.deltaTime, 0));
-        Debug.Log(wentUnder + " " + yVel);
 
         // Rotate left or right around the anchor point when moving horizontally
         if (movementInput.x != 0 && getAnchorDist() < 2.1f && getAnchorDist() > 1.9f)
         {
             float direction = movementInput.x < 0 ? 1f: -1f;  // Determine rotation direction (left or right)
 
-            if ((direction == -1f && transform.position.x < 1.2f) || (direction == 1f && transform.position.x > -1.2f))
+            if (((direction == -1f && transform.position.x < 1.2f) || (direction == 1f && transform.position.x > -1.2f)) && !grinding)
             {
                 transform.RotateAround(anchorPoint, Vector3.forward, direction * rotationSpeed * Time.deltaTime);
                 transform.rotation = Quaternion.identity;
@@ -79,15 +86,23 @@ public class FishMovement : MonoBehaviour
         {
             float direction = movementInput.x < 0 ? 1f : -1f;  // Determine rotation direction (left or right)
 
-            if ((direction == -1f && transform.position.x < 1.2f) || (direction == 1f && transform.position.x > -1.2f))
+            if (((direction == -1f && transform.position.x < 1.2f) || (direction == 1f && transform.position.x > -1.2f)) && !grinding)
             {
-                transform.Translate(new Vector3(direction * -7f * Time.deltaTime, 0, 0));
+                transform.Translate(new Vector3(direction * -7f * Time.deltaTime * 0.7f, 0, 0));
             }
         }
-
-        if (movementInput.y > 0 && getAnchorDist() < 2.1f && getAnchorDist() > 1.9f && canJump)
+        else if (grinding)
         {
-            yVel += 6.5f;
+            Debug.Log("Grinding");
+        }
+
+        if (movementInput.y > 0 && ((getAnchorDist() < 2.1f && getAnchorDist() > 1.9f && canJump) || grinding))
+        {
+            if (grinding)
+            {
+                stopGrind();
+            }
+            yVel += jumpStrength;
             canJump = false;
         }
     }
@@ -125,6 +140,24 @@ public class FishMovement : MonoBehaviour
 
             wentUnder = true;
         }
+    }
+
+    private void snapXTo(float snapX)
+    {
+        transform.Translate(new Vector3(snapX - transform.position.x, 0, 0));
+    }
+
+    public void startGrind(float snapX)
+    {
+        snapXTo(snapX);
+        grinding = true;
+        canJump = true;
+    }
+
+    public void stopGrind()
+    {
+        grinding = false;
+        Debug.Log("Stopped Grinding");
     }
 
     // This function will help visualize the anchor point and movement vector in the editor
