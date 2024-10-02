@@ -175,22 +175,6 @@ MonoBehaviour:
       m_Groups: 
       m_Action: Player Controls
       m_Flags: 4
-    - m_Name: up
-      m_Id: 82c5412b-d4e9-41d4-83d1-b72e362dfb01
-      m_Path: <Keyboard>/w
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Controls
-      m_Flags: 8
-    - m_Name: down
-      m_Id: f3817938-ce2a-46df-baa1-c8c55c3e4e99
-      m_Path: <Keyboard>/s
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Controls
-      m_Flags: 8
     - m_Name: left
       m_Id: bf4f9dd9-306e-4d60-b09c-5c3aeee33ec5
       m_Path: <Keyboard>/a
