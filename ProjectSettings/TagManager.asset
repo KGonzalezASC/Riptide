@@ -6,6 +6,7 @@ TagManager:
   tags:
   - DefaultSectionTrigger
   - Destroy
+  - Interactible
   layers:
   - Default
   - TransparentFX

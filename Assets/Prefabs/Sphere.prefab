@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 2313161316334820250}
   m_Layer: 0
   m_Name: Sphere
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -30,13 +30,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8129193038339479334}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.31730464, y: 0, z: 0, w: 0.94832367}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 37, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &2409435472069189476
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -130,8 +130,8 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -147,7 +147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6692fbdeb718e44a5474f29374b36e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  section: {fileID: 1888296270142753312, guid: 8edb1ab6d0a67d843b4ad565346c164f, type: 3}
 --- !u!114 &2313161316334820250
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +159,61 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98975ecc0aac74a8028104ddaff58e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  anchorPoint: {x: 0, y: -1, z: 0}
-  rotationSpeed: 75
+  playerControls:
+    m_Name: Player Controls
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 43f86177-611d-46b3-ab36-63b35b537ee5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 2D Vector
+      m_Id: 19160551-9589-46b3-a19f-adc1a830fda2
+      m_Path: 2DVector
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Controls
+      m_Flags: 4
+    - m_Name: left
+      m_Id: bf4f9dd9-306e-4d60-b09c-5c3aeee33ec5
+      m_Path: <Keyboard>/a
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Controls
+      m_Flags: 8
+    - m_Name: right
+      m_Id: e7bc27f1-7c31-4d79-b711-37039626cd2b
+      m_Path: <Keyboard>/d
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Player Controls
+      m_Flags: 8
+    m_Flags: 0
+  jumpAction:
+    m_Name: Jump
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: e1eaf962-fd63-49d6-a321-112833d219c7
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 0a728763-e8d3-4cb4-8131-7f28bb288a30
+      m_Path: <Keyboard>/space
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Jump
+      m_Flags: 0
+    m_Flags: 0
+  movementSpeed: 32.5
+  jumpForce: 4
+  minHeight: 0.5
+  friction: 0.05
+  rb: {fileID: -1397677804924074686}
+  anchorPoint: {x: 0, y: -2, z: 0}
+  maxAngle: 45
+  maxRange: 2.75

@@ -9,7 +9,7 @@ public class SectionTrigger : MonoBehaviour
     {
         if (other.CompareTag("DefaultSectionTrigger"))
         {
-           PlatformManager.Instance.SpawnPlatform();
+           PlatformManager.Instance.SpawnPlatforms();
         }
     }
 }

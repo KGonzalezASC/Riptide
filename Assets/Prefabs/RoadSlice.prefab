@@ -141,6 +141,7 @@ GameObject:
   - component: {fileID: 6673364219143588914}
   - component: {fileID: 787478062226458859}
   - component: {fileID: 3396981705842406295}
+  - component: {fileID: 7558328361829613034}
   m_Layer: 0
   m_Name: Plane
   m_TagString: Untagged
@@ -235,3 +236,26 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &7558328361829613034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8103827070497884972}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 684d2344c841f0f4e87209297eb03ae8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rowSpacing: 3
+  gizmoSphereSize: 0.45
+  itemsPerRow: 3
+  spacingBetweenItems: 1.45
+  obstaclePositions:
+  - 0
+  - 0.33333334
+  - 0.6666667
+  - 1
+  selectedRowIndex: 0
+  selectedItemIndex: 0

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 //Currently on prefab but we might need manager to track instances of this and seed generation of obstacles
 //consider parallaxing something 
 //consider how water will look visually
@@ -9,15 +10,16 @@ using UnityEngine;
 
 public class MovePlatform : MonoBehaviour
 {
-    public float speed = 5f;  
+    public float speed = 5f;  //this needs to be consistent with hazard speed
     public float angleX = 0f;
+
 
 
     void Update()
     {
         // Move platform forward
         Vector3 direction = Vector3.forward;
-        transform.position -= direction * speed * Time.deltaTime;
+        transform.position -= speed * Time.deltaTime * direction;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -29,3 +31,4 @@ public class MovePlatform : MonoBehaviour
         }
     }
 }
+

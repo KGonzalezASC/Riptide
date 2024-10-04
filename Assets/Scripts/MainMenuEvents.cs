@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 //todo move to be part of the load state
 public class MainMenuEvents : MonoBehaviour
@@ -16,7 +17,6 @@ public class MainMenuEvents : MonoBehaviour
     // Reference to gameplay UI and state management
     [SerializeField] private VisualTreeAsset gameplayUXML;
     public event Action OnPlayButtonClicked;
-
     private VisualTreeAsset menuUXML; // Optional: Keep a reference to the original menu UXML
     private bool isGameplayActive = false; //honestly not sure if this safeguard will be needed in future
 
@@ -60,12 +60,34 @@ public class MainMenuEvents : MonoBehaviour
     /// <summary>
     /// Transitions from displaying the menu to displaying the gameplay UI
     /// </summary>
-    private void StartGameplay()
+    public void StartGameplay()
     {
         if (isGameplayActive) { return; }
         // Mark gameplay as active
         isGameplayActive = true;
         _document.visualTreeAsset = gameplayUXML;
+    }
+
+    //honestly doing alot need to fix later on 
+    public void OnRestart() {
+        Debug.Log("Restarting game");
+        isGameplayActive = false;
+        _document.visualTreeAsset = menuUXML;
+        Time.timeScale = 0;
+        //clear factory pools
+        FlyWeightFactory.ClearPool(FlyWeightType.Ice);
+        FlyWeightFactory.ClearPool(FlyWeightType.Fire);
+        PlatformManager.Instance.ClearAllPlatforms();
+        Time.timeScale = 1;
+
+        //redo awake method essentially
+        _button = _document.rootVisualElement.Q<Button>("btn-start");
+        _button.RegisterCallback<ClickEvent>(OnPlayGameClick);
+        _menuButtons = _document.rootVisualElement.Query<Button>().ToList();
+        foreach (Button btn in _menuButtons)
+        {
+            btn.RegisterCallback<ClickEvent>(OnCallbackButtonsClick);
+        }
     }
 
     private void ResumeGameplay()

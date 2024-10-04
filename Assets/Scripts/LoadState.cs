@@ -16,10 +16,7 @@ public class LoadState : gState
 
     public override void Enter(gState from)
     {
-        //show loading screen by enabling the ui gameobject
-        //unhide
         uiGameObject.gameObject.SetActive(true);
-        //subscribe to the event
         uiGameObject.OnPlayButtonClicked += LoadGame;
     }
 
@@ -27,11 +24,9 @@ public class LoadState : gState
     public override void Execute()
     {
         // Debug.Log("Loading Game");
-        //rotate a character on screen maybe idk
-
+        //rotate a character on screen maybe id
         //we want to await the callback from MainMenuEvents OnPlayGameClick
         //rotate example routine only updates in this state
-
         exampleRoutine.transform.Rotate(0, 0, 1);
 
     }
@@ -39,15 +34,17 @@ public class LoadState : gState
     public override void Exit(gState to)
     {
         Debug.Log("Exiting Load State");
-        //we still are using the same ui document atm, do other cleanup here
-
-        uiGameObject.OnPlayButtonClicked -= LoadGame;
     }
 
     public override string GetName()
     {
         return "Load";
     }
+
+    //private void OnDisable()
+    //{
+    //    uiGameObject.OnPlayButtonClicked -= LoadGame;
+    //}
 
     public void LoadGame() => gm.switchState("Game");
 }

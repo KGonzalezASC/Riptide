@@ -186,18 +186,18 @@ public class PlayerSaveData
         Debug.Log("Character Accessories: " + string.Join(", ", characterAccessories));
 
         // Print highscores
-        foreach (var highscore in highscores)
-        {
-            Debug.Log($"Name: {highscore.name}, Score: {highscore.score}");
-        }
+        //foreach (var highscore in highscores)
+        //{
+        //    Debug.Log($"Name: {highscore.name}, Score: {highscore.score}");
+        //}
 
         // Print volume settings
-        Debug.Log("Master Volume: " + masterVolume);
-        Debug.Log("Music Volume: " + musicVolume);
-        Debug.Log("Master SFX Volume: " + masterSFXVolume);
-        Debug.Log("version" + s_Version);
+        //Debug.Log("Master Volume: " + masterVolume);
+        //Debug.Log("Music Volume: " + musicVolume);
+        //Debug.Log("Master SFX Volume: " + masterSFXVolume);
+        //Debug.Log("version" + s_Version);
         //print the path of the save file
-        Debug.Log("Save file path: " + saveFile);
+        //Debug.Log("Save file path: " + saveFile);
     }
 }
 
