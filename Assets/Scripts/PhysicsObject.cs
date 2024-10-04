@@ -1,60 +1,63 @@
 using UnityEngine;
 
-//handles applying forces on object
+// Handles applying forces on object
 public class PhysicsObject : MonoBehaviour
 {
-    Vector3 position;
-    Vector3 direction;
-    Vector3 velocity;
-    Vector3 acceleration;
-    Vector3 gravity;
+    [SerializeField]
+    protected Vector3 position;
+    protected Vector3 direction;
+    [SerializeField]
+    protected Vector3 velocity;
+    [SerializeField]
+    protected Vector3 acceleration;
+    [SerializeField]
+    protected Vector3 gravity;
 
     [SerializeField]
-    float maxSpeed = 25;
+    protected float maxSpeed = 25;
 
     [SerializeField]
-    float mass = 1;
+    protected float mass = 1;
 
     [SerializeField]
-    float coeff;
+    protected float coeff;
 
     [SerializeField]
-    bool useFriction;
+    protected bool useFriction;
 
     [SerializeField]
-    bool useGravity;
+    protected bool useGravity;
 
     [SerializeField]
-    float radius;
+    protected float radius;
 
     [SerializeField]
-    bool useBounce = true;
+    protected bool useBounce = true;
 
     /// <summary>
-    /// gets the velocity
+    /// Gets the velocity
     /// </summary>
     public Vector3 Velocity { get { return velocity; } }
 
     /// <summary>
-    /// gets the maximum speed of the object
+    /// Gets the maximum speed of the object
     /// </summary>
     public float MaxSpeed { get { return maxSpeed; } }
 
     /// <summary>
-    /// gets the radius of the physics object
+    /// Gets the radius of the physics object
     /// </summary>
     public float Radius { get { return radius; } }
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         position = transform.position;
-
         gravity = Vector3.down * 9.81f;
     }
 
     /// <summary>
-    /// gets the maximum bounds of the camera
+    /// Gets the maximum bounds of the camera
     /// </summary>
     public Vector2 ScreenMax
     {
@@ -66,7 +69,7 @@ public class PhysicsObject : MonoBehaviour
     }
 
     /// <summary>
-    /// gets the minimum bounds of the camera
+    /// Gets the minimum bounds of the camera
     /// </summary>
     public Vector3 ScreenMin
     {
@@ -78,7 +81,7 @@ public class PhysicsObject : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         if (useFriction)
         {
@@ -89,10 +92,10 @@ public class PhysicsObject : MonoBehaviour
             ApplyGravity();
         }
         velocity += acceleration * Time.deltaTime;
-        //prevents velocity from exceeding max speed
+        // Prevents velocity from exceeding max speed
         velocity = Vector3.ClampMagnitude(velocity, maxSpeed);
 
-        //after velocity is calculated, before applied to pos
+        // After velocity is calculated, before applied to position
         if (useBounce)
         {
             Bounce();
@@ -104,18 +107,18 @@ public class PhysicsObject : MonoBehaviour
     }
 
     /// <summary>
-    /// applies a given force to obj's acceleration
+    /// Applies a given force to the object's acceleration
     /// </summary>
-    /// <param name="force">force to apply</param>
-    public void ApplyForce(Vector3 force)
+    /// <param name="force">Force to apply</param>
+    public virtual void ApplyForce(Vector3 force)
     {
         acceleration += force / mass;
     }
 
     /// <summary>
-    /// applies friction to object
+    /// Applies friction to object
     /// </summary>
-    private void ApplyFriction()
+    protected virtual void ApplyFriction()
     {
         Vector3 friction = velocity * -1;
         friction.Normalize();
@@ -124,18 +127,17 @@ public class PhysicsObject : MonoBehaviour
     }
 
     /// <summary>
-    /// applies gravity to the acceleration
+    /// Applies gravity to the acceleration
     /// </summary>
-    private void ApplyGravity()
+    protected virtual void ApplyGravity()
     {
         acceleration += gravity;
     }
 
     /// <summary>
-    /// detects if object has gone beyond bounds of 
-    /// sreeen and gets it to go back towards screen
+    /// Detects if object has gone beyond bounds of the screen and gets it to go back towards screen
     /// </summary>
-    private void Bounce()
+    protected virtual void Bounce()
     {
         if (position.x <= ScreenMin.x)
         {
@@ -161,16 +163,16 @@ public class PhysicsObject : MonoBehaviour
     }
 
     /// <summary>
-    /// sets the position to the new specified vector
+    /// Sets the position to the new specified vector
     /// </summary>
-    /// <param name="newPos">position to move obj to</param>
-    public void SetPosition(Vector3 newPos)
+    /// <param name="newPos">Position to move object to</param>
+    public virtual void SetPosition(Vector3 newPos)
     {
         position = newPos;
         transform.position = position;
     }
 
-    private void OnDrawGizmosSelected()
+    protected virtual void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x + radius, transform.position.y));
