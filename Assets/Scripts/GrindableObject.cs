@@ -59,7 +59,7 @@ public class GrindableObject : MonoBehaviour
 
         if (transform.position.z < -20)
         {
-            transform.position = new Vector3(0, 0, 10);
+            transform.Translate(new Vector3(0, 0, 30));
         }
 
 
