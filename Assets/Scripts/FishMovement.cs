@@ -24,6 +24,8 @@ public class FishMovement : MonoBehaviour
     private Vector2 moveDirection = Vector2.zero;
     private bool isGrounded = true;
     private bool canJump = true; // Flag to check if the player can jump
+    private bool wentUnder = false;
+    private bool isGrinding = false;
 
     [SerializeField]
     private float friction = 0.05f; // Friction factor for slowing down
@@ -32,6 +34,8 @@ public class FishMovement : MonoBehaviour
     private Rigidbody rb;
 
     [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
+    private Vector2 distFromAnchor;
+
 
     [Header("Movement Constraints")]
     [SerializeField]
@@ -129,14 +133,22 @@ public class FishMovement : MonoBehaviour
         rb.velocity = new Vector3(currentVelocity.x, verticalVelocity, 0); // Ensure Z velocity remains zero
 
         // Prevent the player from going below the minimum height (e.g., to avoid falling through)
-        if (rb.position.y < minHeight)
+        if (rb.position.y < minHeight - 0.5f)
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = minHeight;
             rb.position = correctedPosition;
 
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
+            //rb.AddForce(Vector3.up * 0.01f, ForceMode.Acceleration);
+            //wentUnder = true;
         }
+
+        //if (rb.position.y >= minHeight && wentUnder)
+        //{
+        //    rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
+        //    wentUnder = false;
+        //}
     }
 
     // Function to make the player jump
@@ -145,6 +157,15 @@ public class FishMovement : MonoBehaviour
         // Only apply a fixed upward force for the jump
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
     }
+
+    private float getAnchorDist()
+    {
+        distFromAnchor.x = transform.position.x - anchorPoint.x;
+        distFromAnchor.y = transform.position.y - anchorPoint.y;
+
+        return distFromAnchor.magnitude;
+    }
+
 
     // This function will help visualize the anchor point and movement vector in the editor
     private void OnDrawGizmos()

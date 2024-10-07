@@ -8,6 +8,7 @@ public class PhysicsObject : MonoBehaviour
     Vector3 velocity;
     Vector3 acceleration;
     Vector3 gravity;
+    Vector3 buoyancy;
 
     [SerializeField]
     float maxSpeed = 25;
@@ -23,6 +24,9 @@ public class PhysicsObject : MonoBehaviour
 
     [SerializeField]
     bool useGravity;
+
+    [SerializeField]
+    bool useBuoyancy;
 
     [SerializeField]
     float radius;
@@ -51,6 +55,8 @@ public class PhysicsObject : MonoBehaviour
         position = transform.position;
 
         gravity = Vector3.down * 9.81f;
+
+        buoyancy = Vector3.up * 20.00f;
     }
 
     /// <summary>
@@ -87,6 +93,10 @@ public class PhysicsObject : MonoBehaviour
         if (useGravity)
         {
             ApplyGravity();
+        }
+        if (useBuoyancy)
+        {
+            ApplyBuoyancy();
         }
         velocity += acceleration * Time.deltaTime;
         //prevents velocity from exceeding max speed
@@ -129,6 +139,14 @@ public class PhysicsObject : MonoBehaviour
     private void ApplyGravity()
     {
         acceleration += gravity;
+    }
+
+    /// <summary>
+    /// applies buoyancy to the acceleration
+    /// </summary>
+    private void ApplyBuoyancy()
+    {
+        acceleration -= buoyancy;
     }
 
     /// <summary>
