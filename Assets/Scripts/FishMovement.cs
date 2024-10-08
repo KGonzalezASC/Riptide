@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+enum fishState
+{
+    SURFACE,
+    JUMPING,
+    DIVING,
+    GRINDING
+}
+
 public class FishMovement : MonoBehaviour
 {
     [Header("Movement")]
@@ -19,13 +27,13 @@ public class FishMovement : MonoBehaviour
     private float jumpForce = 8f; // The force applied when jumping
 
     [SerializeField]
+    private float buoyancy = 20f;
+
+    [SerializeField]
     private float minHeight = 1f; // Define the minimum height
 
     private Vector2 moveDirection = Vector2.zero;
-    private bool isGrounded = true;
-    private bool canJump = true; // Flag to check if the player can jump
-    private bool wentUnder = false;
-    private bool isGrinding = false;
+    private fishState state = fishState.SURFACE;
 
     [SerializeField]
     private float friction = 0.05f; // Friction factor for slowing down
@@ -91,7 +99,7 @@ public class FishMovement : MonoBehaviour
             float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
             currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
         }
-        else if (isGrounded) // Apply gradual slow-down when grounded and no input
+        else if (state == fishState.SURFACE) // Apply gradual slow-down when grounded and no input
         {
             // Gradually reduce horizontal velocity using friction
             currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, friction);
@@ -132,23 +140,27 @@ public class FishMovement : MonoBehaviour
         // Handle vertical physics (gravity, jumping)
         rb.velocity = new Vector3(currentVelocity.x, verticalVelocity, 0); // Ensure Z velocity remains zero
 
-        // Prevent the player from going below the minimum height (e.g., to avoid falling through)
-        if (rb.position.y < minHeight - 0.5f)
+        // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
+        if (rb.position.y < minHeight - 0.1f && (state == fishState.JUMPING || state == fishState.DIVING))
+        {
+            rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
+            state = fishState.DIVING;
+        }
+        else if (rb.position.y >= minHeight && state == fishState.DIVING) // Stop vertical movement when surfacing
+        {
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
+            state = fishState.SURFACE;
+        }
+        else if (state == fishState.SURFACE) // Keep vertical movement steady when on the surface
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = minHeight;
             rb.position = correctedPosition;
 
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
-            //rb.AddForce(Vector3.up * 0.01f, ForceMode.Acceleration);
-            //wentUnder = true;
         }
 
-        //if (rb.position.y >= minHeight && wentUnder)
-        //{
-        //    rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
-        //    wentUnder = false;
-        //}
+        //Debug.Log(rb.position + " " + state);
     }
 
     // Function to make the player jump
@@ -156,6 +168,7 @@ public class FishMovement : MonoBehaviour
     {
         // Only apply a fixed upward force for the jump
         rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        state = fishState.JUMPING;
     }
 
     private float getAnchorDist()
