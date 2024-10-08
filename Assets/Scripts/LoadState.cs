@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//all gstates are monobehaviours
-//this is the state that loads the game
-
+//all gstates are monobehaviours wrappeers for the state machine
 public class LoadState : gState
 {
     [SerializeField] MainMenuEvents uiGameObject;
@@ -40,11 +38,5 @@ public class LoadState : gState
     {
         return "Load";
     }
-
-    //private void OnDisable()
-    //{
-    //    uiGameObject.OnPlayButtonClicked -= LoadGame;
-    //}
-
     public void LoadGame() => gm.switchState("Game");
 }

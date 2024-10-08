@@ -14,11 +14,20 @@ public class Hazard: FlyWeight
         //StartCoroutine(DespawnAfterDelay(settings.despawnDelay));
     }
 
+    void MoveInPlayState()
+    {
+        if (!isIgnored)
+            transform.Translate(-Vector3.forward * (settings.speed * Time.deltaTime));
+    }
+
     void Update()
     {
-        if(!isIgnored)
-         transform.Translate(-Vector3.forward * (settings.speed * Time.deltaTime));
+        if (GameManager.instance.topState.GetName() == "Game")
+        {
+            MoveInPlayState();
+        }
     }
+
 
     IEnumerator DespawnAfterDelay(float delay)
     {
@@ -29,17 +38,15 @@ public class Hazard: FlyWeight
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Destroy"))
+        if (other.CompareTag("Destroy")) //hits platform despawn trigger in back of game view
         {
-            Debug.Log("Hazard returned to the pool");
             transform.position = new Vector3(0, -20, 0); //move to safe space
             StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
             isIgnored = true;
         }
         if (other.CompareTag("Player"))
         {
-            if (this.name != "Hazard") {
-                Debug.Log("Coin Collected by player, returning to the pool");
+            if (this.name != "Hazard") { //is coin/bottle cap
                 transform.position = new Vector3(0, -20, 0); //move to safe space
                 StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
                 isIgnored = true;
@@ -49,10 +56,8 @@ public class Hazard: FlyWeight
                 Debug.Log("Player hit by hazard");
                 //fire an event
                 transform.position = new Vector3(0, -20, -5); //move to safe space
-                //PlayState.onLost?.Invoke();
-                GameManager.instance.switchState("Load");
+                GameManager.instance.switchState("Load"); //change to lose state and implement lose state
             }
         }
-
     }
 }

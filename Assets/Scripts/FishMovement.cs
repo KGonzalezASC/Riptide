@@ -39,11 +39,11 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float maxRange = 5f;   // Maximum distance from anchor point
-
     private void OnEnable()
     {
         playerControls.Enable();
         jumpAction.Enable();
+        transform.Rotate(0, 180, 0);
     }
 
     private void OnDisable()
@@ -54,22 +54,21 @@ public class FishMovement : MonoBehaviour
 
     private void Update()
     {
-        moveDirection = playerControls.ReadValue<Vector2>();
-
         // Check if the player is grounded
         isGrounded = transform.position.y <= minHeight;
-
         // Reset jump flag when grounded
         if (isGrounded)
         {
             canJump = true; // Reset jump availability
         }
-
-        // Check for jump input and whether the player is grounded
-        if (jumpAction.triggered && canJump)
+        if (GameManager.instance.topState.GetName() == "Game")
         {
-            Jump();
-            canJump = false; // Prevent further jumps until grounded again
+            moveDirection = playerControls.ReadValue<Vector2>();
+            if (jumpAction.triggered && canJump)
+            {
+                Jump();
+                canJump = false; // Prevent further jumps until grounded again
+            }
         }
     }
 

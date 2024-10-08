@@ -4,42 +4,40 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-//all gstates are monobehaviours
-//this is the state that loads the game
-
+//all gstates are monobehaviours wrappeers for the state machine
 public class PlayState : gState
 {
     [SerializeField] MainMenuEvents uiGameObject; //its fine to have direct reference cause combo text later on
-    //public static Action onLost;
-
     public override void Enter(gState from)
     {
         Debug.Log("Entering Game State");
-        //Instantiate(roadSlice, new Vector3(0, 0, 0), Quaternion.identity);
         PlatformManager.Instance.GetComponent<PlatformManager>().SpawnInitialPlatform();
+        if(GameObject.Find("FishBoard(Clone)") == null)
+        {
+           ConfigObject.Instance.InstantiatePrefab(new Vector3(0, 0, 0));
+        }
+        else
+        {
+            ConfigObject.Instance.GetInstanceRef().transform.position = new Vector3(0, 0, 0); //causes weird snapping but we can hid player in future and avoid this entirely.
+        }
         uiGameObject.StartGameplay();
-
-
-        //onLost = () =>
-        //{
-        //    Debug.Log("You Lose");
-        //    gm.switchState("Load");
-        //    uiGameObject.GetComponent<MainMenuEvents>().OnRestart();
-        //};
     }
-
     public override void Execute()
     {
-        //works 
-        //Platforms and hazards have to be moved in play state instead of update in next revision, this causes hazards to spawn in the wrong place and overstack lol
+        //objects can be refered to in this state through execute. OR you can do an if check in an objects update to check the current game state which is a bit more efficient
+        //in terms of performance because of no for each loop
+        //both approaches are valid tho
     }
-
     public override void Exit(gState to)
     {
         Debug.Log("Exiting Game State");
-        uiGameObject.GetComponent<MainMenuEvents>().OnRestart();
+        uiGameObject.OnRestart();
+        Time.timeScale = 0;
+        PlatformManager.Instance.ClearAllPlatforms();
+        FlyWeightFactory.ClearPool(FlyWeightType.Ice);
+        FlyWeightFactory.ClearPool(FlyWeightType.Fire); //TODO: rename types to match items in the game
+        Time.timeScale = 1;
     }
-
     public override string GetName()
     {
         return "Game";

@@ -20,18 +20,29 @@ public class MainMenuEvents : MonoBehaviour
     private VisualTreeAsset menuUXML; // Optional: Keep a reference to the original menu UXML
     private bool isGameplayActive = false; //honestly not sure if this safeguard will be needed in future
 
-    private void Awake()
+    private void BindStartUI() //when visual tree asset changes it needs to be binded as well.
     {
-        _document = GetComponent<UIDocument>();
         _button = _document.rootVisualElement.Q<Button>("btn-start");
         _button.RegisterCallback<ClickEvent>(OnPlayGameClick);
         _menuButtons = _document.rootVisualElement.Query<Button>().ToList();
-        // Register a callback for each button
         foreach (Button btn in _menuButtons)
         {
             btn.RegisterCallback<ClickEvent>(OnCallbackButtonsClick);
         }
-        //backup the original UXML
+    }
+
+    public void OnRestart()
+    {
+        isGameplayActive = false;
+        _document.visualTreeAsset = menuUXML;
+        BindStartUI(); 
+    }
+
+
+    private void Awake()
+    {
+        _document = GetComponent<UIDocument>();
+        BindStartUI();
         menuUXML = _document.visualTreeAsset;
     }
 
@@ -44,9 +55,7 @@ public class MainMenuEvents : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// Actions that occur when the start button is clicked
-    /// </summary>
     /// <param name="evt">event object</param>
     private void OnPlayGameClick(ClickEvent evt)
     {
@@ -57,9 +66,7 @@ public class MainMenuEvents : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// Transitions from displaying the menu to displaying the gameplay UI
-    /// </summary>
     public void StartGameplay()
     {
         if (isGameplayActive) { return; }
@@ -68,43 +75,18 @@ public class MainMenuEvents : MonoBehaviour
         _document.visualTreeAsset = gameplayUXML;
     }
 
-    //honestly doing alot need to fix later on 
-    public void OnRestart() {
-        Debug.Log("Restarting game");
-        isGameplayActive = false;
-        _document.visualTreeAsset = menuUXML;
-        Time.timeScale = 0;
-        //clear factory pools
-        FlyWeightFactory.ClearPool(FlyWeightType.Ice);
-        FlyWeightFactory.ClearPool(FlyWeightType.Fire);
-        PlatformManager.Instance.ClearAllPlatforms();
-        Time.timeScale = 1;
-
-        //redo awake method essentially
-        _button = _document.rootVisualElement.Q<Button>("btn-start");
-        _button.RegisterCallback<ClickEvent>(OnPlayGameClick);
-        _menuButtons = _document.rootVisualElement.Query<Button>().ToList();
-        foreach (Button btn in _menuButtons)
-        {
-            btn.RegisterCallback<ClickEvent>(OnCallbackButtonsClick);
-        }
-    }
-
+    //we dont have pause functionality yet
     private void ResumeGameplay()
     {
         if (!isGameplayActive) { return; }
-
         _document.visualTreeAsset = menuUXML;  
         // Resume game logic
         isGameplayActive = false;
         Time.timeScale = 1;
-
         Debug.Log("Switched back to Menu UI");
     }
 
-    /// <summary>
     /// Used to assign an event to all buttons on the menu
-    /// </summary>
     /// <param name="evt">event object</param>
     private void OnCallbackButtonsClick(ClickEvent evt)
     {

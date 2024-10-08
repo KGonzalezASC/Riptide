@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: ConfigObject
   m_EditorClassIdentifier: 
   prefab:
-    m_AssetGUID: eb4c4c03799b77f4191b72073e4d5a77
+    m_AssetGUID: 92122bc49c40c7840ab6f49b8012d222
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0

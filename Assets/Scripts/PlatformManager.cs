@@ -16,7 +16,6 @@ public class PlatformManager : MonoBehaviour
     public float gap = 1.0f; //default value is 1.0f
 
     public List<FlyWeightSettings> hazards;
-
     public static PlatformManager Instance { get; private set; }
 
     private void Awake()
@@ -58,12 +57,11 @@ public class PlatformManager : MonoBehaviour
         // Optionally spawn hazards on the new platforms
         SpawnHazardOnPlatform(firstPlatform);
         SpawnHazardOnPlatform(secondPlatform);
-
     }
 
     public void SpawnInitialPlatform() //we need for system to work
     {
-        GameObject firstPlatform = Instantiate(sectionPrefab, Vector3.zero, Quaternion.identity);
+        GameObject firstPlatform = Instantiate(sectionPrefab, new Vector3(0,0,25), Quaternion.identity);
         activePlatforms.Add(firstPlatform);
 
         // Spawn hazards on the first platform
@@ -82,7 +80,6 @@ public class PlatformManager : MonoBehaviour
             FlyWeight coin = FlyWeightFactory.Spawn(hazards[0]);
             coin.transform.position = randomPos;
             (coin as Hazard).isIgnored = false; // reset isIgnored
-
 
             FlyWeight hazard = FlyWeightFactory.Spawn(hazards[1]);
             Vector3 randomPos2 = trackHandler.GetRandomWorldPosition();
@@ -105,8 +102,7 @@ public class PlatformManager : MonoBehaviour
         {
             Debug.LogWarning("No valid TrackHandler or hazard available.");
         }
-    }
-
+    } 
 
     public void RemovePlatform(GameObject platform)
     {
