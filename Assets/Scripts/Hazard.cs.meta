@@ -3,7 +3,10 @@ guid: 6484ba35a7061cc4eb816451d6411466
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - settings: {instanceID: 0}
+  - collectCoinSFX: {fileID: 8300000, guid: 3e4f8a9c1ee805a419387e12ef481e90, type: 3}
+  - hitHazardSFX: {fileID: 8300000, guid: d1fd1875c0589ef4cb20c21d7f60bc4a, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

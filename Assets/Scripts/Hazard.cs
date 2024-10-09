@@ -47,6 +47,7 @@ public class Hazard: FlyWeight
         if (other.CompareTag("Player"))
         {
             if (this.name != "Hazard") { //is coin/bottle cap
+                SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, 1f);
                 transform.position = new Vector3(0, -20, 0); //move to safe space
                 StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
                 isIgnored = true;
@@ -54,6 +55,7 @@ public class Hazard: FlyWeight
             else
             {
                 Debug.Log("Player hit by hazard");
+                SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, 1f);
                 //fire an event
                 transform.position = new Vector3(0, -20, -5); //move to safe space
                 GameManager.instance.switchState("YouLose"); //change to lose state and implement lose state
