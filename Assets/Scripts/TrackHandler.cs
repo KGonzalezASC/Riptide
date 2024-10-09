@@ -77,7 +77,7 @@ public class TrackHandler : MonoBehaviour
     }
 
 
-    private Vector3 GetWorldPosition(float normalizedRowPosition, int itemIndex)
+    public Vector3 GetWorldPosition(float normalizedRowPosition, int itemIndex)
     {
         // Ensure the itemIndex is valid
         if (itemIndex < 0 || itemIndex >= itemsPerRow)
@@ -165,21 +165,6 @@ public class TrackHandler : MonoBehaviour
                 Gizmos.DrawSphere(itemPosition, gizmoSphereSize / 2); // Use radius for DrawSphere
             }
         }
-
-        //if (selectedRowIndex < obstaclePositions.Length && selectedItemIndex < itemsPerRow)
-        //{
-        //    Vector3 selectedPosition = GetWorldPosition(obstaclePositions[selectedRowIndex], selectedItemIndex);
-        //    Gizmos.color = Color.red; // Color for the selected gizmo
-        //    Gizmos.DrawCube(selectedPosition, Vector3.one * gizmoSphereSize); // Draw square gizmo at the selected position
-        //}
-
-        //it will spam fluctuate in editor but in onenable it happens once
-        //Vector3 fixedRandomPosition = GetRandomWorldPosition(); 
-        //if (fixedRandomPosition != Vector3.zero)
-        //{
-        //    Gizmos.color = Color.red; // Set color for the random gizmo
-        //    Gizmos.DrawCube(fixedRandomPosition, Vector3.one * gizmoSphereSize); // Draw the red cube at the fixed random position
-        //}
     }
 #endif
 }

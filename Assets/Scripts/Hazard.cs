@@ -56,7 +56,7 @@ public class Hazard: FlyWeight
                 Debug.Log("Player hit by hazard");
                 //fire an event
                 transform.position = new Vector3(0, -20, -5); //move to safe space
-                GameManager.instance.switchState("Load"); //change to lose state and implement lose state
+                GameManager.instance.switchState("YouLose"); //change to lose state and implement lose state
             }
         }
     }

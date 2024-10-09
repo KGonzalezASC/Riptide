@@ -16,6 +16,7 @@ public class MainMenuEvents : MonoBehaviour
 
     // Reference to gameplay UI and state management
     [SerializeField] private VisualTreeAsset gameplayUXML;
+    [SerializeField] private VisualTreeAsset loseUXML;
     public event Action OnPlayButtonClicked;
     private VisualTreeAsset menuUXML; // Optional: Keep a reference to the original menu UXML
     private bool isGameplayActive = false; //honestly not sure if this safeguard will be needed in future
@@ -31,11 +32,21 @@ public class MainMenuEvents : MonoBehaviour
         }
     }
 
+
+    private void BindLoseUI()
+    {
+        //insert binding buttons for lose screen
+    }
+
+
+
+
     public void OnRestart()
     {
         isGameplayActive = false;
-        _document.visualTreeAsset = menuUXML;
-        BindStartUI(); 
+        //set visual tree asset to nothing
+        _document.visualTreeAsset = loseUXML;
+        BindLoseUI();
     }
 
 

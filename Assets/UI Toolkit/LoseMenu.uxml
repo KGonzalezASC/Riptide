@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+    <ui:Label tabindex="-1" text="                             HAHA YOU  LOST" parse-escape-sequences="true" display-tooltip-when-elided="true" style="height: 169px; width: 348px; font-size: 20px;" />
+    <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Sprites/hatFish.jpg?fileID=2800000&amp;guid=09d07c652ceb424488ce3052673877cd&amp;type=3#hatFish&quot;);" />
+</ui:UXML>
