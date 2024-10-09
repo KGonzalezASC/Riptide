@@ -36,6 +36,7 @@ public class MainMenuEvents : MonoBehaviour
     private void BindLoseUI()
     {
         //insert binding buttons for lose screen
+        _button = _document.rootVisualElement.Q<Button>("btn-start");
     }
 
 

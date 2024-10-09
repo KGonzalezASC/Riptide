@@ -10,7 +10,7 @@ public class YouLoseState : gState
     public override void Enter(gState from)
     {
         Debug.Log("Insert lose screen");
-        
+        uiGameObject.OnRestart();
     }
 
 
