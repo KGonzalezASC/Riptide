@@ -1017,6 +1017,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SFXObject: {fileID: 3938468154874665724, guid: 9b4174813417b0a4db643dbe9d25632e,
     type: 3}
+  collectCoinSFX: {fileID: 8300000, guid: eac61db3d814bbe4cb8027222a14bd0b, type: 3}
+  hitHazardSFX: {fileID: 8300000, guid: d5da6e8bd99afb94588203fbedf73f96, type: 3}
 --- !u!4 &2085495209
 Transform:
   m_ObjectHideFlags: 0
