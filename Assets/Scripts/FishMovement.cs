@@ -36,7 +36,7 @@ public class FishMovement : MonoBehaviour
     private fishState state = fishState.SURFACE;
 
     [SerializeField]
-    private float friction = 0.01f; // Friction factor for slowing down
+    private float friction = 0.05f; // Friction factor for slowing down
 
     [SerializeField]
     private Rigidbody rb;
@@ -102,7 +102,7 @@ public class FishMovement : MonoBehaviour
         else if (state == fishState.SURFACE || state == fishState.DIVING) // Apply gradual slow-down when grounded and no input
         {
             // Gradually reduce horizontal velocity using friction
-            //currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, friction);
+            currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, friction);
         }
 
         // Calculate new position after applying horizontal velocity
