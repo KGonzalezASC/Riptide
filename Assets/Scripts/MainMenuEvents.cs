@@ -1,6 +1,8 @@
-using System; 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -21,6 +23,9 @@ public class MainMenuEvents : MonoBehaviour
     private VisualTreeAsset menuUXML; // Optional: Keep a reference to the original menu UXML
     private bool isGameplayActive = false; //honestly not sure if this safeguard will be needed in future
 
+    // Ref to game manager
+    [SerializeField] GameManager gameManager;
+
     private void BindStartUI() //when visual tree asset changes it needs to be binded as well.
     {
         _button = _document.rootVisualElement.Q<Button>("btn-start");
@@ -37,6 +42,13 @@ public class MainMenuEvents : MonoBehaviour
     {
         //insert binding buttons for lose screen
         _button = _document.rootVisualElement.Q<Button>("btn-start");
+        _button.RegisterCallback<ClickEvent>(OnPlayGameClick);
+
+        _button = _document.rootVisualElement.Q<Button>("btn-return");
+        _button.RegisterCallback<ClickEvent>(OnReturnClick);
+
+        _button = _document.rootVisualElement.Q<Button>("btn-quit");
+        _button.RegisterCallback<ClickEvent>(OnEndGameButtonClick);
     }
 
 
@@ -78,6 +90,22 @@ public class MainMenuEvents : MonoBehaviour
         }
     }
 
+    private void OnReturnClick(ClickEvent evt)
+    {
+        gameManager.pushState("Load");
+    }
+
+    private void OnEndGameButtonClick(ClickEvent evt)
+    {
+        // Exits the game
+        Application.Quit();
+
+        // If running in the Unity editor, stop playing
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
+
     /// Transitions from displaying the menu to displaying the gameplay UI
     public void StartGameplay()
     {
@@ -91,7 +119,7 @@ public class MainMenuEvents : MonoBehaviour
     private void ResumeGameplay()
     {
         if (!isGameplayActive) { return; }
-        _document.visualTreeAsset = menuUXML;  
+        _document.visualTreeAsset = menuUXML;
         // Resume game logic
         isGameplayActive = false;
         Time.timeScale = 1;
