@@ -213,7 +213,7 @@ MonoBehaviour:
   jumpForce: 5
   buoyancy: 20
   minHeight: 0.5
-  friction: 0.01
+  friction: 0.05
   rb: {fileID: -1397677804924074686}
   anchorPoint: {x: 0, y: -2, z: 0}
   maxAngle: 45
