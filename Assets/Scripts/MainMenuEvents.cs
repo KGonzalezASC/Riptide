@@ -92,7 +92,8 @@ public class MainMenuEvents : MonoBehaviour
 
     private void OnReturnClick(ClickEvent evt)
     {
-        gameManager.pushState("Load");
+        _document.visualTreeAsset = menuUXML;
+        BindStartUI();
     }
 
     private void OnEndGameButtonClick(ClickEvent evt)
