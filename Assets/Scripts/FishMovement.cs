@@ -151,7 +151,7 @@ public class FishMovement : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
             state = fishState.SURFACE;
         }
-        else if (state == fishState.SURFACE) // Keep vertical movement steady when on the surface
+        else if (state == fishState.SURFACE || state == fishState.GRINDING) // Keep vertical movement steady when on the surface or grinding
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = minHeight;
@@ -179,6 +179,18 @@ public class FishMovement : MonoBehaviour
         return distFromAnchor.magnitude;
     }
 
+    public void startGrind(float snapXTo)
+    {
+        //Vector3 snapPos = rb.position + new Vector3(snapXTo - rb.position.x, 0, 0);
+
+        rb.MovePosition(new Vector3(snapXTo, rb.position.y, rb.position.z));
+        state = fishState.GRINDING;
+    }
+
+    public void stopGrind()
+    {
+        state = fishState.JUMPING;
+    }
 
     // This function will help visualize the anchor point and movement vector in the editor
     private void OnDrawGizmos()
