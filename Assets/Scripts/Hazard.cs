@@ -7,17 +7,12 @@ public class Hazard: FlyWeight
 {
     public bool isIgnored = false;
 
-    new HazardSettings settings => (HazardSettings) base.settings;
-
-    void OnEnable()
-    {
-        //StartCoroutine(DespawnAfterDelay(settings.despawnDelay));
-    }
+    HazardSettings Settings => (HazardSettings)base.settings;
 
     void MoveInPlayState()
     {
         if (!isIgnored)
-            transform.Translate(-Vector3.forward * (settings.speed * Time.deltaTime));
+            transform.Translate(-Vector3.forward * (Settings.speed * Time.deltaTime));
     }
 
     void Update()
@@ -32,8 +27,7 @@ public class Hazard: FlyWeight
     IEnumerator DespawnAfterDelay(float delay)
     {
         yield return Helpers.GetWaitForSeconds(delay);
-        FlyWeightFactory.ReturnToPool(this); //return to pool instead of destroying
-
+        FlyWeightFactory.ReturnToPool(this);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -41,14 +35,17 @@ public class Hazard: FlyWeight
         if (other.CompareTag("Destroy")) //hits platform despawn trigger in back of game view
         {
             transform.position = new Vector3(0, -20, 0); //move to safe space
-            StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
+            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //testing to see if we can hit pool size
             isIgnored = true;
+
+          
         }
         if (other.CompareTag("Player"))
         {
-            if (this.name != "Hazard") { //is coin/bottle cap
+            if (this.name != "Hazard")
+            { //is coin/bottle cap
                 transform.position = new Vector3(0, -20, 0); //move to safe space
-                StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
+                StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //testing to see if we can hit pool size
                 isIgnored = true;
             }
             else
