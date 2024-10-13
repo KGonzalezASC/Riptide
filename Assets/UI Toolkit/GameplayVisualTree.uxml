@@ -3,5 +3,6 @@
     <ui:VisualElement name="Container" style="flex-grow: 1; background-image: none;">
         <ui:Label tabindex="-1" text="Time:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="label-time" style="-unity-text-align: middle-left; white-space: nowrap; background-color: rgba(255, 255, 255, 0); color: rgb(255, 255, 255); font-size: 20px; width: 116px; margin-top: 20px;" />
         <ui:Label tabindex="-1" text="Score:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="label-score" style="-unity-text-align: middle-left; white-space: nowrap; background-color: rgba(255, 255, 255, 0); color: rgb(255, 255, 255); font-size: 20px; width: 116px; margin-top: 20px;" />
+        <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="label-combo" class="label" style="align-items: flex-start; align-self: flex-end; margin-top: 100px; margin-right: 100px; justify-content: center;" />
     </ui:VisualElement>
 </ui:UXML>

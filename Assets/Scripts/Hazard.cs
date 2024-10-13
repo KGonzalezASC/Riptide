@@ -6,12 +6,14 @@ using UnityEngine;
 public class Hazard: FlyWeight
 {
     public bool isIgnored = false;
+    private DisplayComboText comboText;
 
     new HazardSettings settings => (HazardSettings) base.settings;
 
     void OnEnable()
     {
         //StartCoroutine(DespawnAfterDelay(settings.despawnDelay));
+        comboText = GameObject.Find("uiManager").GetComponent<DisplayComboText>();
     }
 
     void MoveInPlayState()
@@ -50,7 +52,9 @@ public class Hazard: FlyWeight
                 SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, 1f);
                 transform.position = new Vector3(0, -20, 0); //move to safe space
                 StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
+                comboText.ChangeText(); //change combo text being displayed
                 isIgnored = true;
+
             }
             else
             {
