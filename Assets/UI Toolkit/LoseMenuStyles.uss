@@ -1,0 +1,21 @@
+.label {
+    font-size: 45px;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+}
+
+.button {
+    font-size: 20px;
+    color: rgb(255, 255, 255);
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 0);
+    margin-top: 20px;
+    width: 20%;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+}
+
+.button:hover {
+}

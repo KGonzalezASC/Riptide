@@ -41,7 +41,7 @@ public class PlatformManager : MonoBehaviour
     //spawn patterns
     [SerializeField]
     private CustomSpawnPatternManager spawnPatternManager;
-    private int currentPatternIndex = 0;
+    //private int currentPatternIndex = 0;
 
 
     private void Start()

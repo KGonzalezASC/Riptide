@@ -1,5 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" />
-    <ui:Label tabindex="-1" text="                             HAHA YOU  LOST" parse-escape-sequences="true" display-tooltip-when-elided="true" style="height: 169px; width: 348px; font-size: 20px;" />
-    <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Sprites/hatFish.jpg?fileID=2800000&amp;guid=09d07c652ceb424488ce3052673877cd&amp;type=3#hatFish&quot;);" />
+    <Style src="project://database/Assets/LoseMenuStyles.uss?fileID=7433441132597879392&amp;guid=f24484bd7e9baa847949abefecc64db3&amp;type=3#LoseMenuStyles" />
+    <ui:VisualElement name="container" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Sprites/hatFish.jpg?fileID=2800000&amp;guid=09d07c652ceb424488ce3052673877cd&amp;type=3#hatFish&quot;);">
+        <ui:Label tabindex="-1" text="Game Over" parse-escape-sequences="true" display-tooltip-when-elided="true" name="lbl-game-over" class="label" />
+        <ui:GroupBox name="grp-score-list" />
+        <ui:Button text="Restart" parse-escape-sequences="true" display-tooltip-when-elided="true" name="btn-start" class="button" />
+        <ui:Button text="Return to Main Menu" parse-escape-sequences="true" display-tooltip-when-elided="true" name="btn-return" class="button" />
+        <ui:Button text="Quit" parse-escape-sequences="true" display-tooltip-when-elided="true" name="btn-quit" class="button" />
+    </ui:VisualElement>
 </ui:UXML>

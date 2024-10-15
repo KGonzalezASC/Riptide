@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CustomSpawnPatternManager", menuName = "ScriptableObjects/Spawn Patterns Configurer")]
-public class CustomSpawnPatternManager : ScriptableSingleton<CustomSpawnPatternManager> //we aren't using scriptable object singleton because its not a 'god object' per say and doesnt handle addressables
+public class CustomSpawnPatternManager : ScriptableObject 
 {
     [System.Serializable]
     public class SpawnPattern

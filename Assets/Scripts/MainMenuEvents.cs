@@ -35,7 +35,14 @@ public class MainMenuEvents : MonoBehaviour
 
     private void BindLoseUI()
     {
-        //insert binding buttons for lose screen
+        _button = _document.rootVisualElement.Q<Button>("btn-start");
+        _button.RegisterCallback<ClickEvent>(OnPlayGameClick);
+
+        _button = _document.rootVisualElement.Q<Button>("btn-return");
+        _button.RegisterCallback<ClickEvent>(OnReturnClick);
+
+        _button = _document.rootVisualElement.Q<Button>("btn-quit");
+        _button.RegisterCallback<ClickEvent>(OnEndGameButtonClick);
     }
 
 
@@ -44,7 +51,6 @@ public class MainMenuEvents : MonoBehaviour
     public void OnRestart()
     {
         isGameplayActive = false;
-        //set visual tree asset to nothing
         _document.visualTreeAsset = loseUXML;
         BindLoseUI();
     }
@@ -77,11 +83,28 @@ public class MainMenuEvents : MonoBehaviour
         }
     }
 
+    private void OnEndGameButtonClick(ClickEvent evt)
+    {
+        // Exits the game
+        Application.Quit();
+
+        // If running in the Unity editor, stop playing
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    }
+
+    private void OnReturnClick(ClickEvent evt)
+    {
+        _document.visualTreeAsset = menuUXML;
+        BindStartUI();
+    }
+
+
     /// Transitions from displaying the menu to displaying the gameplay UI
     public void StartGameplay()
     {
         if (isGameplayActive) { return; }
-        // Mark gameplay as active
         isGameplayActive = true;
         _document.visualTreeAsset = gameplayUXML;
     }

@@ -35,7 +35,7 @@ public class Hazard: FlyWeight
         if (other.CompareTag("Destroy")) //hits platform despawn trigger in back of game view
         {
             transform.position = new Vector3(0, -20, 0); //move to safe space
-            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //testing to see if we can hit pool size
+            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //return to pool after delay
             isIgnored = true;
 
           
@@ -43,15 +43,20 @@ public class Hazard: FlyWeight
         if (other.CompareTag("Player"))
         {
             if (this.name != "Hazard")
-            { //is coin/bottle cap
-                transform.position = new Vector3(0, -20, 0); //move to safe space
-                StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //testing to see if we can hit pool size
+            {   //is coin/bottle cap
+                transform.position = new Vector3(0, -20, 0); 
+                StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
+                SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, .025f);
+                //combo text                 
+                var playstate = (GameManager.instance.topState as PlayState);
+                playstate.showComboText();
+                playstate.IncreaseScore();
                 isIgnored = true;
             }
             else
             {
                 Debug.Log("Player hit by hazard");
-                //fire an event
+                SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, 1f);
                 transform.position = new Vector3(0, -20, -5); //move to safe space
                 GameManager.instance.switchState("YouLose"); //change to lose state and implement lose state
             }
