@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class GrindableObject : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 3.5f;
-    [SerializeField] public FishMovement player;
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] public FishMovement player = null;
     private BoxCollider grindBox;
+    private BoxCollider killBox;
 
     private void Awake()
     {
@@ -26,7 +27,7 @@ public class GrindableObject : MonoBehaviour
         //    Debug.Log("Grind object couldn't find player");
         //}
 
-        grindBox = transform.GetChild(1).GetComponent<BoxCollider>();
+        grindBox = transform.GetChild(2).GetComponent<BoxCollider>();
 
         if (grindBox)
         {
@@ -36,14 +37,25 @@ public class GrindableObject : MonoBehaviour
         {
             Debug.Log("Grind object couldn't find grind box");
         }
+
+        killBox = transform.GetChild(3).GetComponent<BoxCollider>();
+
+        if (killBox)
+        {
+            Debug.Log("Grind object found kill box");
+        }
+        else
+        {
+            Debug.Log("Grind object couldn't find kill box");
+        }
     }
 
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (!player)
+        if (player == null)
         {
-            player = GameObject.Find("Sphere(Clone)").GetComponent<FishMovement>();
+            player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
 
             if (player)
             {
@@ -56,28 +68,49 @@ public class GrindableObject : MonoBehaviour
         }
 
         transform.Translate(new Vector3(0, 0, -moveSpeed * Time.deltaTime));
+
+        if (transform.position.z <= -15 )
+        {
+
+            if (Random.Range(0.0f, 1.0f) > 0.5f)
+            {
+                transform.position = new Vector3(0.8f, 0.5f, 25);
+            }
+            else
+            {
+                transform.position = new Vector3(-0.8f, 0.5f, 25);
+            }
+        }
     }
 
     public void startPlayerGrinding()
     {
-        player.startGrind(transform.position.x);
+        player.startGrind(transform.position.x, transform.position.y + 0.63f);
+        Debug.Log("Attempting grinding start");
     }
 
     public void stopPlayerGrinding()
     {
         player.stopGrind();
+        Debug.Log("Attempting grinding stop");
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void killPlayer()
     {
-        if (other.CompareTag("Destroy"))
-        {
-            //PlatformManager.Instance.RemovePlatform(gameObject);
-            //Destroy(gameObject);
-
-            transform.Translate(new Vector3(0, 0, 30));
-
-            Debug.Log("Grind object hit end");
-        }
+        Debug.Log("Player hit by hazard");
+        GameManager.instance.switchState("Load");
     }
+
+    //private void OnTriggerEnter(Collider other)
+    //{
+    //    if (other.CompareTag("Destroy"))
+    //    {
+    //        //PlatformManager.Instance.RemovePlatform(gameObject);
+    //        //Destroy(gameObject);
+
+    //        transform.Translate(new Vector3(0, 0, 30));
+
+    //        Debug.Log("Grind object hit end");
+    //    }
+    //}
 }

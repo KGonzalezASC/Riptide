@@ -25,17 +25,19 @@ public class GrindTriggerScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
-        if (collider == parentScript.player.GetComponent<SphereCollider>())
+        if (collider.CompareTag("Player"))
         {
             parentScript.startPlayerGrinding();
+            Debug.Log("Player hit grind trigger");
         }
     }
 
     private void OnTriggerExit(Collider collider)
     {
-        if (collider == parentScript.player.GetComponent<SphereCollider>())
+        if (collider.CompareTag("Player"))
         {
             parentScript.stopPlayerGrinding();
+            Debug.Log("Player exited grind trigger");
         }
     }
 }

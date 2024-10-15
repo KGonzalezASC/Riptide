@@ -24,13 +24,14 @@ public class FishMovement : MonoBehaviour
     private float movementSpeed = 100f;
 
     [SerializeField]
-    private float jumpForce = 8f; // The force applied when jumping
+    private float jumpForce = 5.8f; // The force applied when jumping
 
     [SerializeField]
     private float buoyancy = 20f;
 
     [SerializeField]
     private float minHeight = 1f; // Define the minimum height
+    private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
 
     private Vector2 moveDirection = Vector2.zero;
     private fishState state = fishState.SURFACE;
@@ -93,7 +94,7 @@ public class FishMovement : MonoBehaviour
         float verticalVelocity = currentVelocity.y;
 
         // Apply horizontal movement based on input
-        if (moveDirection != Vector2.zero)
+        if (moveDirection != Vector2.zero && state != fishState.GRINDING)
         {
             // Smoothly interpolate the horizontal movement
             float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
@@ -102,7 +103,9 @@ public class FishMovement : MonoBehaviour
         else if (state == fishState.SURFACE || state == fishState.DIVING) // Apply gradual slow-down when grounded and no input
         {
             // Gradually reduce horizontal velocity using friction
-            currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, friction);
+            // This line was the reason for the pull towards the middle,
+            // and the movement seems to work alright without it. May want to revisit, though
+            //currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, friction);
         }
 
         // Calculate new position after applying horizontal velocity
@@ -151,10 +154,18 @@ public class FishMovement : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
             state = fishState.SURFACE;
         }
-        else if (state == fishState.SURFACE || state == fishState.GRINDING) // Keep vertical movement steady when on the surface or grinding
+        else if (state == fishState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = minHeight;
+            rb.position = correctedPosition;
+
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
+        }
+        else if (state == fishState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
+        {
+            Vector3 correctedPosition = rb.position;
+            correctedPosition.y = grindHeight;
             rb.position = correctedPosition;
 
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
@@ -179,12 +190,16 @@ public class FishMovement : MonoBehaviour
         return distFromAnchor.magnitude;
     }
 
-    public void startGrind(float snapXTo)
+    public void startGrind(float snapXTo, float snapYTo)
     {
-        //Vector3 snapPos = rb.position + new Vector3(snapXTo - rb.position.x, 0, 0);
+        if (state != fishState.GRINDING)
+        {
+            grindHeight = snapYTo;
 
-        rb.MovePosition(new Vector3(snapXTo, rb.position.y, rb.position.z));
-        state = fishState.GRINDING;
+            rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
+            state = fishState.GRINDING;
+            Debug.Log("Started grinding, x snap loc is: " + snapXTo);
+        }
     }
 
     public void stopGrind()
