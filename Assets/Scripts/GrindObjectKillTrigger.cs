@@ -23,12 +23,12 @@ public class GrindObjectKillTrigger : MonoBehaviour
         
     }
 
-    private void onTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            parentScript.killPlayer();
             Debug.Log("Player hit kill box");
+            parentScript.killPlayer();
         }
     }
 }
