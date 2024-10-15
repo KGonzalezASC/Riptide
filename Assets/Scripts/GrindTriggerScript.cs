@@ -27,8 +27,8 @@ public class GrindTriggerScript : MonoBehaviour
     {
         if (collider.CompareTag("Player"))
         {
-            parentScript.startPlayerGrinding();
             Debug.Log("Player hit grind trigger");
+            parentScript.startPlayerGrinding();
         }
     }
 
@@ -36,8 +36,8 @@ public class GrindTriggerScript : MonoBehaviour
     {
         if (collider.CompareTag("Player"))
         {
-            parentScript.stopPlayerGrinding();
             Debug.Log("Player exited grind trigger");
+            parentScript.stopPlayerGrinding();
         }
     }
 }

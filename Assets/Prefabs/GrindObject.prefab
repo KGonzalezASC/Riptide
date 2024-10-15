@@ -93,6 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4646082883207880398}
   - component: {fileID: 4656652015308901551}
+  - component: {fileID: 6404718644999260808}
   m_Layer: 0
   m_Name: DeathTrigger
   m_TagString: Untagged
@@ -134,8 +135,20 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.65, y: 0.65, z: 0.1681037}
-  m_Center: {x: 0, y: 0, z: 0.015948156}
+  m_Size: {x: 0.8815249, y: 0.65, z: 0.12360383}
+  m_Center: {x: 0, y: 0, z: 0.12003524}
+--- !u!114 &6404718644999260808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4964591875561112709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 709c59837f3e1e84c8b54d1f8d1e7f36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7167490104513913614
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,8 +302,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.724304, y: 0.6325531, z: 7.7022343}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.724304, y: 0.6325531, z: 7.5889864}
+  m_Center: {x: 0, y: 0, z: 0.056623936}
 --- !u!1 &7957267472113406262
 GameObject:
   m_ObjectHideFlags: 0

@@ -85,14 +85,14 @@ public class GrindableObject : MonoBehaviour
 
     public void startPlayerGrinding()
     {
-        player.startGrind(transform.position.x, transform.position.y + 0.63f);
         Debug.Log("Attempting grinding start");
+        player.startGrind(transform.position.x, transform.position.y + 0.63f);
     }
 
     public void stopPlayerGrinding()
     {
-        player.stopGrind();
         Debug.Log("Attempting grinding stop");
+        player.stopGrind();
     }
 
     public void killPlayer()
