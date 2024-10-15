@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 //all gstates are monobehaviours wrappeers for the state machine
 public class PlayState : gState
@@ -20,7 +21,12 @@ public class PlayState : gState
         {
             ConfigObject.Instance.GetInstanceRef().transform.position = new Vector3(0, 0, 0); //causes weird snapping but we can hid player in future and avoid this entirely.
         }
+
         uiGameObject.StartGameplay();
+
+        //Set UI for comboing
+        UIDocument uiDocument = uiGameObject.GetComponent<UIDocument>();
+        uiGameObject.GetComponent<ScoreTracker>().Document = uiDocument;
     }
     public override void Execute()
     {

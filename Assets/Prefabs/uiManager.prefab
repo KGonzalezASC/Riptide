@@ -249,6 +249,7 @@ GameObject:
   - component: {fileID: 7939491632427184494}
   - component: {fileID: 206294176424906881}
   - component: {fileID: 3518559087198813365}
+  - component: {fileID: 4256972099248296708}
   m_Layer: 5
   m_Name: uiManager
   m_TagString: Untagged
@@ -304,3 +305,18 @@ MonoBehaviour:
   _audioSource: {fileID: 0}
   gameplayUXML: {fileID: 9197481963319205126, guid: 3269066386a60714cb60934eba0e2bb8,
     type: 3}
+  loseUXML: {fileID: 0}
+  gameManager: {fileID: 0}
+--- !u!114 &4256972099248296708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6217360588276719934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7239e9aef75ef9f4b878ecfcab0b351f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameUI: {fileID: 206294176424906881}

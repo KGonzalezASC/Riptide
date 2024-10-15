@@ -5,8 +5,8 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - settings: {instanceID: 0}
-  - collectCoinSFX: {fileID: 8300000, guid: 3e4f8a9c1ee805a419387e12ef481e90, type: 3}
-  - hitHazardSFX: {fileID: 8300000, guid: d1fd1875c0589ef4cb20c21d7f60bc4a, type: 3}
+  - scoreTracker: {fileID: 4256972099248296708, guid: 602bf57b500703949a84d589d7755f72,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

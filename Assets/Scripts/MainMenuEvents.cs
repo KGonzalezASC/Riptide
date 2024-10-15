@@ -18,6 +18,10 @@ public class MainMenuEvents : MonoBehaviour
 
     // Reference to gameplay UI and state management
     [SerializeField] private VisualTreeAsset gameplayUXML;
+
+    //Readonly puplic refernce to gameplay uxml
+    public VisualTreeAsset GameplayUXML { get { return gameplayUXML; } }
+
     [SerializeField] private VisualTreeAsset loseUXML;
     public event Action OnPlayButtonClicked;
     private VisualTreeAsset menuUXML; // Optional: Keep a reference to the original menu UXML

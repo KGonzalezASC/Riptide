@@ -10,10 +10,17 @@ public class Hazard: FlyWeight
 
     new HazardSettings settings => (HazardSettings) base.settings;
 
+    [SerializeField]
+    private ScoreTracker scoreTracker;
+    [SerializeField, Range(0f, 200f)]
+    private const int scoreValue = 100;
+
     void OnEnable()
     {
         //StartCoroutine(DespawnAfterDelay(settings.despawnDelay));
         comboText = GameObject.Find("uiManager").GetComponent<DisplayComboText>();
+        GameObject uiManager = GameObject.Find("uiManager");
+        scoreTracker = uiManager.GetComponent<ScoreTracker>();
     }
 
     void MoveInPlayState()
@@ -53,6 +60,7 @@ public class Hazard: FlyWeight
                 transform.position = new Vector3(0, -20, 0); //move to safe space
                 StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
                 comboText.ChangeText(); //change combo text being displayed
+                scoreTracker.IncrementScore(scoreValue); //increment score of player
                 isIgnored = true;
 
             }
