@@ -46,6 +46,7 @@ public class PlayState : gState
         }
         uiGameObject.StartGameplay();
         scoreTracker.Score = 0;
+        scoreTracker.TimeValue = 0;
         //assign score label
         scoreTracker.ScoreLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-score");
         scoreTracker.TimeLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-time");

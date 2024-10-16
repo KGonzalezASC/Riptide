@@ -35,6 +35,11 @@ public class ScoreTracker : MonoBehaviour
 
     private float time = 0;
 
+    /// <summary>
+    /// sets the value of time
+    /// </summary>
+    public float TimeValue { set { time = value; } }
+
 
     // Start is called before the first frame update
     void Start()
