@@ -1,111 +1,79 @@
 ﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic;
 
-[CustomEditor(typeof(PlatformManager))]
-public class PlatformManagerEditor : Editor
+[CustomEditor(typeof(CustomSpawnPatternManager))]
+public class CustomSpawnPatternManagerEditor : Editor
 {
-    private List<string[,]> spawnPatterns = new List<string[,]>(); // List to store multiple patterns
+    private CustomSpawnPatternManager spawnPatternManager;
     private int selectedPatternIndex = 0; // Index of the currently selected pattern
+
+    private void OnEnable()
+    {
+        spawnPatternManager = (CustomSpawnPatternManager)target;
+
+        // Ensure at least one pattern exists
+        if (spawnPatternManager.spawnPatterns.Count == 0)
+        {
+            spawnPatternManager.spawnPatterns.Add(new CustomSpawnPatternManager.SpawnPattern());
+        }
+    }
 
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
 
-        PlatformManager platformManager = (PlatformManager)target;
-
-        // Ensure we have at least one pattern in the list
-        if (spawnPatterns.Count == 0)
-        {
-            spawnPatterns.Add(new string[4, 3]); // Add an empty pattern
-        }
-
-        // Draw the interface for managing patterns
         GUILayout.Label("Configure Hazard (h) and Collectible (b) Patterns:");
 
-        // Pattern Selection Dropdown
-        string[] patternNames = new string[spawnPatterns.Count];
-        for (int i = 0; i < spawnPatterns.Count; i++)
+        // Pattern selection dropdown
+        string[] patternNames = new string[spawnPatternManager.spawnPatterns.Count];
+        for (int i = 0; i < spawnPatternManager.spawnPatterns.Count; i++)
         {
             patternNames[i] = "Pattern " + (i + 1);
         }
         selectedPatternIndex = EditorGUILayout.Popup("Selected Pattern", selectedPatternIndex, patternNames);
 
-        // Draw the grid for the selected pattern
-        DrawPatternGrid(spawnPatterns[selectedPatternIndex]);
+        // Draw the grid for the selected pattern (now as a flat list)
+        DrawPatternGrid(spawnPatternManager.spawnPatterns[selectedPatternIndex].pattern);
 
         GUILayout.Space(10);
 
-        // Buttons to add and remove patterns
+        // Add and remove pattern buttons
         GUILayout.BeginHorizontal();
         if (GUILayout.Button("Add New Pattern"))
         {
-            AddNewPattern();
+            spawnPatternManager.spawnPatterns.Add(new CustomSpawnPatternManager.SpawnPattern());
+            selectedPatternIndex = spawnPatternManager.spawnPatterns.Count - 1;
         }
-        if (GUILayout.Button("Remove Current Pattern") && spawnPatterns.Count > 1)
+        if (GUILayout.Button("Remove Current Pattern") && spawnPatternManager.spawnPatterns.Count > 1)
         {
-            RemoveCurrentPattern();
+            spawnPatternManager.spawnPatterns.RemoveAt(selectedPatternIndex);
+            selectedPatternIndex = Mathf.Clamp(selectedPatternIndex, 0, spawnPatternManager.spawnPatterns.Count - 1);
         }
         GUILayout.EndHorizontal();
 
-        GUILayout.Space(10);
-
-        // Button to save the entered pattern
-        if (GUILayout.Button("Save All Patterns"))
+        if (GUI.changed)
         {
-            SavePatterns(platformManager);
+            EditorUtility.SetDirty(spawnPatternManager);
         }
     }
 
-    private void DrawPatternGrid(string[,] pattern)
+    private void DrawPatternGrid(List<string> pattern)
     {
-        for (int row = 0; row < 4; row++)
+        int numRows = 4;
+        int numCols = 3;
+
+        for (int row = 0; row < numRows; row++)
         {
             GUILayout.BeginHorizontal();
-            for (int col = 0; col < 3; col++)
+            for (int col = 0; col < numCols; col++)
             {
-                pattern[row, col] = GUILayout.TextField(pattern[row, col], GUILayout.Width(20));
+                int index = row * numCols + col;
+                pattern[index] = GUILayout.TextField(pattern[index], GUILayout.Width(20));
             }
             GUILayout.EndHorizontal();
         }
-    }
-
-    private void AddNewPattern()
-    {
-        spawnPatterns.Add(new string[4, 3]); // Add a new empty pattern
-        selectedPatternIndex = spawnPatterns.Count - 1; // Select the newly added pattern
-    }
-
-    private void RemoveCurrentPattern()
-    {
-        if (spawnPatterns.Count > 1)
-        {
-            spawnPatterns.RemoveAt(selectedPatternIndex); // Remove the current pattern if there are multiple patterns
-            selectedPatternIndex = Mathf.Clamp(selectedPatternIndex, 0, spawnPatterns.Count - 1); // Adjust the selection index
-        }
-        else
-        {
-            // Clear the last remaining pattern
-            ClearPattern(spawnPatterns[0]);
-        }
-    }
-
-    private void ClearPattern(string[,] pattern)
-    {
-        for (int row = 0; row < 4; row++)
-        {
-            for (int col = 0; col < 3; col++)
-            {
-                pattern[row, col] = ""; // Clear each cell in the pattern by setting it to an empty string
-            }
-        }
-    }
-
-
-    private void SavePatterns(PlatformManager platformManager)
-    {
-        
     }
 }
 #endif

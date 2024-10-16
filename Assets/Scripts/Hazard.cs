@@ -6,27 +6,13 @@ using UnityEngine;
 public class Hazard: FlyWeight
 {
     public bool isIgnored = false;
-    private DisplayComboText comboText;
 
-    new HazardSettings settings => (HazardSettings) base.settings;
-
-    [SerializeField]
-    private ScoreTracker scoreTracker;
-    [SerializeField, Range(0f, 200f)]
-    private const int scoreValue = 100;
-
-    void OnEnable()
-    {
-        //StartCoroutine(DespawnAfterDelay(settings.despawnDelay));
-        comboText = GameObject.Find("uiManager").GetComponent<DisplayComboText>();
-        GameObject uiManager = GameObject.Find("uiManager");
-        scoreTracker = uiManager.GetComponent<ScoreTracker>();
-    }
+    HazardSettings Settings => (HazardSettings)base.settings;
 
     void MoveInPlayState()
     {
         if (!isIgnored)
-            transform.Translate(-Vector3.forward * (settings.speed * Time.deltaTime));
+            transform.Translate(-Vector3.forward * (Settings.speed * Time.deltaTime));
     }
 
     void Update()
@@ -41,8 +27,7 @@ public class Hazard: FlyWeight
     IEnumerator DespawnAfterDelay(float delay)
     {
         yield return Helpers.GetWaitForSeconds(delay);
-        FlyWeightFactory.ReturnToPool(this); //return to pool instead of destroying
-
+        FlyWeightFactory.ReturnToPool(this);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -50,25 +35,28 @@ public class Hazard: FlyWeight
         if (other.CompareTag("Destroy")) //hits platform despawn trigger in back of game view
         {
             transform.position = new Vector3(0, -20, 0); //move to safe space
-            StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
+            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //return to pool after delay
             isIgnored = true;
+
+          
         }
         if (other.CompareTag("Player"))
         {
-            if (this.name != "Hazard") { //is coin/bottle cap
-                SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, 1f);
-                transform.position = new Vector3(0, -20, 0); //move to safe space
-                StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
-                comboText.ChangeText(); //change combo text being displayed
-                scoreTracker.IncrementScore(scoreValue); //increment score of player
+            if (this.name != "Hazard")
+            {   //is coin/bottle cap
+                transform.position = new Vector3(0, -20, 0); 
+                StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
+                SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, .025f);
+                //combo text                 
+                var playstate = (GameManager.instance.topState as PlayState);
+                playstate.showComboText();
+                playstate.IncreaseScore();
                 isIgnored = true;
-
             }
             else
             {
                 Debug.Log("Player hit by hazard");
                 SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, 1f);
-                //fire an event
                 transform.position = new Vector3(0, -20, -5); //move to safe space
                 GameManager.instance.switchState("YouLose"); //change to lose state and implement lose state
             }

@@ -52,7 +52,5 @@ public class DisplayComboText : MonoBehaviour
     public void Awake()
     {
         _document = GetComponent<UIDocument>();
-        _label = _document.rootVisualElement.Q<Label>("label-combo");
-        ChangeText();
     }
 }

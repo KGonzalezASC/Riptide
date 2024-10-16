@@ -1,8 +1,6 @@
-using System;
+using System; 
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -18,17 +16,10 @@ public class MainMenuEvents : MonoBehaviour
 
     // Reference to gameplay UI and state management
     [SerializeField] private VisualTreeAsset gameplayUXML;
-
-    //Readonly puplic refernce to gameplay uxml
-    public VisualTreeAsset GameplayUXML { get { return gameplayUXML; } }
-
     [SerializeField] private VisualTreeAsset loseUXML;
     public event Action OnPlayButtonClicked;
     private VisualTreeAsset menuUXML; // Optional: Keep a reference to the original menu UXML
     private bool isGameplayActive = false; //honestly not sure if this safeguard will be needed in future
-
-    // Ref to game manager
-    [SerializeField] GameManager gameManager;
 
     private void BindStartUI() //when visual tree asset changes it needs to be binded as well.
     {
@@ -44,7 +35,6 @@ public class MainMenuEvents : MonoBehaviour
 
     private void BindLoseUI()
     {
-        //insert binding buttons for lose screen
         _button = _document.rootVisualElement.Q<Button>("btn-start");
         _button.RegisterCallback<ClickEvent>(OnPlayGameClick);
 
@@ -61,7 +51,6 @@ public class MainMenuEvents : MonoBehaviour
     public void OnRestart()
     {
         isGameplayActive = false;
-        //set visual tree asset to nothing
         _document.visualTreeAsset = loseUXML;
         BindLoseUI();
     }
@@ -94,12 +83,6 @@ public class MainMenuEvents : MonoBehaviour
         }
     }
 
-    private void OnReturnClick(ClickEvent evt)
-    {
-        _document.visualTreeAsset = menuUXML;
-        BindStartUI();
-    }
-
     private void OnEndGameButtonClick(ClickEvent evt)
     {
         // Exits the game
@@ -111,11 +94,17 @@ public class MainMenuEvents : MonoBehaviour
 #endif
     }
 
+    private void OnReturnClick(ClickEvent evt)
+    {
+        _document.visualTreeAsset = menuUXML;
+        BindStartUI();
+    }
+
+
     /// Transitions from displaying the menu to displaying the gameplay UI
     public void StartGameplay()
     {
         if (isGameplayActive) { return; }
-        // Mark gameplay as active
         isGameplayActive = true;
         _document.visualTreeAsset = gameplayUXML;
     }
@@ -124,7 +113,7 @@ public class MainMenuEvents : MonoBehaviour
     private void ResumeGameplay()
     {
         if (!isGameplayActive) { return; }
-        _document.visualTreeAsset = menuUXML;
+        _document.visualTreeAsset = menuUXML;  
         // Resume game logic
         isGameplayActive = false;
         Time.timeScale = 1;

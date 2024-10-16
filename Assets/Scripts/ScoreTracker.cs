@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem.Android;
 using UnityEngine.UIElements;
 
 public class ScoreTracker : MonoBehaviour
@@ -50,10 +49,11 @@ public class ScoreTracker : MonoBehaviour
     private void Update()
     {
         time += Time.deltaTime;
-
-        scoreLabel.text = "Score: " + score;
-        timeLabel.text = "Time: " + time;
-
+        if (GameManager.instance.topState.GetName() == "Game")
+        {
+            scoreLabel.text = "Score: " + score;
+            timeLabel.text = "Time: " + time;
+        }
     }
 
     /// <summary>
