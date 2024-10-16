@@ -27,13 +27,20 @@ public class FishMovement : MonoBehaviour
     private float jumpForce = 5.8f; // The force applied when jumping
 
     [SerializeField]
-    private float buoyancy = 20f;
+    private float maxUnderwaterSpeed = 2.0f;
+
+    [SerializeField]
+    private float surfaceAlignmentForce = -20f;
+
+    [SerializeField]
+    private float buoyancy = 40f;
 
     [SerializeField]
     private float minHeight = 1f; // Define the minimum height
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
 
     private Vector2 moveDirection = Vector2.zero;
+    [SerializeField]
     private fishState state = fishState.SURFACE;
 
     [SerializeField]
@@ -144,16 +151,21 @@ public class FishMovement : MonoBehaviour
         }
         else if (rb.position.y >= minHeight && state == fishState.DIVING) // Stop vertical movement when surfacing
         {
-            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
+            //rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
             state = fishState.SURFACE;
         }
         else if (state == fishState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
         {
-            Vector3 correctedPosition = rb.position;
-            correctedPosition.y = minHeight;
-            rb.position = correctedPosition;
+            //Vector3 correctedPosition = rb.position;
+            //correctedPosition.y = minHeight;
+            //rb.position = correctedPosition;
 
-            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
+            rb.AddForce(Vector3.up * surfaceAlignmentForce * (rb.position.y - minHeight), ForceMode.Acceleration); // correction force
+            if (rb.position.y < minHeight)
+            {
+                rb.useGravity = false;
+                rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
+            }
         }
         else if (state == fishState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
         {
@@ -164,6 +176,15 @@ public class FishMovement : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
         }
 
+        if (state == fishState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
+        }
+        
+        if (state == fishState.JUMPING || state == fishState.DIVING)
+        {
+            rb.useGravity = true;
+        }
         //Debug.Log(rb.position + " " + state);
     }
 
