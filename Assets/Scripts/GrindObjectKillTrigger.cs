@@ -27,7 +27,7 @@ public class GrindObjectKillTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player hit kill box");
+            //Debug.Log("Player hit kill box");
             parentScript.killPlayer();
         }
     }
