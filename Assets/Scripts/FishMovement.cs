@@ -199,7 +199,7 @@ public class FishMovement : MonoBehaviour
     private void Jump()
     {
         // Only apply a fixed upward force for the jump
-        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
         state = fishState.JUMPING;
     }
 
