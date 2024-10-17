@@ -26,6 +26,12 @@ public class ConfigObject : ScriptableObjectSingleton<ConfigObject>
     //private AssetReferenceT<GameObject> uiprefab; //might need in future
     private GameObject instanceRef;
 
+    ///getter for instantiated prefab  
+    public GameObject GetInstanceRef()
+    {
+        return instanceRef;
+    }
+
     public void InstantiatePrefab(Vector3 position, Transform parent = null)
     {
         if (prefab != null)
@@ -41,7 +47,7 @@ public class ConfigObject : ScriptableObjectSingleton<ConfigObject>
         if (obj.Status == AsyncOperationStatus.Succeeded)
         {
             instanceRef = obj.Result;
-            OnHam?.Invoke();
+            OnHam?.Invoke(); //does nothing atm just an example of how to use events in this context
         }
         else
         {
@@ -81,13 +87,11 @@ public class ConfigObject : ScriptableObjectSingleton<ConfigObject>
     {
         // Now we can safely instantiate the prefab
         // TODO: HAVE THIS LOAD ALT FISH COSTUMES FOR STORE WHEN APPLICABLE:
-        configInstance.InstantiatePrefab(new Vector3(0, 1, .1f));
+        //configInstance.InstantiatePrefab(new Vector3(0, 0.10f, .1f)); move to only be created in playstate
         Debug.Log("ConfigObject is ready and prefab instantiated.");
         PlayerSaveData.Create();
-
         // Test save data
         PlayerSaveData.Instance.Save();
-
         // Insert random high score data from 100-200 if no high scores exist
         System.Random random = new System.Random();
         if (PlayerSaveData.Instance.highscores.Count == 0)

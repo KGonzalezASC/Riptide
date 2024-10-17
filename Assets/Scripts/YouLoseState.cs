@@ -6,10 +6,10 @@ using Object = UnityEngine.Object;
 
 public class YouLoseState : gState
 {
-
+    [SerializeField] MainMenuEvents uiGameObject;
     public override void Enter(gState from)
     {
-        Debug.Log("Insert lose screen");       
+        //Debug.Log("Insert lose screen");
     }
 
 

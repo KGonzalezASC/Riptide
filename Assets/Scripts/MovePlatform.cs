@@ -13,14 +13,26 @@ public class MovePlatform : MonoBehaviour
     public float speed = 5f;  //this needs to be consistent with hazard speed
     public float angleX = 0f;
 
-
-
     void Update()
     {
-        // Move platform forward
-        Vector3 direction = Vector3.forward;
-        transform.position -= speed * Time.deltaTime * direction;
+        //We want to make sure that the platform is moving in the right state only.
+        if (GameManager.instance.topState.GetName() == "Game")
+        {
+            MoveInPlayState();
+        }
     }
+
+    public void MoveInPlayState()
+    {
+        Vector3 direction = Vector3.forward;
+
+        // Combine base speed with the PlayState's speed increment modifier
+        float adjustedSpeed = speed + PlayState.speedIncrement;
+
+        // Move the object by the adjusted speed
+        transform.position -= adjustedSpeed * Time.deltaTime * direction;
+    }
+
 
     private void OnTriggerEnter(Collider other)
     {

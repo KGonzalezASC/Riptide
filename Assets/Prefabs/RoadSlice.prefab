@@ -251,11 +251,9 @@ MonoBehaviour:
   rowSpacing: 3
   gizmoSphereSize: 0.45
   itemsPerRow: 3
-  spacingBetweenItems: 1.45
+  spacingBetweenItems: 1.25
   obstaclePositions:
   - 0
   - 0.33333334
   - 0.6666667
   - 1
-  selectedRowIndex: 0
-  selectedItemIndex: 0

@@ -1,36 +1,27 @@
-using UnityEditor;
+using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class TrackHandler : MonoBehaviour
 {
     public float rowSpacing = 1f; // Spacing between rows as a fraction of the platform length
-    public float gizmoSphereSize = 0.45f; 
+    public float gizmoSphereSize = 0.45f;
     public int itemsPerRow = 3; // Number of items to be placed in each row
     public float spacingBetweenItems = 0.65f;
-    private float platformLength;
-    private float platformWidth;
+    public HashSet<Vector3> occupiedPositions = new(); // Update through PlatformManager
+
+    [HideInInspector]
     public float[] obstaclePositions;
-
-    [Header("Editor Gizmo Settings")]
-    public int selectedRowIndex = 0; // Index of the selected row
-    public int selectedItemIndex = 0; // Index of the selected item
-    //private bool randomPositionSelected = false; // Flag to ensure we only pick a position once
-
+    private float platformLength;
+    private MeshRenderer meshRenderer; // Store reference to MeshRenderer
 
     private void OnEnable()
     {
-        MeshRenderer renderer = GetComponent<MeshRenderer>();
-        if (renderer == null) return; // Exit if there is no MeshRenderer
+        // Cache the MeshRenderer component on enable
+        if (!TryGetComponent<MeshRenderer>(out meshRenderer)) return; // Exit if there is no MeshRenderer
 
-        platformLength = renderer.bounds.size.z; // Length of the platform along the z-axis
-        platformWidth = renderer.bounds.size.x; // Width of the platform along the x-axis
-
-        // Generate obstacle positions based on the platform length, rowSpacing, and sphere size
+        platformLength = meshRenderer.bounds.size.z; // Length of the platform along the z-axis
         GenerateObstaclePositions();
     }
-
-
 
     // Method to generate evenly spaced obstacle positions based on rowSpacing and items per row
     private void GenerateObstaclePositions()
@@ -76,8 +67,7 @@ public class TrackHandler : MonoBehaviour
         return itemPositions;
     }
 
-
-    private Vector3 GetWorldPosition(float normalizedRowPosition, int itemIndex)
+    public Vector3 GetWorldPosition(float normalizedRowPosition, int itemIndex)
     {
         // Ensure the itemIndex is valid
         if (itemIndex < 0 || itemIndex >= itemsPerRow)
@@ -86,16 +76,10 @@ public class TrackHandler : MonoBehaviour
             return Vector3.zero; // Return zero vector if the index is out of bounds
         }
 
-        // Get the MeshRenderer for platform bounds
-        MeshRenderer renderer = GetComponent<MeshRenderer>();
-        if (renderer == null) return Vector3.zero; // Exit if no MeshRenderer
-
-        // Calculate platform length (z-axis) and width (x-axis)
-        platformLength = renderer.bounds.size.z;
-        platformWidth = renderer.bounds.size.x;
+        if (meshRenderer == null) return Vector3.zero; // Exit if no MeshRenderer
 
         // Calculate the z-position for the row using the normalized row position
-        Vector3 platformStart = renderer.bounds.min; // Start point of the platform
+        Vector3 platformStart = meshRenderer.bounds.min; // Start point of the platform
         float rowZPosition = Mathf.Lerp(platformStart.z, platformStart.z + platformLength, normalizedRowPosition);
 
         // Calculate total width of the items including spacing
@@ -109,14 +93,12 @@ public class TrackHandler : MonoBehaviour
         return new Vector3(itemXPosition, transform.position.y, rowZPosition);
     }
 
-
-
     // Method to randomly select a row and item index, then return its world position
-    public Vector3 GetRandomWorldPosition()
+    public (Vector3, int, int) GetRandomWorldPosition()
     {
         // Ensure there are obstacle positions to select from
         if (obstaclePositions == null || obstaclePositions.Length == 0)
-            return Vector3.zero;
+            return (Vector3.zero, int.MinValue, int.MinValue);
 
         // Randomly pick a valid row index
         int randomRowIndex = Random.Range(0, obstaclePositions.Length);
@@ -125,29 +107,20 @@ public class TrackHandler : MonoBehaviour
         int randomItemIndex = Random.Range(0, itemsPerRow);
 
         // Return the world position for the selected row and item index
-        return GetWorldPosition(obstaclePositions[randomRowIndex], randomItemIndex);
+        return (GetWorldPosition(obstaclePositions[randomRowIndex], randomItemIndex), randomRowIndex, randomItemIndex);
     }
 
-
-
-
-
 #if UNITY_EDITOR
-    /// <summary>
-    /// will need post mvi so making half ass adjustments rn..
-    /// </summary>
     void OnDrawGizmos()
     {
-        MeshRenderer renderer = GetComponent<MeshRenderer>();
-        if (renderer == null) return; // Exit if there is no MeshRenderer
+        if (meshRenderer == null) return; // Exit if there is no MeshRenderer
 
-        platformLength = renderer.bounds.size.z; // Length of the platform along the z-axis
-        platformWidth = renderer.bounds.size.x; // Width of the platform along the x-axis
+        platformLength = meshRenderer.bounds.size.z; // Length of the platform along the z-axis
         // Generate obstacle positions based on the platform length, rowSpacing, and sphere size
         GenerateObstaclePositions();
 
         // Draw gizmos for each normalized obstacle position
-        Vector3 platformStart = renderer.bounds.min; // Start point of the platform along the z-axis
+        Vector3 platformStart = meshRenderer.bounds.min; // Start point of the platform along the z-axis
 
         // Draw rows and items
         for (int i = 0; i < obstaclePositions.Length; i++)
@@ -155,7 +128,7 @@ public class TrackHandler : MonoBehaviour
             // Calculate the z position for the current row
             float zPosition = Mathf.Lerp(platformStart.z, platformStart.z + platformLength, obstaclePositions[i]);
             // Calculate the base position for the row
-            Vector3 rowBasePosition = new Vector3(transform.position.x, transform.position.y, zPosition);
+            Vector3 rowBasePosition = new(transform.position.x, transform.position.y, zPosition);
             // Generate item positions for the current row
             Vector3[] itemPositions = GenerateItemPositions(rowBasePosition);
             // Draw gizmos for each item in the row
@@ -165,21 +138,6 @@ public class TrackHandler : MonoBehaviour
                 Gizmos.DrawSphere(itemPosition, gizmoSphereSize / 2); // Use radius for DrawSphere
             }
         }
-
-        //if (selectedRowIndex < obstaclePositions.Length && selectedItemIndex < itemsPerRow)
-        //{
-        //    Vector3 selectedPosition = GetWorldPosition(obstaclePositions[selectedRowIndex], selectedItemIndex);
-        //    Gizmos.color = Color.red; // Color for the selected gizmo
-        //    Gizmos.DrawCube(selectedPosition, Vector3.one * gizmoSphereSize); // Draw square gizmo at the selected position
-        //}
-
-        //it will spam fluctuate in editor but in onenable it happens once
-        //Vector3 fixedRandomPosition = GetRandomWorldPosition(); 
-        //if (fixedRandomPosition != Vector3.zero)
-        //{
-        //    Gizmos.color = Color.red; // Set color for the random gizmo
-        //    Gizmos.DrawCube(fixedRandomPosition, Vector3.one * gizmoSphereSize); // Draw the red cube at the fixed random position
-        //}
     }
 #endif
 }

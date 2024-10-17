@@ -7,52 +7,63 @@ public class Hazard: FlyWeight
 {
     public bool isIgnored = false;
 
-    new HazardSettings settings => (HazardSettings) base.settings;
+    HazardSettings Settings => (HazardSettings)base.settings;
 
-    void OnEnable()
+    void MoveInPlayState()
     {
-        //StartCoroutine(DespawnAfterDelay(settings.despawnDelay));
+        if (!isIgnored)
+        {
+            // Incorporate PlayState.speedIncrement into the movement speed
+            float adjustedSpeed = Settings.speed + PlayState.speedIncrement;
+            transform.Translate(-Vector3.forward * (adjustedSpeed * Time.deltaTime));
+        }
     }
+
 
     void Update()
     {
-        if(!isIgnored)
-         transform.Translate(-Vector3.forward * (settings.speed * Time.deltaTime));
+        if (GameManager.instance.topState.GetName() == "Game")
+        {
+            MoveInPlayState();
+        }
     }
 
     IEnumerator DespawnAfterDelay(float delay)
     {
         yield return Helpers.GetWaitForSeconds(delay);
-        FlyWeightFactory.ReturnToPool(this); //return to pool instead of destroying
-
+        FlyWeightFactory.ReturnToPool(this);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Destroy"))
+        if (other.CompareTag("Destroy")) //hits platform despawn trigger in back of game view
         {
-            Debug.Log("Hazard returned to the pool");
             transform.position = new Vector3(0, -20, 0); //move to safe space
-            StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
+            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //return to pool after delay
             isIgnored = true;
+
+          
         }
         if (other.CompareTag("Player"))
         {
-            if (this.name != "Hazard") {
-                Debug.Log("Coin Collected by player, returning to the pool");
-                transform.position = new Vector3(0, -20, 0); //move to safe space
-                StartCoroutine(DespawnAfterDelay(settings.despawnDelay)); //testing to see if we can hit pool size
+            if (this.name != "Hazard")
+            {   //is coin/bottle cap
+                transform.position = new Vector3(0, -20, 0); 
+                StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
+                SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, .025f);
+                //combo text                 
+                var playstate = (GameManager.instance.topState as PlayState);
+                playstate.showComboText();
+                playstate.IncreaseScore();
                 isIgnored = true;
             }
             else
             {
                 Debug.Log("Player hit by hazard");
-                //fire an event
+                SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, 1f);
                 transform.position = new Vector3(0, -20, -5); //move to safe space
-                //PlayState.onLost?.Invoke();
-                GameManager.instance.switchState("Load");
+                GameManager.instance.switchState("YouLose"); //change to lose state and implement lose state
             }
         }
-
     }
 }

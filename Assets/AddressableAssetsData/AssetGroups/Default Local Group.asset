@@ -28,6 +28,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - ConfigObject
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 92122bc49c40c7840ab6f49b8012d222
+    m_Address: Assets/Prefabs/FishBoard.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: bb2f9485989991540b96f658c70e6cb8, type: 2}
   m_SchemaSet:
