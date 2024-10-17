@@ -83,20 +83,12 @@ public class FishMovement : MonoBehaviour
 
     private void Update()
     {
-        // Check if the player is grounded
-        isGrounded = transform.position.y <= minHeight;
-        // Reset jump flag when grounded
-        if (isGrounded)
-        {
-            canJump = true; // Reset jump availability
-        }
         if (GameManager.instance.topState.GetName() == "Game")
         {
             moveDirection = playerControls.ReadValue<Vector2>();
-            if (jumpAction.triggered && canJump)
+            if (jumpAction.triggered && state != fishState.JUMPING)
             {
                 Jump();
-                canJump = false; // Prevent further jumps until grounded again
             }
         }
         
