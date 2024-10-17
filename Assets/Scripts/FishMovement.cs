@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 using UnityEngine.InputSystem;
 
 enum fishState
@@ -28,6 +31,9 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float maxUnderwaterSpeed = 2.0f;
+
+    [SerializeField]
+    private float maxLateralSpeed = 5.0f;
 
     [SerializeField]
     private float surfaceAlignmentForce = -20f;
@@ -59,6 +65,9 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float maxRange = 5f;   // Maximum distance from anchor point
+
+    private bool isGrounded;
+    private bool canJump;
     private void OnEnable()
     {
         playerControls.Enable();
@@ -90,6 +99,12 @@ public class FishMovement : MonoBehaviour
                 canJump = false; // Prevent further jumps until grounded again
             }
         }
+        
+        rb.rotation = Quaternion.Euler(0f, -180f, 0f);
+        transform.rotation = Quaternion.Euler(0f, -180f, 0f);
+
+        transform.position.Set(transform.position.x, transform.position.y, 0);
+        rb.position.Set(rb.position.x, rb.position.y, 0);
     }
 
     private void FixedUpdate()
@@ -163,6 +178,7 @@ public class FishMovement : MonoBehaviour
         }
         else if (state == fishState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
         {
+            rb.rotation = Quaternion.Euler(0f, -180f, 0f);
             //Vector3 correctedPosition = rb.position;
             //correctedPosition.y = minHeight;
             //rb.position = correctedPosition;
@@ -192,6 +208,17 @@ public class FishMovement : MonoBehaviour
         {
             rb.useGravity = true;
         }
+
+        if (rb.velocity.x > Math.Pow(maxLateralSpeed, 2))
+        {
+            rb.velocity.Set(maxLateralSpeed, rb.velocity.y, rb.velocity.z);
+        }
+        if (rb.velocity.x < 0f - Math.Pow(maxLateralSpeed, 2))
+        {
+            rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
+        }
+
+        
         //Debug.Log(rb.position + " " + state);
     }
 
