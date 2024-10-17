@@ -22,10 +22,17 @@ public class MovePlatform : MonoBehaviour
         }
     }
 
-    public void MoveInPlayState() {
+    public void MoveInPlayState()
+    {
         Vector3 direction = Vector3.forward;
-        transform.position -= speed * Time.deltaTime * direction;
+
+        // Combine base speed with the PlayState's speed increment modifier
+        float adjustedSpeed = speed + PlayState.speedIncrement;
+
+        // Move the object by the adjusted speed
+        transform.position -= adjustedSpeed * Time.deltaTime * direction;
     }
+
 
     private void OnTriggerEnter(Collider other)
     {

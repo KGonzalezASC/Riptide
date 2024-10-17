@@ -31,7 +31,7 @@ public class SFXManager : MonoBehaviour
         audioSource.volume = volume;
 
         // play sound
-        Debug.Log(audioSource);
+        //Debug.Log(audioSource);
         audioSource.Play();
 
         // get length of SFX clip

@@ -12,8 +12,13 @@ public class Hazard: FlyWeight
     void MoveInPlayState()
     {
         if (!isIgnored)
-            transform.Translate(-Vector3.forward * (Settings.speed * Time.deltaTime));
+        {
+            // Incorporate PlayState.speedIncrement into the movement speed
+            float adjustedSpeed = Settings.speed + PlayState.speedIncrement;
+            transform.Translate(-Vector3.forward * (adjustedSpeed * Time.deltaTime));
+        }
     }
+
 
     void Update()
     {
@@ -22,7 +27,6 @@ public class Hazard: FlyWeight
             MoveInPlayState();
         }
     }
-
 
     IEnumerator DespawnAfterDelay(float delay)
     {
