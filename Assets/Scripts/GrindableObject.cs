@@ -74,11 +74,11 @@ public class GrindableObject : MonoBehaviour
 
             if (Random.Range(0.0f, 1.0f) > 0.5f)
             {
-                transform.position = new Vector3(0.8f, 0.5f, 25);
+                transform.position = new Vector3(0.8f, -0.2f, 25);
             }
             else
             {
-                transform.position = new Vector3(-0.8f, 0.5f, 25);
+                transform.position = new Vector3(-0.8f, -0.2f, 25);
             }
         }
     }
