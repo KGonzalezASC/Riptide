@@ -66,21 +66,7 @@ public class GrindableObject : MonoBehaviour
                 Debug.Log("Grind object couldn't find player");
             }
         }
-
-        transform.Translate(new Vector3(0, 0, -moveSpeed * Time.deltaTime));
-
-        if (transform.position.z <= -15 )
-        {
-
-            if (Random.Range(0.0f, 1.0f) > 0.5f)
-            {
-                transform.position = new Vector3(0.8f, -0.2f, 25);
-            }
-            else
-            {
-                transform.position = new Vector3(-0.8f, -0.2f, 25);
-            }
-        }
+     
     }
 
     public void startPlayerGrinding()

@@ -72,8 +72,9 @@ public class PlayState : gState
         uiGameObject.OnRestart();
         Time.timeScale = 0;
         PlatformManager.Instance.ClearAllPlatforms();
-        FlyWeightFactory.ClearPool(FlyWeightType.Ice);
-        FlyWeightFactory.ClearPool(FlyWeightType.Fire); //TODO: rename types to match items in the game
+        FlyWeightFactory.ClearPool(FlyWeightType.Coin);
+        FlyWeightFactory.ClearPool(FlyWeightType.Hazard); 
+        FlyWeightFactory.ClearPool(FlyWeightType.GrindablePole); //the idea for the pole is that we can make specicfic script that just switches between prefab on its own settings for different types of poles
         Time.timeScale = 1;
     }
     public override string GetName()

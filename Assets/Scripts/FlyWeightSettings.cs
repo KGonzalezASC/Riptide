@@ -19,5 +19,5 @@ public abstract class FlyWeightSettings : ScriptableObject
     }
 }
 
-public enum FlyWeightType { Fire, Ice }
+public enum FlyWeightType { Hazard,Coin ,GrindablePole }
 

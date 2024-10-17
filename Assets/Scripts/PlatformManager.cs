@@ -91,9 +91,11 @@ public class PlatformManager : MonoBehaviour
         {
             // Generate a random value to determine what to spawn
             float randomValue = Random.Range(0f, 1f);
+
             if (randomValue < 0.3f) // 30% chance for coin pair
             {
-                SpawnCoinPair(trackHandler);
+                //SpawnCoinPair(trackHandler);
+                SpawnGrindingPole(trackHandler);
             }
             else if (randomValue < 0.65f) // 35% chance for coin line (30% + 35% = 65%)
             {
@@ -103,17 +105,17 @@ public class PlatformManager : MonoBehaviour
             {
                 SpawnHazardLines(trackHandler);
             }
-            else if (randomValue < 0.93f) // 11% chance for a dangerous non-pattern
+            else if (randomValue < 0.93f) // 11% chance for dangerous non-pattern (82% + 11% = 93%)
             {
                 SpawnDangerousNonPatternRandom(trackHandler);
             }
-            else if (randomValue < 0.98f) // 5% chance for a pattern spawn
+            else if (randomValue < 0.98f) // 5% chance for hazard lines random (93% + 5% = 98%)
             {
-                SpawnPatternOnPlatform(trackHandler, 0); // Use the first pattern in the list
+                SpawnHazardLinesRandom(trackHandler);
             }
-            else // The remaining 2% chance for a random hazard line spawn
+            else // 2% chance for grinding pole pattern (smallest chance)
             {
-                SpawnHazardLinesRandom(trackHandler); // Incorporating your new method
+                SpawnGrindingPole(trackHandler);
             }
         }
         else
@@ -370,6 +372,28 @@ public class PlatformManager : MonoBehaviour
             }
         }
     }
+
+    private void SpawnGrindingPole(TrackHandler trackHandler)
+    {
+        // Select a random column and a random row for spawning the grindable pole
+        int randomColumn = Random.Range(0, trackHandler.itemsPerRow);
+        int randomRow = Random.Range(0, trackHandler.obstaclePositions.Length);
+
+        // Get the world position for the selected row and column
+        var polePosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[randomRow], randomColumn);
+
+        // Spawn the pole and set its position
+        FlyWeight pole = FlyWeightFactory.Spawn(hazards[2]);
+        pole.transform.position = polePosition;
+        (pole as Hazard).isIgnored = false;
+
+        // Mark the position as occupied
+        trackHandler.occupiedPositions.Add(polePosition);
+
+        // Optionally set the parent object for organizational purposes
+        // pole.transform.SetParent(emptyParentHazard.transform);
+    }
+
 
 
 
