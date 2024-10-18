@@ -23,6 +23,8 @@ public class PlatformManager : MonoBehaviour
     private GameObject emptyParentCoin;
     [SerializeField]
     private GameObject emptyParentHazard;
+    
+    
 
 
     private void Awake()
@@ -94,8 +96,9 @@ public class PlatformManager : MonoBehaviour
 
             if (randomValue < 0.3f) // 30% chance for coin pair
             {
-                //SpawnCoinPair(trackHandler);
-                SpawnGrindingPole(trackHandler);
+                SpawnCoinPair(trackHandler);
+                //SpawnGrindingPole(trackHandler);
+                //Debug.Log("Attempting to spawn grind rail");
             }
             else if (randomValue < 0.65f) // 35% chance for coin line (30% + 35% = 65%)
             {
@@ -115,7 +118,8 @@ public class PlatformManager : MonoBehaviour
             }
             else // 2% chance for grinding pole pattern (smallest chance)
             {
-                SpawnGrindingPole(trackHandler);
+                //SpawnGrindingPole(trackHandler);
+                //Debug.Log("Attempting to spawn grind rail");
             }
         }
         else

@@ -16,7 +16,7 @@ public class GrindableObject : MonoBehaviour
 
     private void OnEnable()
     {
-        //player = GameObject.Find("Sphere(Clone)").GetComponent<FishMovement>();
+        //player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
 
         //if (player)
         //{
@@ -53,7 +53,7 @@ public class GrindableObject : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (player == null)
+        if (player == null && GameManager.instance.topState.GetName() == "Game")
         {
             player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
 
@@ -66,7 +66,24 @@ public class GrindableObject : MonoBehaviour
                 Debug.Log("Grind object couldn't find player");
             }
         }
-     
+
+        // TEMPORARY -- remove when this is fully integrated with obstacle spawning
+        transform.Translate(new Vector3(0, 0, -moveSpeed * Time.deltaTime));
+
+        if (transform.position.z <= -15)
+        {
+            if (Random.Range(0.0f, 1.0f) > 0.5f)
+            {
+                transform.position = new Vector3(0.8f, -0.2f, 25);
+            }
+            else
+            {
+                transform.position = new Vector3(-0.8f, -0.2f, 25);
+            }
+        }
+
+        // ---
+
     }
 
     public void startPlayerGrinding()
