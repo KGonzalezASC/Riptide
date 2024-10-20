@@ -6,12 +6,18 @@ using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.InputSystem;
 
-enum fishState
+enum FishMovementState
 {
     SURFACE,
     JUMPING,
     DIVING,
     GRINDING
+}
+
+public enum FishPowerUpState
+{
+    NONE,
+    BOTTLEBREAKER,
 }
 
 public class FishMovement : MonoBehaviour
@@ -47,7 +53,9 @@ public class FishMovement : MonoBehaviour
 
     private Vector2 moveDirection = Vector2.zero;
     [SerializeField]
-    private fishState state = fishState.SURFACE;
+    private FishMovementState state = FishMovementState.SURFACE;
+ 
+    public FishPowerUpState powerUpState = FishPowerUpState.NONE;
 
     [SerializeField]
     private float friction = 0.05f; // Friction factor for slowing down
@@ -86,7 +94,7 @@ public class FishMovement : MonoBehaviour
         if (GameManager.instance.topState.GetName() == "Game")
         {
             moveDirection = playerControls.ReadValue<Vector2>();
-            if (jumpAction.triggered && state != fishState.JUMPING)
+            if (jumpAction.triggered && state != FishMovementState.JUMPING)
             {
                 Jump();
             }
@@ -108,13 +116,13 @@ public class FishMovement : MonoBehaviour
         float verticalVelocity = currentVelocity.y;
 
         // Apply horizontal movement based on input
-        if (moveDirection != Vector2.zero && state != fishState.GRINDING)
+        if (moveDirection != Vector2.zero && state != FishMovementState.GRINDING)
         {
             // Smoothly interpolate the horizontal movement
             float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
             currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
         }
-        else if (state == fishState.SURFACE || state == fishState.DIVING) // Apply gradual slow-down when grounded and no input
+        else if (state == FishMovementState.SURFACE || state == FishMovementState.DIVING) // Apply gradual slow-down when grounded and no input
         {
             // Gradually reduce horizontal velocity using friction
             // This line was the reason for the pull towards the middle,
@@ -158,17 +166,17 @@ public class FishMovement : MonoBehaviour
         rb.velocity = new Vector3(currentVelocity.x, verticalVelocity, 0); // Ensure Z velocity remains zero
 
         // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
-        if (rb.position.y < minHeight - 0.1f && (state == fishState.JUMPING || state == fishState.DIVING))
+        if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING))
         {
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
-            state = fishState.DIVING;
+            state = FishMovementState.DIVING;
         }
-        else if (rb.position.y >= minHeight && state == fishState.DIVING) // Stop vertical movement when surfacing
+        else if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
         {
             //rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
-            state = fishState.SURFACE;
+            state = FishMovementState.SURFACE;
         }
-        else if (state == fishState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
+        else if (state == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
         {
             rb.rotation = Quaternion.Euler(0f, -180f, 0f);
             //Vector3 correctedPosition = rb.position;
@@ -182,7 +190,7 @@ public class FishMovement : MonoBehaviour
                 rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
             }
         }
-        else if (state == fishState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
+        else if (state == FishMovementState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = grindHeight;
@@ -191,12 +199,12 @@ public class FishMovement : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
         }
 
-        if (state == fishState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
+        if (state == FishMovementState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
         {
             rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
         }
         
-        if (state == fishState.JUMPING || state == fishState.DIVING)
+        if (state == FishMovementState.JUMPING || state == FishMovementState.DIVING)
         {
             rb.useGravity = true;
         }
@@ -219,7 +227,7 @@ public class FishMovement : MonoBehaviour
     {
         // Only apply a fixed upward force for the jump
         rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
-        state = fishState.JUMPING;
+        state = FishMovementState.JUMPING;
     }
 
     private float getAnchorDist()
@@ -232,19 +240,19 @@ public class FishMovement : MonoBehaviour
 
     public void startGrind(float snapXTo, float snapYTo)
     {
-        if (state != fishState.GRINDING)
+        if (state != FishMovementState.GRINDING)
         {
             grindHeight = snapYTo;
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
-            state = fishState.GRINDING;
+            state = FishMovementState.GRINDING;
             Debug.Log("Started grinding, x snap loc is: " + snapXTo);
         }
     }
 
     public void stopGrind()
     {
-        state = fishState.JUMPING;
+        state = FishMovementState.JUMPING;
     }
 
     // This function will help visualize the anchor point and movement vector in the editor
@@ -265,5 +273,21 @@ public class FishMovement : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawLine(anchorPoint, anchorPoint + leftLimit);  // Left constraint
         Gizmos.DrawLine(anchorPoint, anchorPoint + rightLimit); // Right constraint
+    }
+
+    public IEnumerator PowerupTime(float delay)
+    {
+        //set powerup state only if powerup state is none
+        if(powerUpState == FishPowerUpState.NONE)
+        {
+            powerUpState = FishPowerUpState.BOTTLEBREAKER;
+            yield return Helpers.GetWaitForSeconds(delay);
+            powerUpState = FishPowerUpState.NONE;
+            Debug.Log("Powerup time ended");
+        }
+        else
+        {
+            Debug.Log("Powerup time already active");
+        }
     }
 }

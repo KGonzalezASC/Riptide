@@ -75,6 +75,7 @@ public class PlayState : gState
         FlyWeightFactory.ClearPool(FlyWeightType.Coin);
         FlyWeightFactory.ClearPool(FlyWeightType.Hazard); 
         FlyWeightFactory.ClearPool(FlyWeightType.GrindablePole); //the idea for the pole is that we can make specicfic script that just switches between prefab on its own settings for different types of poles
+        FlyWeightFactory.ClearPool(FlyWeightType.PowerUp);
         Time.timeScale = 1;
     }
     public override string GetName()
@@ -91,17 +92,17 @@ public class PlayState : gState
             yield return Helpers.GetWaitForSeconds(delay);
 
             // Increase speed increment, but cap it at a maximum of 7? playtest ig idk
-            if (speedIncrement < 7f)
+            if (speedIncrement < 10f)
             {
-                speedIncrement += 0.13f;
+                speedIncrement += 0.44f;
 
                 // Ensure the speedIncrement doesn't exceed 5
-                if (speedIncrement > 5f)
+                if (speedIncrement > 10f)
                 {
-                    speedIncrement = 5f;
+                    speedIncrement = 12f;
                 }
 
-                Debug.Log("Game speed increased to: " + speedIncrement);
+                Debug.Log("Game speed increased by: " + speedIncrement);
             }
         }
         Debug.Log("DifficultyHandler coroutine stopped because the game state changed.");

@@ -10,6 +10,21 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
+        type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -67,7 +82,13 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 3bc33f457e993f24d9aa456513ec38bd, type: 2}
+      objectReference: {fileID: 2100000, guid: d52afb245f1b2a54faecb84825b9e798, type: 2}
+    - target: {fileID: -5754084199372789682, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -8719872034560592509, guid: 2c25a2c1b59beb846834840776eee960,
+        type: 3}
     - target: {fileID: 919132149155446097, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
       propertyPath: m_Name
@@ -94,10 +115,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 477622571402236769}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7854700540414052401}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
       insertIndex: -1
@@ -210,42 +227,19 @@ MonoBehaviour:
       m_Action: Jump
       m_Flags: 0
     m_Flags: 0
-  movementSpeed: 32.5
-  jumpForce: 7
+  movementSpeed: 7.5
+  jumpForce: 6
   maxUnderwaterSpeed: 2
   maxLateralSpeed: 1.03
   surfaceAlignmentForce: -20
   buoyancy: 40
-  minHeight: -0.17
+  minHeight: 0.065
   state: 0
   friction: 0.1
   rb: {fileID: 7141695999175163664}
   anchorPoint: {x: 0, y: -2, z: 0}
-  maxAngle: 45
-  maxRange: 2.75
---- !u!136 &7854700540414052401
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8073257913005948786}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 2
-  m_Radius: 0.13587059
-  m_Height: 0.08225196
-  m_Direction: 2
-  m_Center: {x: 0, y: 0.19999999, z: -0.0003820625}
+  maxAngle: 64
+  maxRange: 4
 --- !u!65 &9010484434768118025
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -265,5 +259,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.24, y: 0.78, z: 0.06}
-  m_Center: {x: 0.00016363709, y: 0.16, z: 0.0006411411}
+  m_Size: {x: 0.65, y: 0.78, z: 1}
+  m_Center: {x: 0, y: 0.16, z: 0.0006411411}

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GrindableObject : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
     [SerializeField] public FishMovement player = null;
     private BoxCollider grindBox;
     private BoxCollider killBox;
@@ -66,23 +65,6 @@ public class GrindableObject : MonoBehaviour
                 Debug.Log("Grind object couldn't find player");
             }
         }
-
-        // TEMPORARY -- remove when this is fully integrated with obstacle spawning
-        transform.Translate(new Vector3(0, 0, -moveSpeed * Time.deltaTime));
-
-        if (transform.position.z <= -15)
-        {
-            if (Random.Range(0.0f, 1.0f) > 0.5f)
-            {
-                transform.position = new Vector3(0.8f, -0.2f, 25);
-            }
-            else
-            {
-                transform.position = new Vector3(-0.8f, -0.2f, 25);
-            }
-        }
-
-        // ---
 
     }
 

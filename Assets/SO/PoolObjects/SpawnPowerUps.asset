@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f00dea421d1a36429d22bf32f9a0b4e, type: 3}
+  m_Name: SpawnPowerUps
+  m_EditorClassIdentifier: 
+  type: 3
+  prefab: {fileID: 8129193038339479334, guid: eb4c4c03799b77f4191b72073e4d5a77, type: 3}
+  despawnDelay: 5
+  speed: 5
+  damage: 10

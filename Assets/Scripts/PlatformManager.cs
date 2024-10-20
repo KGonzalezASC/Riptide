@@ -23,8 +23,8 @@ public class PlatformManager : MonoBehaviour
     private GameObject emptyParentCoin;
     [SerializeField]
     private GameObject emptyParentHazard;
-    
-    
+
+
 
 
     private void Awake()
@@ -96,9 +96,8 @@ public class PlatformManager : MonoBehaviour
 
             if (randomValue < 0.3f) // 30% chance for coin pair
             {
-                SpawnCoinPair(trackHandler);
-                //SpawnGrindingPole(trackHandler);
-                //Debug.Log("Attempting to spawn grind rail");
+                //SpawnCoinPair(trackHandler);
+                SpawnGrindingPole(trackHandler);
             }
             else if (randomValue < 0.65f) // 35% chance for coin line (30% + 35% = 65%)
             {
@@ -118,7 +117,7 @@ public class PlatformManager : MonoBehaviour
             }
             else // 2% chance for grinding pole pattern (smallest chance)
             {
-                //SpawnGrindingPole(trackHandler);
+                SpawnCoinPair(trackHandler);
                 //Debug.Log("Attempting to spawn grind rail");
             }
         }
@@ -156,7 +155,7 @@ public class PlatformManager : MonoBehaviour
         {
             FlyWeight hazard = FlyWeightFactory.Spawn(hazards[1]);
             hazard.transform.position = position;
-            (hazard as Hazard).isIgnored = false; 
+            (hazard as Hazard).isIgnored = false;
             t.occupiedPositions.Add(position); // Mark this position as occupied
             hazard.transform.SetParent(emptyParentHazard.transform);
         }
@@ -271,7 +270,7 @@ public class PlatformManager : MonoBehaviour
             }
             else // Spawn a hazard instead
             {
-               SpawnHazardAtPosition(randomPos, trackHandler);
+                SpawnHazardAtPosition(randomPos, trackHandler);
             }
         }
 
@@ -344,13 +343,13 @@ public class PlatformManager : MonoBehaviour
         }
         List<string> pattern = spawnPatternManager.spawnPatterns[patternIndex].pattern;
         // Check if the pattern is valid
-        if (pattern is null ) 
+        if (pattern is null)
         {
             Debug.LogError("Invalid spawn pattern");
             return;
         }
-        int numRows = 4; 
-        int numCols = 3; 
+        int numRows = 4;
+        int numCols = 3;
         for (int row = 0; row < numRows; row++)
         {
             // Reverse row mapping: Last row in the array corresponds to first row on the platform
@@ -379,25 +378,26 @@ public class PlatformManager : MonoBehaviour
 
     private void SpawnGrindingPole(TrackHandler trackHandler)
     {
-        // Select a random column and a random row for spawning the grindable pole
+        // Select a random column and always use row 0 for the pole
         int randomColumn = Random.Range(0, trackHandler.itemsPerRow);
-        int randomRow = Random.Range(0, trackHandler.obstaclePositions.Length);
+        var polePosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], randomColumn);
 
-        // Get the world position for the selected row and column
-        var polePosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[randomRow], randomColumn);
-
-        // Spawn the pole and set its position
+        // Spawn and position the pole
         FlyWeight pole = FlyWeightFactory.Spawn(hazards[2]);
-        pole.transform.position = polePosition;
+        MeshRenderer meshRenderer = pole.transform.GetChild(0).GetComponent<MeshRenderer>();
+        float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
+        pole.transform.position = polePosition + new Vector3(0, 0, halfwayPointZ);
         (pole as Hazard).isIgnored = false;
-
-        // Mark the position as occupied
         trackHandler.occupiedPositions.Add(polePosition);
+        pole.transform.SetParent(emptyParentHazard.transform);
 
-        // Optionally set the parent object for organizational purposes
-        // pole.transform.SetParent(emptyParentHazard.transform);
+        // Spawn and position the power-up
+        FlyWeight powerUp = FlyWeightFactory.Spawn(hazards[3]);
+        powerUp.transform.position = polePosition + new Vector3(0, 2f, halfwayPointZ);
+        (powerUp as Hazard).isIgnored = false;
+        trackHandler.occupiedPositions.Add(powerUp.transform.position);
+        powerUp.transform.SetParent(emptyParentCoin.transform);
     }
-
 
 
 
