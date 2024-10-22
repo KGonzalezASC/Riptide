@@ -50,6 +50,7 @@ public class FishMovement : MonoBehaviour
     [SerializeField]
     private float minHeight = 1f; // Define the minimum height
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
+    private float grindSnapX = 0.0f;
 
     private Vector2 moveDirection = Vector2.zero;
     [SerializeField]
@@ -81,6 +82,7 @@ public class FishMovement : MonoBehaviour
         playerControls.Enable();
         jumpAction.Enable();
         transform.Rotate(0, 180, 0);
+        state = FishMovementState.SURFACE;
     }
 
     private void OnDisable()
@@ -156,6 +158,12 @@ public class FishMovement : MonoBehaviour
 
         // Update the player's position after clamping (X and Z axes only)
         newPosition = anchorPoint + directionToNewPosition;
+
+        if (state == FishMovementState.GRINDING)
+        {
+            newPosition.x = grindSnapX;
+        }
+
         newPosition.y = rb.position.y; // Keep the current Y position unchanged
         newPosition.z = rb.position.z; // Ensure Z position stays the same
 
@@ -242,6 +250,7 @@ public class FishMovement : MonoBehaviour
     {
         if (state != FishMovementState.GRINDING)
         {
+            grindSnapX = snapXTo;
             grindHeight = snapYTo;
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
