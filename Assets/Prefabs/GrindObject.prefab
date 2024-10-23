@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 6344160a43c6d6a4382417dfaf8f04c5, type: 2}
+  - {fileID: 2100000, guid: 9d5576e6f7e05c24199934069e1af70f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -210,7 +210,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c80dc91a6bbb7ce4a8c44d74628c1d0a, type: 2}
+  - {fileID: 2100000, guid: dfa3521c67c30d646bec52e404728dd9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -281,7 +281,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: daf4f79b4a2aa6d41baa7b8fb59894c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
   player: {fileID: 0}
 --- !u!65 &9026116669814591156
 BoxCollider:
