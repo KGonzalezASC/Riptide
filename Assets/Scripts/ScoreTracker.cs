@@ -35,6 +35,12 @@ public class ScoreTracker : MonoBehaviour
 
     private float time = 0;
 
+    public float TimeValue
+    {
+        get { return time; }
+        set { time = value; }
+    }
+
 
     // Start is called before the first frame update
     void Start()
@@ -52,7 +58,7 @@ public class ScoreTracker : MonoBehaviour
         if (GameManager.instance.topState.GetName() == "Game")
         {
             scoreLabel.text = "Score: " + score;
-            timeLabel.text = "Time: " + time;
+            timeLabel.text = "Time: " + (int)time;
         }
     }
 
