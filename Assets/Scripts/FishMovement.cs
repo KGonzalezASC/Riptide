@@ -56,7 +56,7 @@ public class FishMovement : MonoBehaviour
     private Vector2 moveDirection = Vector2.zero;
     [SerializeField]
     private FishMovementState state = FishMovementState.SURFACE;
- 
+
     public FishPowerUpState powerUpState = FishPowerUpState.NONE;
 
     [SerializeField]
@@ -107,7 +107,7 @@ public class FishMovement : MonoBehaviour
                 Jump();
             }
         }
-        
+
         rb.rotation = Quaternion.Euler(0f, -180f, 0f);
         transform.rotation = Quaternion.Euler(0f, -180f, 0f);
 
@@ -217,7 +217,7 @@ public class FishMovement : MonoBehaviour
         {
             rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
         }
-        
+
         if (state == FishMovementState.JUMPING || state == FishMovementState.DIVING)
         {
             rb.useGravity = true;
@@ -232,7 +232,7 @@ public class FishMovement : MonoBehaviour
             rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
         }
 
-        
+
         //Debug.Log(rb.position + " " + state);
     }
 
@@ -303,7 +303,7 @@ public class FishMovement : MonoBehaviour
     public IEnumerator PowerupTime(float delay)
     {
         //set powerup state only if powerup state is none
-        if(powerUpState == FishPowerUpState.NONE)
+        if (powerUpState == FishPowerUpState.NONE)
         {
             powerUpState = FishPowerUpState.BOTTLEBREAKER;
             yield return Helpers.GetWaitForSeconds(delay);

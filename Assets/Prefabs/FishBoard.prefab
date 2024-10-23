@@ -228,11 +228,11 @@ MonoBehaviour:
       m_Flags: 0
     m_Flags: 0
   movementSpeed: 7.5
-  jumpForce: 6
+  jumpForce: 5.5
   maxUnderwaterSpeed: 2
   maxLateralSpeed: 1.03
   surfaceAlignmentForce: -20
-  buoyancy: 40
+  buoyancy: 42
   minHeight: 0.065
   state: 0
   powerUpState: 0
