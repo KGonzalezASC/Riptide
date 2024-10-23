@@ -15,22 +15,11 @@ public class GrindableObject : MonoBehaviour
 
     private void OnEnable()
     {
-        //player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
-
-        //if (player)
-        //{
-        //    Debug.Log("Grind object found player");
-        //}
-        //else
-        //{
-        //    Debug.Log("Grind object couldn't find player");
-        //}
-
         grindBox = transform.GetChild(2).GetComponent<BoxCollider>();
 
         if (grindBox)
         {
-            Debug.Log("Grind object found grind box");
+            //Debug.Log("Grind object found grind box");
         }
         else
         {
@@ -41,7 +30,7 @@ public class GrindableObject : MonoBehaviour
 
         if (killBox)
         {
-            Debug.Log("Grind object found kill box");
+            //Debug.Log("Grind object found kill box");
         }
         else
         {
@@ -58,7 +47,7 @@ public class GrindableObject : MonoBehaviour
 
             if (player)
             {
-                Debug.Log("Grind object found player");
+                //Debug.Log("Grind object found player");
             }
             else
             {
@@ -70,14 +59,20 @@ public class GrindableObject : MonoBehaviour
 
     public void startPlayerGrinding()
     {
-        Debug.Log("Attempting grinding start");
+        //Debug.Log("Attempting grinding start");
         player.startGrind(transform.position.x, transform.position.y + 0.63f);
     }
 
     public void stopPlayerGrinding()
     {
-        Debug.Log("Attempting grinding stop");
+        //Debug.Log("Attempting grinding stop");
         player.stopGrind();
+    }
+
+    public void preparePlayerPerfectDismount()
+    {
+        Debug.Log("Player ready for perfect dismount");
+        player.preparePerfectDismount();
     }
 
     public void killPlayer()
@@ -85,17 +80,4 @@ public class GrindableObject : MonoBehaviour
         Debug.Log("Player hit by hazard");
         GameManager.instance.switchState("Load");
     }
-
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.CompareTag("Destroy"))
-    //    {
-    //        //PlatformManager.Instance.RemovePlatform(gameObject);
-    //        //Destroy(gameObject);
-
-    //        transform.Translate(new Vector3(0, 0, 30));
-
-    //        Debug.Log("Grind object hit end");
-    //    }
-    //}
 }

@@ -51,6 +51,7 @@ public class FishMovement : MonoBehaviour
     private float minHeight = 1f; // Define the minimum height
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
+    private bool perfectDismountReady = false;
 
     private Vector2 moveDirection = Vector2.zero;
     [SerializeField]
@@ -96,8 +97,13 @@ public class FishMovement : MonoBehaviour
         if (GameManager.instance.topState.GetName() == "Game")
         {
             moveDirection = playerControls.ReadValue<Vector2>();
-            if (jumpAction.triggered && state != FishMovementState.JUMPING)
+            if (jumpAction.triggered && state != FishMovementState.JUMPING && state != FishMovementState.DIVING)
             {
+                if (perfectDismountReady && state == FishMovementState.GRINDING)
+                {
+                    Debug.Log("Perfect dismount!");
+                }
+
                 Jump();
             }
         }
@@ -255,13 +261,23 @@ public class FishMovement : MonoBehaviour
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
             state = FishMovementState.GRINDING;
-            Debug.Log("Started grinding, x snap loc is: " + snapXTo);
+            //Debug.Log("Started grinding, x snap loc is: " + snapXTo);
         }
     }
 
     public void stopGrind()
     {
         state = FishMovementState.JUMPING;
+
+        if (perfectDismountReady)
+        {
+            perfectDismountReady = false;
+        }
+    }
+
+    public void preparePerfectDismount()
+    {
+        perfectDismountReady = true;
     }
 
     // This function will help visualize the anchor point and movement vector in the editor
