@@ -12,6 +12,11 @@ public class PlayState : gState
     private DisplayComboText comboText;
     private ScoreTracker scoreTracker;
 
+    /// <summary>
+    /// read only public reference to score tracker
+    /// </summary>
+    public ScoreTracker ScoreTracker { get { return scoreTracker; } }
+
     //static float to increment speed of the game
     public static float speedIncrement = 0.01f;
     private Coroutine difficultyCoroutine;
@@ -27,7 +32,8 @@ public class PlayState : gState
         scoreTracker.Document = uiGameObject.GetComponent<UIDocument>();
     }
 
-    public void showComboText() {
+    public void showComboText()
+    {
         comboText.ChangeText();
     }
 
@@ -40,9 +46,9 @@ public class PlayState : gState
     {
         Debug.Log("Entering Game State");
         PlatformManager.Instance.GetComponent<PlatformManager>().SpawnInitialPlatform();
-        if(GameObject.Find("FishBoard(Clone)") == null)
+        if (GameObject.Find("FishBoard(Clone)") == null)
         {
-           ConfigObject.Instance.InstantiatePrefab(new Vector3(0, 0, 0));
+            ConfigObject.Instance.InstantiatePrefab(new Vector3(0, 0, 0));
         }
         else
         {
@@ -50,6 +56,8 @@ public class PlayState : gState
         }
         uiGameObject.StartGameplay();
         scoreTracker.Score = 0;
+        //reset time
+        scoreTracker.TimeValue = 0;
         //assign score label
         scoreTracker.ScoreLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-score");
         scoreTracker.TimeLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-time");
@@ -63,7 +71,7 @@ public class PlayState : gState
         //both approaches are valid tho
 
         //check if 60 seconds have passed in play state
-        
+
 
     }
     public override void Exit(gState to)
@@ -73,7 +81,7 @@ public class PlayState : gState
         Time.timeScale = 0;
         PlatformManager.Instance.ClearAllPlatforms();
         FlyWeightFactory.ClearPool(FlyWeightType.Coin);
-        FlyWeightFactory.ClearPool(FlyWeightType.Hazard); 
+        FlyWeightFactory.ClearPool(FlyWeightType.Hazard);
         FlyWeightFactory.ClearPool(FlyWeightType.GrindablePole); //the idea for the pole is that we can make specicfic script that just switches between prefab on its own settings for different types of poles
         FlyWeightFactory.ClearPool(FlyWeightType.PowerUp);
         Time.timeScale = 1;
