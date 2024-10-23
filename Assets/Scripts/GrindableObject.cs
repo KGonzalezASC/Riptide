@@ -52,7 +52,7 @@ public class GrindableObject : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (player == null && GameManager.instance.topState.GetName() == "Game")
+        if (player == null && GameManager.instance.topState.GetName() == "Game" && GameObject.FindWithTag("Player") != null)
         {
             player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
 
