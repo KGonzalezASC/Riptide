@@ -12,6 +12,11 @@ public class PlayState : gState
     private DisplayComboText comboText;
     private ScoreTracker scoreTracker;
 
+    /// <summary>
+    /// read only public reference to score tracker
+    /// </summary>
+    public ScoreTracker ScoreTracker { get { return scoreTracker; } }
+
     //static float to increment speed of the game
     public static float speedIncrement = 0.01f;
     private Coroutine difficultyCoroutine;
