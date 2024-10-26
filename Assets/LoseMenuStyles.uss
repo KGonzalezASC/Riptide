@@ -23,3 +23,12 @@
     font-size: 45px;
     color: rgb(255, 255, 255);
 }
+
+.label-score {
+    align-self: center;
+    align-items: center;
+    width: 20%;
+    color: rgb(255, 255, 255);
+    -unity-text-align: upper-center;
+    font-size: 28px;
+}
