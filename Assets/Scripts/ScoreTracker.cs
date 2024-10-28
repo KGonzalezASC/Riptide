@@ -6,6 +6,7 @@ using UnityEngine.UIElements;
 public class ScoreTracker : MonoBehaviour
 {
     private int score = 0;
+    private int scoreSum = 0;
     private UIDocument _document;
 
     public UIDocument Document
@@ -69,5 +70,39 @@ public class ScoreTracker : MonoBehaviour
     public void IncrementScore(int baseAmount)
     {
         score += (int)(baseAmount + baseAmount * (time * timeScale));
+    }
+
+    /// <summary>
+    /// Adds to a score sum, which will be added to total score when gainTrickScore is called
+    /// </summary>
+    /// <param name="addedAmount">the amount to add to the score sum</param>
+    public void buildTrickScore(int addedAmount)
+    {
+        scoreSum += addedAmount;
+    }
+
+    /// <summary>
+    /// Adds trick score to the total
+    /// </summary>
+    /// <param name="perfect">true in the event of a perfect dismount or other similar condition - score gained is doubled when true</param>
+    public void gainTrickScore(bool perfect)
+    {
+        if (perfect)
+        {
+            scoreSum *= 2;
+        }
+
+        //IncrementScore(scoreSum);
+        score += scoreSum;
+
+        scoreSum = 0;
+    }
+
+    /// <summary>
+    /// Resets trick score sum if the player messes up
+    /// </summary>
+    public void loseTrickScore()
+    {
+        scoreSum = 0;
     }
 }
