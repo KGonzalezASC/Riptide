@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class Hazard : FlyWeight
 {
@@ -21,8 +22,10 @@ public class Hazard : FlyWeight
     {
         // Adjust movement speed by adding the speed increment
         float adjustedSpeed = Settings.speed + PlayState.speedIncrement;
-        transform.Translate(-Vector3.forward * (adjustedSpeed * Time.deltaTime));
+        // Move in world space along the Z-axis (forward direction in world space) //allows to locally rotate any hazard
+        transform.Translate(Vector3.back * (adjustedSpeed * Time.deltaTime), Space.World);
     }
+
 
     private IEnumerator DespawnAfterDelay(float delay)
     {
@@ -72,14 +75,15 @@ public class Hazard : FlyWeight
         if (fish.powerUpState == 0)
         {
             // Player hit a hazard without a power-up
-            Debug.Log("Player hit by hazard");
+            // Debug.Log("Player hit by hazard");
             SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, 1f);
             GameManager.instance.switchState("YouLose");
+
         }
         else
         {
             // Player hit a hazard but has a power-up
-            Debug.Log("Player hit by hazard but has power-up");
+            //Debug.Log("Player hit by hazard but has power-up");
             // Insert bottle break soundFX here
             StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
         }
@@ -88,22 +92,24 @@ public class Hazard : FlyWeight
 
     private void HandlePowerUpCollision(FishMovement fish)
     {
-        Debug.Log("Player hit a power-up");
+        //Debug.Log("Player hit a power-up");
         fish.StartCoroutine(fish.PowerupTime(13)); // Start power-up effect
         StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
         isIgnored = true;
         MoveToSafeSpace();
+
+        var playState = GameManager.instance.topState as PlayState;
+        playState.StartPowerSlider();
     }
 
     private void HandleCollectibleCollision()
     {
-        Debug.Log("Player collected an item");
+        //Debug.Log("Player collected an item");
         SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, .025f);
         // Update game state (combo text, score)
         var playState = GameManager.instance.topState as PlayState;
         playState.showComboText();
         playState.IncreaseScore();
-
         isIgnored = true;
         MoveToSafeSpace();
         StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));

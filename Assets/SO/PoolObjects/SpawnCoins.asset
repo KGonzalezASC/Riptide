@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f00dea421d1a36429d22bf32f9a0b4e, type: 3}
   m_Name: SpawnCoins
   m_EditorClassIdentifier: 
-  type: 0
+  type: 1
   prefab: {fileID: 8060818626167473607, guid: 5ed31880f2490d14bb2b2cfad0352a88, type: 3}
-  despawnDelay: 2
+  despawnDelay: 0
   speed: 6.67
   damage: 10

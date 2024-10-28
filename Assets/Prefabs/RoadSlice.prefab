@@ -192,7 +192,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 53a0f4ce8cf0a204eb63ef224ce6ad19, type: 2}
+  - {fileID: 2100000, guid: 880cbff259e73af439c1261f54d27ff0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -251,7 +251,7 @@ MonoBehaviour:
   rowSpacing: 3
   gizmoSphereSize: 0.45
   itemsPerRow: 3
-  spacingBetweenItems: 0.87
+  spacingBetweenItems: 0.77
   obstaclePositions:
   - 0
   - 0.33333334

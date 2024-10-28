@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 3
   prefab: {fileID: 8129193038339479334, guid: eb4c4c03799b77f4191b72073e4d5a77, type: 3}
-  despawnDelay: 3
+  despawnDelay: 1
   speed: 6.67
   damage: 10

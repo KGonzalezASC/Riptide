@@ -42,6 +42,13 @@ public class PlayState : gState
         scoreTracker.IncrementScore(scoreValue);
     }
 
+    public void StartPowerSlider()
+    {
+        comboText.StartPowerSlider();
+    }
+
+
+
     public override void Enter(gState from) //since the ui document changes we need to reassign the document labels and score
     {
         Debug.Log("Entering Game State");

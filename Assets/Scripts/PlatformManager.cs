@@ -35,8 +35,8 @@ public class PlatformManager : MonoBehaviour
         HazardPattern,
         GrindingPattern,
     }
-    private Dictionary<PlatformType, List<Func<TrackHandler, PlatformType>>> platformPatterns;
-    private Queue<Func<TrackHandler, PlatformType>> lastTwoActions = new(2); // Store the last two patterns
+    private readonly Dictionary<PlatformType, List<Func<TrackHandler, PlatformType>>> platformPatterns;
+    private readonly Queue<Func<TrackHandler, PlatformType>> lastTwoActions = new(2); // Store the last two patterns
     public PlatformManager()
     {
       platformPatterns = new Dictionary<PlatformType, List<Func<TrackHandler, PlatformType>>>
@@ -44,7 +44,8 @@ public class PlatformManager : MonoBehaviour
         { PlatformType.SafePattern, new List<Func<TrackHandler,PlatformType>>
             {
                 trackHandler => SpawnCoinPair(trackHandler),
-                trackHandler => SpawnCoinLine(trackHandler)
+                trackHandler => SpawnCoinLine(trackHandler),
+                trackHandler => SpawnCoinLineAllRows(trackHandler)
             }
         },
         { PlatformType.HazardPattern, new List<Func<TrackHandler,PlatformType>>
@@ -99,14 +100,20 @@ public class PlatformManager : MonoBehaviour
     public void SpawnPlatforms()
     {
         if (activePlatforms.Count >= MaxActivePlatforms) { return; }
+
         Vector3 lastPlatformChildPosition = activePlatforms.Count > 0
             ? activePlatforms[^1].transform.GetChild(0).GetComponent<MeshRenderer>().bounds.max
             : Vector3.zero;
 
-        // Calculate the new position for the first platform
+        // Check if any of the last two actions were Grinding Patterns
+        bool anyGrindingPattern = lastTwoActions.Any(action => IsGrindingPattern(action));
+
+        // Set gap based on the presence of any Grinding Pattern in the last two actions
+        float adjustedGap = anyGrindingPattern ? 0 : gap;
+
+
         Vector3 firstNewSectionPos = new(0, 0, lastPlatformChildPosition.z + sectionLength);
-        // Calculate the new position for the second platform (which will come after the first)
-        Vector3 secondNewSectionPos = firstNewSectionPos + new Vector3(0, 0, sectionLength + gap);
+        Vector3 secondNewSectionPos = firstNewSectionPos + new Vector3(0, 0, sectionLength + adjustedGap);
         GameObject firstPlatform = Instantiate(sectionPrefab, firstNewSectionPos, Quaternion.identity);
         activePlatforms.Add(firstPlatform);
         GameObject secondPlatform = Instantiate(sectionPrefab, secondNewSectionPos, Quaternion.identity);
@@ -114,11 +121,10 @@ public class PlatformManager : MonoBehaviour
 
         //third platform
         // Calculate the new position for the third platform (which will come after the second)
-        Vector3 thirdNewSectionPos = secondNewSectionPos + new Vector3(0, 0, sectionLength + gap);
+        Vector3 thirdNewSectionPos = secondNewSectionPos + new Vector3(0, 0, sectionLength + adjustedGap);
         GameObject thirdPlatform = Instantiate(sectionPrefab, thirdNewSectionPos, Quaternion.identity);
         activePlatforms.Add(thirdPlatform);
 
-        // Optionally spawn hazards on the new platforms
         SpawnHazardOnPlatform(firstPlatform);
         SpawnHazardOnPlatform(secondPlatform);
         SpawnHazardOnPlatform(thirdPlatform);
@@ -152,18 +158,18 @@ public class PlatformManager : MonoBehaviour
             platformPatterns[type][Random.Range(0, platformPatterns[type].Count)];
 
         bool hasTwoGrindingActions = lastTwoActions.Count > 1 &&
-                                     lastTwoActions.ElementAt(0) == SpawnGrindingPole &&
-                                     lastTwoActions.ElementAt(1) == SpawnGrindingPole;
+                                IsGrindingPattern(lastTwoActions.ElementAt(0)) &&
+                                IsGrindingPattern(lastTwoActions.ElementAt(1));
 
         bool isAnyGrindingPattern = lastTwoActions.Count > 1 &&
-                                    (lastTwoActions.ElementAt(0) == SpawnGrindingPole ^ lastTwoActions.ElementAt(1) == SpawnGrindingPole);
+                                    (lastTwoActions.ElementAt(0) == SpawnGrindingPole ^ lastTwoActions.ElementAt(1) == SpawnGrindingPole); //do not use isgrinding because it will make it very deterministic
 
         // Determine which pattern to spawn
         if (lastTwoActions.Count == 0)
         {
             // Select pattern based on probabilities when queue is empty
-            selectedAction = randomValue < 0.2f ? GetRandomAction(PlatformType.SafePattern) :
-                             randomValue < 0.7f ? GetRandomAction(PlatformType.HazardPattern) :
+            selectedAction = randomValue < 0.40f ? GetRandomAction(PlatformType.SafePattern) :
+                             randomValue < 0.60f ? GetRandomAction(PlatformType.HazardPattern) :
                              GetRandomAction(PlatformType.GrindingPattern);
         }
         else if (isAnyGrindingPattern)
@@ -182,20 +188,20 @@ public class PlatformManager : MonoBehaviour
         else if (lastTwoActions.Peek() == SpawnGrindingPole)
         {
             // If the last action was grinding, 80% chance for another grinding pattern
-            selectedAction = randomValue < 0.95f ? GetRandomAction(PlatformType.GrindingPattern) :
+            selectedAction = randomValue < 0.72f ? GetRandomAction(PlatformType.GrindingPattern) :
                              GetRandomAction(PlatformType.HazardPattern);
         }
         else if (hasTwoGrindingActions)
         {
             // If there are two grinding patterns in the queue, reduce chance for another
-            selectedAction = randomValue < 0.6f ? GetRandomAction(PlatformType.GrindingPattern) :
-                             GetRandomAction(PlatformType.HazardPattern);
+            selectedAction = randomValue < 0.45f ? GetRandomAction(PlatformType.GrindingPattern) :
+                             GetRandomAction(PlatformType.SafePattern);
         }
         else
         {
             // General case when none of the above conditions are met
-            selectedAction = randomValue < 0.2f ? GetRandomAction(PlatformType.SafePattern) :
-                             randomValue < 0.65f ? GetRandomAction(PlatformType.HazardPattern) :
+            selectedAction = randomValue < 0.4f ? GetRandomAction(PlatformType.SafePattern) :
+                             randomValue < 0.78f ? GetRandomAction(PlatformType.HazardPattern) :
                              GetRandomAction(PlatformType.GrindingPattern);
         }
 
@@ -261,6 +267,26 @@ public class PlatformManager : MonoBehaviour
 
         return PlatformType.SafePattern;
     }
+
+    //safe pattern of all coins for all rows
+    private PlatformType SpawnCoinLineAllRows(TrackHandler trackHandler)
+    {
+        for (int i = 0; i < trackHandler.obstaclePositions.Length; i++)
+        {
+            for (int j = 0; j < trackHandler.itemsPerRow; j++)
+            {
+                var coinPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[i], j);
+                SpawnCoinAtPosition(coinPosition, trackHandler);
+            }
+        }
+
+        return PlatformType.SafePattern;
+    }
+
+
+
+
+
 
     //2 coin rows and a singular hazard
     private PlatformType SpawnCoinLine(TrackHandler trackHandler)
@@ -448,9 +474,12 @@ public class PlatformManager : MonoBehaviour
         MeshRenderer meshRenderer = pole.transform.GetChild(0).GetComponent<MeshRenderer>();
         float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
         pole.transform.position = polePosition + new Vector3(0, 0, halfwayPointZ);
+       // pole.transform.Rotate(-15f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
         (pole as Hazard).isIgnored = false;
         trackHandler.occupiedPositions.Add(polePosition);
         pole.transform.SetParent(emptyParentHazard.transform);
+
+
 
         // Spawn and position the power-up
         FlyWeight powerUp = FlyWeightFactory.Spawn(hazards[3]);
@@ -514,9 +543,9 @@ public class PlatformManager : MonoBehaviour
         int nonElevatedColumn = Random.Range(0, 2) == 0 ? 0 : 2;  // Randomly choose column 0 or 2 to be non-elevated
         int elevatedColumn = nonElevatedColumn == 0 ? 2 : 0;  // The other column will be elevated
 
-        float elevatedYPosition = 1.0f;  // Elevation for the elevated grind rail
-        float groundYPosition = 0f;      // Ground level for the non-elevated grind rail
-        float halfwayPointZ = 0.5f;      // Z-offset for placing the grind rail
+        float elevatedYPosition = .85f;  // Elevation for the elevated grind rail
+        float groundYPosition = -0.1f;      // Ground level for the non-elevated grind rail
+        float zOffset = 8f;              // Z-axis offset to push one grind rail forward
 
         // Loop through columns 0 and 2 (skip column 1)
         for (int column = 0; column <= 2; column += 2)
@@ -525,25 +554,24 @@ public class PlatformManager : MonoBehaviour
             var railPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], column);
             FlyWeight grindRail = FlyWeightFactory.Spawn(hazards[2]); // Spawn the grind rail
 
+            // Get MeshRenderer to calculate Z extents
+            MeshRenderer meshRenderer = grindRail.transform.GetChild(0).GetComponent<MeshRenderer>();
+            float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway point is the Z extents of the mesh
+
             // Determine Y position based on whether the column is elevated or not
             float yPosition = column == elevatedColumn ? elevatedYPosition : groundYPosition;
 
-            // Position the grind rail at the calculated position and parent it
-            grindRail.transform.position = railPosition + new Vector3(0, yPosition, halfwayPointZ);
+            // Apply Z offset to the non-elevated rail only, to move it forward
+            float zPositionOffset = column == nonElevatedColumn ? halfwayPointZ + zOffset : halfwayPointZ;
+
+            // Position the grind rail with adjusted Y and Z positions, and parent it
+            grindRail.transform.position = railPosition + new Vector3(0, yPosition, zPositionOffset);
             trackHandler.occupiedPositions.Add(railPosition);
             grindRail.transform.SetParent(emptyParentHazard.transform);
         }
+
         return PlatformType.GrindingPattern;
     }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -592,5 +620,10 @@ public class PlatformManager : MonoBehaviour
             lastTwoActions.Dequeue();
         }
         lastTwoActions.Enqueue(func);
+    }
+
+    private bool IsGrindingPattern(Func<TrackHandler, PlatformType> action)
+    {
+        return platformPatterns[PlatformType.GrindingPattern].Contains(action);
     }
 }

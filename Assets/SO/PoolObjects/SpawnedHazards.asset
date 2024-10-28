@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f00dea421d1a36429d22bf32f9a0b4e, type: 3}
   m_Name: SpawnedHazards
   m_EditorClassIdentifier: 
-  type: 1
+  type: 0
   prefab: {fileID: 839118507278211180, guid: 017e4d0407bf79145b381392229059d5, type: 3}
-  despawnDelay: 2
+  despawnDelay: 0
   speed: 6.67
   damage: 10
