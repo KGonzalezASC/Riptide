@@ -3,7 +3,6 @@
     <ui:VisualElement name="Container" style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Sprites/gnarlyFish.jpg?fileID=2800000&amp;guid=b7caeb7a0b649b64b8531f3929f1b1e5&amp;type=3#gnarlyFish&quot;);">
         <ui:Label tabindex="-1" text="Main Menu" parse-escape-sequences="true" display-tooltip-when-elided="true" class="header label" />
         <ui:Button text="Start" parse-escape-sequences="true" display-tooltip-when-elided="true" name="btn-start" class="button" />
-        <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" name="btn-store" class="button" />
         <ui:Button text="Settings" parse-escape-sequences="true" display-tooltip-when-elided="true" name="btn-settings" class="button" />
     </ui:VisualElement>
 </ui:UXML>
