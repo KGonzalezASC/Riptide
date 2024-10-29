@@ -47,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc235d3d9793e1643953cd8f98e54031, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  speed: 6.67
   angleX: -37
 --- !u!54 &4712987468274918142
 Rigidbody:
@@ -179,7 +179,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8103827070497884972}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -248,10 +248,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 684d2344c841f0f4e87209297eb03ae8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rowSpacing: 3
+  rowSpacing: 3.05
   gizmoSphereSize: 0.45
   itemsPerRow: 3
-  spacingBetweenItems: 0.87
+  spacingBetweenItems: 0.82
   obstaclePositions:
   - 0
   - 0.33333334

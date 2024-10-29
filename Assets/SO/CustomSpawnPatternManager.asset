@@ -14,15 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnPatterns:
   - pattern:
-    - 
-    - h
-    - 
+    - c
     - h
     - c
     - h
-    - 
+    - c
     - h
-    - 
+    - c
+    - h
+    - c
     - h
     - c
     - h
@@ -31,11 +31,50 @@ MonoBehaviour:
     - c
     - 
     - 
+    - h
     - 
     - 
+    - h
     - 
     - 
+    - c
+    - c
+  - pattern:
+    - c
+    - h
+    - h
+    - h
+    - c
     - 
+    - c
     - 
+    - h
+    - c
+    - 
+    - h
+  - pattern:
+    - h
+    - h
+    - c
+    - 
+    - c
+    - h
+    - c
+    - 
+    - c
+    - c
+    - 
+    - c
+  - pattern:
+    - c
+    - c
+    - c
+    - c
+    - h
+    - c
+    - c
+    - c
+    - c
+    - c
     - c
     - c

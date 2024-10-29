@@ -8,7 +8,6 @@ using Object = UnityEngine.Object;
 
 public class YouLoseState : gState
 {
-
     [SerializeField] private UIDocument loseUIDocument; //lose screen ui document
     private VisualElement scoreContainer;
     private Label _label;
@@ -18,13 +17,9 @@ public class YouLoseState : gState
     {
         //get a reference to previous game state as a play state
         playState = from as PlayState;
-
         // Initialize score container
         scoreContainer = loseUIDocument.rootVisualElement.Q<VisualElement>("container-score"); // Replace with actual container ID
         PopulateScores();
-
-        // Add the player's new score to highscores
-        PlayerSaveData.Instance.InsertScore(playState.ScoreTracker.Score, "Player"); // TODO: add name input
     }
 
 
@@ -40,7 +35,7 @@ public class YouLoseState : gState
     {
         //clear existing scores
         scoreContainer.Clear();
-
+        PlayerSaveData.Instance.InsertScore(playState.ScoreTracker.Score, "Player"); // TODO: add name input
         foreach (HighscoreEntry entry in PlayerSaveData.Instance.highscores)
         {
             //create label

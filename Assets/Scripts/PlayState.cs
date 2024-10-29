@@ -42,6 +42,13 @@ public class PlayState : gState
         scoreTracker.IncrementScore(scoreValue);
     }
 
+    public void StartPowerSlider()
+    {
+        comboText.StartPowerSlider();
+    }
+
+
+
     public override void Enter(gState from) //since the ui document changes we need to reassign the document labels and score
     {
         Debug.Log("Entering Game State");
@@ -62,7 +69,7 @@ public class PlayState : gState
         scoreTracker.ScoreLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-score");
         scoreTracker.TimeLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-time");
         speedIncrement = 0.01f; //reset speed increment
-        difficultyCoroutine = StartCoroutine(DifficultyHandler(10f));
+        difficultyCoroutine = StartCoroutine(DifficultyHandler(6f));
     }
     public override void Execute()
     {
@@ -84,6 +91,7 @@ public class PlayState : gState
         FlyWeightFactory.ClearPool(FlyWeightType.Hazard);
         FlyWeightFactory.ClearPool(FlyWeightType.GrindablePole); //the idea for the pole is that we can make specicfic script that just switches between prefab on its own settings for different types of poles
         FlyWeightFactory.ClearPool(FlyWeightType.PowerUp);
+        StopCoroutine(difficultyCoroutine);
         Time.timeScale = 1;
     }
     public override string GetName()
@@ -93,19 +101,19 @@ public class PlayState : gState
 
     IEnumerator DifficultyHandler(float delay)
     {
-        yield return Helpers.GetWaitForSeconds(1.0f);
+        yield return Helpers.GetWaitForSeconds(0.65f);
 
         while (GameManager.instance.topState.GetName() == "Game")
         {
             yield return Helpers.GetWaitForSeconds(delay);
 
             // Increase speed increment, but cap it at a maximum of 7? playtest ig idk
-            if (speedIncrement < 10f)
+            if (speedIncrement < 14f)
             {
-                speedIncrement += 0.44f;
+                speedIncrement += 0.75f;
 
                 // Ensure the speedIncrement doesn't exceed 5
-                if (speedIncrement > 10f)
+                if (speedIncrement > 14f)
                 {
                     speedIncrement = 12f;
                 }

@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.InputSystem;
 
-enum FishMovementState
+public enum FishMovementState
 {
     SURFACE,
     JUMPING,
@@ -35,6 +35,7 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float jumpForce = 5.8f; // The force applied when jumping
+    private float activeJumpForce;
 
     [SerializeField]
     private float maxUnderwaterSpeed = 2.0f;
@@ -96,6 +97,7 @@ public class FishMovement : MonoBehaviour
             scoreTracker = GameObject.FindWithTag("UI").GetComponent<ScoreTracker>();
             //Debug.Log("Player found score tracker");
         }
+        activeJumpForce = jumpForce;
     }
 
     private void OnDisable()
@@ -120,7 +122,7 @@ public class FishMovement : MonoBehaviour
                 Jump();
             }
         }
-        
+
         rb.rotation = Quaternion.Euler(0f, -180f, 0f);
         transform.rotation = Quaternion.Euler(0f, -180f, 0f);
 
@@ -204,6 +206,7 @@ public class FishMovement : MonoBehaviour
         {
             //rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
             state = FishMovementState.SURFACE;
+            NormalJump();
         }
         else if (state == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
         {
@@ -234,7 +237,7 @@ public class FishMovement : MonoBehaviour
         {
             rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
         }
-        
+
         if (state == FishMovementState.JUMPING || state == FishMovementState.DIVING)
         {
             rb.useGravity = true;
@@ -249,7 +252,7 @@ public class FishMovement : MonoBehaviour
             rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
         }
 
-        
+
         //Debug.Log(rb.position + " " + state);
     }
 
@@ -257,7 +260,7 @@ public class FishMovement : MonoBehaviour
     private void Jump()
     {
         // Only apply a fixed upward force for the jump
-        rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce, rb.velocity.z);
         state = FishMovementState.JUMPING;
     }
 
@@ -295,6 +298,8 @@ public class FishMovement : MonoBehaviour
     public void preparePerfectDismount()
     {
         perfectDismountReady = true;
+        SuperJump();
+
     }
 
     public void resetState()
@@ -325,7 +330,7 @@ public class FishMovement : MonoBehaviour
     public IEnumerator PowerupTime(float delay)
     {
         //set powerup state only if powerup state is none
-        if(powerUpState == FishPowerUpState.NONE)
+        if (powerUpState == FishPowerUpState.NONE)
         {
             powerUpState = FishPowerUpState.BOTTLEBREAKER;
             yield return Helpers.GetWaitForSeconds(delay);
@@ -337,4 +342,23 @@ public class FishMovement : MonoBehaviour
             Debug.Log("Powerup time already active");
         }
     }
+
+    public void OnFishDeath() {
+        stopGrind();
+        state = FishMovementState.JUMPING;
+        powerUpState = FishPowerUpState.NONE;
+    }
+
+    //super jump
+    public void SuperJump()
+    {
+        activeJumpForce = jumpForce * 1.2f;
+    }
+
+    //normal jump
+    public void NormalJump()
+    {
+        activeJumpForce = jumpForce;
+    }
+
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class Hazard : FlyWeight
 {
@@ -9,26 +9,25 @@ public class Hazard : FlyWeight
 
     HazardSettings Settings => (HazardSettings)base.settings;
 
-    void MoveInPlayState()
+    private void Update()
     {
-        if (!isIgnored)
-        {
-            // Incorporate PlayState.speedIncrement into the movement speed
-            float adjustedSpeed = Settings.speed + PlayState.speedIncrement;
-            transform.Translate(-Vector3.forward * (adjustedSpeed * Time.deltaTime));
-        }
-    }
-
-
-    void Update()
-    {
-        if (GameManager.instance.topState.GetName() == "Game")
+        // Only move the hazard when in "Game" state and if it's not ignored
+        if (!isIgnored && GameManager.instance.topState.GetName() == "Game")
         {
             MoveInPlayState();
         }
     }
 
-    IEnumerator DespawnAfterDelay(float delay)
+    private void MoveInPlayState()
+    {
+        // Adjust movement speed by adding the speed increment
+        float adjustedSpeed = Settings.speed + PlayState.speedIncrement;
+        // Move in world space along the Z-axis (forward direction in world space) //allows to locally rotate any hazard
+        transform.Translate(Vector3.back * (adjustedSpeed * Time.deltaTime), Space.World);
+    }
+
+
+    private IEnumerator DespawnAfterDelay(float delay)
     {
         yield return Helpers.GetWaitForSeconds(delay);
         FlyWeightFactory.ReturnToPool(this);
@@ -36,52 +35,83 @@ public class Hazard : FlyWeight
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Destroy")) //hits platform despawn trigger in back of game view
+        if (other.CompareTag("Destroy"))
         {
-            transform.position = new Vector3(0, -20, 0); //move to safe space
-            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //return to pool after delay
-            isIgnored = true;
+            HandleOutofBounds();
         }
-        if (other.CompareTag("Player"))
+        else if (other.CompareTag("Player"))
         {
-            var Fish = other.GetComponent<FishMovement>();
-            switch (this.name)
-            {
-                case "Hazard":
-                    if (Fish.powerUpState == 0)
-                    {
-                        Debug.Log("Player hit by hazard");
-                        SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, 1f);
-                        transform.position = new Vector3(0, -20, -5); // Move to safe space
-                        GameManager.instance.switchState("YouLose"); // Switch to lose state
-                    }
-                    else
-                    {
-                        Debug.Log("Player hit by hazard but has powerup");
-                        //Insert bottle break soundFX
-                        transform.position = new Vector3(0, -20, -5); // Move to safe space
-                        StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); // Return to pool after delay
-                    }
-                    break;
-                case "PowerUp":
-                    Debug.Log("Player hit a powerup");
-                    transform.position = new Vector3(0, -20, 0); // Move to safe space
-                    Fish.StartCoroutine(Fish.PowerupTime(13));
-                    StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); // Return to pool after delay
-                    isIgnored = true;
-                    break;
-                default:
-                    // Is coin 
-                    transform.position = new Vector3(0, -20, 0);
-                    StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
-                    SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, .025f);
-                    // Combo text and score increase
-                    var playstate = (GameManager.instance.topState as PlayState);
-                    playstate.showComboText();
-                    playstate.IncreaseScore();
-                    isIgnored = true;
-                    break;
-            }
+            HandlePlayerCollision(other.GetComponent<FishMovement>());
         }
     }
+
+    private void HandleOutofBounds()
+    {
+        MoveToSafeSpace();
+        StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
+        isIgnored = true;
+    }
+
+    private void HandlePlayerCollision(FishMovement fish)
+    {
+        switch (this.name)
+        {
+            case "Hazard":
+                HandleHazardCollision(fish);
+                break;
+
+            case "PowerUp":
+                HandlePowerUpCollision(fish);
+                break;
+
+            default: // Assume it is a collectible like a coin
+                HandleCollectibleCollision();
+                break;
+        }
+    }
+
+    private void HandleHazardCollision(FishMovement fish)
+    {
+        if (fish.powerUpState == 0)
+        {
+            // Player hit a hazard without a power-up
+            fish.OnFishDeath();
+            SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, 1f);
+            GameManager.instance.switchState("YouLose");
+        }
+        else
+        {
+            // Player hit a hazard but has a power-up
+            // Insert bottle break soundFX here
+            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
+        }
+        MoveToSafeSpace();
+    }
+
+    private void HandlePowerUpCollision(FishMovement fish)
+    {
+        //Debug.Log("Player hit a power-up");
+        fish.StartCoroutine(fish.PowerupTime(13)); // Start power-up effect
+        StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
+        isIgnored = true;
+        MoveToSafeSpace();
+        var playState = GameManager.instance.topState as PlayState;
+        playState.StartPowerSlider();
+    }
+
+    private void HandleCollectibleCollision()
+    {
+        //Debug.Log("Player collected an item");
+        SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, .025f);
+        // Update game state (combo text, score)
+        var playState = GameManager.instance.topState as PlayState;
+        if(GameManager.instance.topState.GetName() == "Game")
+        playState.showComboText();
+        playState.IncreaseScore();
+        isIgnored = true;
+        MoveToSafeSpace();
+        StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
+    }
+
+    private void MoveToSafeSpace() => transform.position = new Vector3(0, -20, 0);
 }
