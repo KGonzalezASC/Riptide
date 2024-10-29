@@ -78,6 +78,7 @@ public class GrindableObject : MonoBehaviour
     public void killPlayer()
     {
         Debug.Log("Player hit by hazard");
+        player.resetState();
         GameManager.instance.switchState("Load");
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+//using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,6 +8,7 @@ public class ScoreTracker : MonoBehaviour
 {
     private int score = 0;
     private int scoreSum = 0;
+    private float scoreMult = 1.0f;
     private UIDocument _document;
 
     public UIDocument Document
@@ -79,23 +81,43 @@ public class ScoreTracker : MonoBehaviour
     public void buildTrickScore(int addedAmount)
     {
         scoreSum += addedAmount;
+        Debug.Log("scoreSum: " + scoreSum);
+    }
+
+    /// <summary>
+    /// Adds to a score multiplier, to be applied when the trick score is added to the total
+    /// </summary>
+    /// <param name="addedMult">the amount to increase the multiplier by</param>
+    public void buildTrickMultiplier(float addedMult)
+    {
+        if (scoreSum > 0)
+        {
+            scoreMult += addedMult;
+            Debug.Log("scoreMult: " + scoreMult);
+        }
     }
 
     /// <summary>
     /// Adds trick score to the total
     /// </summary>
-    /// <param name="perfect">true in the event of a perfect dismount or other similar condition - score gained is doubled when true</param>
+    /// <param name="perfect">score multipier is multiplied by 1.5x when true</param>
     public void gainTrickScore(bool perfect)
     {
-        if (perfect)
+        if (scoreSum > 0)
         {
-            scoreSum *= 2;
+            if (perfect)
+            {
+                scoreMult *= 1.5f;
+            }
+
+            scoreSum = (int)(scoreSum * scoreMult);
+
+            IncrementScore(scoreSum);
+            Debug.Log("Added " + scoreSum + " * " + scoreMult + " = " + (scoreSum * scoreMult) + " to score ");
+
+            scoreSum = 0;
+            scoreMult = 0;
         }
-
-        //IncrementScore(scoreSum);
-        score += scoreSum;
-
-        scoreSum = 0;
     }
 
     /// <summary>

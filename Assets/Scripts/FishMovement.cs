@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+//using System.Diagnostics;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
@@ -49,11 +50,13 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float minHeight = 1f; // Define the minimum height
+
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
     private bool perfectDismountReady = false;
 
     private Vector2 moveDirection = Vector2.zero;
+
     [SerializeField]
     private FishMovementState state = FishMovementState.SURFACE;
  
@@ -78,12 +81,21 @@ public class FishMovement : MonoBehaviour
 
     private bool isGrounded;
     private bool canJump;
+
+    private ScoreTracker scoreTracker;
+
     private void OnEnable()
     {
         playerControls.Enable();
         jumpAction.Enable();
         transform.Rotate(0, 180, 0);
         state = FishMovementState.SURFACE;
+
+        if (scoreTracker == null && GameObject.FindWithTag("UI") != null)
+        {
+            scoreTracker = GameObject.FindWithTag("UI").GetComponent<ScoreTracker>();
+            //Debug.Log("Player found score tracker");
+        }
     }
 
     private void OnDisable()
@@ -102,6 +114,7 @@ public class FishMovement : MonoBehaviour
                 if (perfectDismountReady && state == FishMovementState.GRINDING)
                 {
                     Debug.Log("Perfect dismount!");
+                    scoreTracker.buildTrickMultiplier(1.5f);
                 }
 
                 Jump();
@@ -184,6 +197,8 @@ public class FishMovement : MonoBehaviour
         {
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
             state = FishMovementState.DIVING;
+
+            scoreTracker.gainTrickScore(false);
         }
         else if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
         {
@@ -211,6 +226,8 @@ public class FishMovement : MonoBehaviour
             rb.position = correctedPosition;
 
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
+
+            scoreTracker.buildTrickScore(5);
         }
 
         if (state == FishMovementState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
@@ -278,6 +295,11 @@ public class FishMovement : MonoBehaviour
     public void preparePerfectDismount()
     {
         perfectDismountReady = true;
+    }
+
+    public void resetState()
+    {
+        state = FishMovementState.SURFACE;
     }
 
     // This function will help visualize the anchor point and movement vector in the editor
