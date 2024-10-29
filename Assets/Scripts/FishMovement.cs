@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.InputSystem;
 
-enum FishMovementState
+public enum FishMovementState
 {
     SURFACE,
     JUMPING,
@@ -34,6 +34,7 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float jumpForce = 5.8f; // The force applied when jumping
+    private float activeJumpForce;
 
     [SerializeField]
     private float maxUnderwaterSpeed = 2.0f;
@@ -54,9 +55,8 @@ public class FishMovement : MonoBehaviour
     private bool perfectDismountReady = false;
 
     private Vector2 moveDirection = Vector2.zero;
-    [SerializeField]
-    private FishMovementState state = FishMovementState.SURFACE;
 
+    public FishMovementState state = FishMovementState.SURFACE;
     public FishPowerUpState powerUpState = FishPowerUpState.NONE;
 
     [SerializeField]
@@ -84,6 +84,7 @@ public class FishMovement : MonoBehaviour
         jumpAction.Enable();
         transform.Rotate(0, 180, 0);
         state = FishMovementState.SURFACE;
+        activeJumpForce = jumpForce;
     }
 
     private void OnDisable()
@@ -189,6 +190,7 @@ public class FishMovement : MonoBehaviour
         {
             //rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
             state = FishMovementState.SURFACE;
+            NormalJump();
         }
         else if (state == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
         {
@@ -240,7 +242,7 @@ public class FishMovement : MonoBehaviour
     private void Jump()
     {
         // Only apply a fixed upward force for the jump
-        rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce, rb.velocity.z);
         state = FishMovementState.JUMPING;
     }
 
@@ -278,6 +280,8 @@ public class FishMovement : MonoBehaviour
     public void preparePerfectDismount()
     {
         perfectDismountReady = true;
+        SuperJump();
+
     }
 
     // This function will help visualize the anchor point and movement vector in the editor
@@ -315,4 +319,23 @@ public class FishMovement : MonoBehaviour
             Debug.Log("Powerup time already active");
         }
     }
+
+    public void OnFishDeath() {
+        stopGrind();
+        state = FishMovementState.JUMPING;
+        powerUpState = FishPowerUpState.NONE;
+    }
+
+    //super jump
+    public void SuperJump()
+    {
+        activeJumpForce = jumpForce * 1.2f;
+    }
+
+    //normal jump
+    public void NormalJump()
+    {
+        activeJumpForce = jumpForce;
+    }
+
 }

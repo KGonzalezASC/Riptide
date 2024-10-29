@@ -1,12 +1,8 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Materials/Water/Materials/waves_n.mat.meta
-guid: 7370e0b8c54366e41af7a23b9f7feaa6
-========
 guid: 53a0f4ce8cf0a204eb63ef224ce6ad19
->>>>>>>> master:Assets/Materials/Transparent.mat.meta
 NativeFormatImporter:
   externalObjects: {}
-  mainObjectFileID: 2100000
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

@@ -1,13 +1,8 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Materials/Water/Materials.meta
-guid: 936647fbf773ad449b267256089662f8
-folderAsset: yes
-DefaultImporter:
-========
 guid: e05c3b160368a8247822aaab3dd3df5a
 NativeFormatImporter:
->>>>>>>> master:Assets/Materials/Water/BoraWater.mat.meta
   externalObjects: {}
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

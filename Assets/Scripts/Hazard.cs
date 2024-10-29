@@ -75,15 +75,13 @@ public class Hazard : FlyWeight
         if (fish.powerUpState == 0)
         {
             // Player hit a hazard without a power-up
-            // Debug.Log("Player hit by hazard");
+            fish.OnFishDeath();
             SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, 1f);
             GameManager.instance.switchState("YouLose");
-
         }
         else
         {
             // Player hit a hazard but has a power-up
-            //Debug.Log("Player hit by hazard but has power-up");
             // Insert bottle break soundFX here
             StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
         }
@@ -97,7 +95,6 @@ public class Hazard : FlyWeight
         StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
         isIgnored = true;
         MoveToSafeSpace();
-
         var playState = GameManager.instance.topState as PlayState;
         playState.StartPowerSlider();
     }
@@ -108,6 +105,7 @@ public class Hazard : FlyWeight
         SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, .025f);
         // Update game state (combo text, score)
         var playState = GameManager.instance.topState as PlayState;
+        if(GameManager.instance.topState.GetName() == "Game")
         playState.showComboText();
         playState.IncreaseScore();
         isIgnored = true;

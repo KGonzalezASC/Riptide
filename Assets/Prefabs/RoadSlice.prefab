@@ -179,7 +179,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8103827070497884972}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -192,7 +192,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 880cbff259e73af439c1261f54d27ff0, type: 2}
+  - {fileID: 2100000, guid: 53a0f4ce8cf0a204eb63ef224ce6ad19, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -248,10 +248,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 684d2344c841f0f4e87209297eb03ae8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rowSpacing: 3
+  rowSpacing: 3.05
   gizmoSphereSize: 0.45
   itemsPerRow: 3
-  spacingBetweenItems: 0.77
+  spacingBetweenItems: 0.82
   obstaclePositions:
   - 0
   - 0.33333334
