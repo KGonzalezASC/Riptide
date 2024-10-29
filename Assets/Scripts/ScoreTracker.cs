@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+//using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ScoreTracker : MonoBehaviour
 {
     private int score = 0;
+    private int scoreSum = 0;
+    private float scoreMult = 1.0f;
     private UIDocument _document;
 
     public UIDocument Document
@@ -69,5 +72,59 @@ public class ScoreTracker : MonoBehaviour
     public void IncrementScore(int baseAmount)
     {
         score += (int)(baseAmount + baseAmount * (time * timeScale));
+    }
+
+    /// <summary>
+    /// Adds to a score sum, which will be added to total score when gainTrickScore is called
+    /// </summary>
+    /// <param name="addedAmount">the amount to add to the score sum</param>
+    public void buildTrickScore(int addedAmount)
+    {
+        scoreSum += addedAmount;
+        Debug.Log("scoreSum: " + scoreSum);
+    }
+
+    /// <summary>
+    /// Adds to a score multiplier, to be applied when the trick score is added to the total
+    /// </summary>
+    /// <param name="addedMult">the amount to increase the multiplier by</param>
+    public void buildTrickMultiplier(float addedMult)
+    {
+        if (scoreSum > 0)
+        {
+            scoreMult += addedMult;
+            Debug.Log("scoreMult: " + scoreMult);
+        }
+    }
+
+    /// <summary>
+    /// Adds trick score to the total
+    /// </summary>
+    /// <param name="perfect">score multipier is multiplied by 1.5x when true</param>
+    public void gainTrickScore(bool perfect)
+    {
+        if (scoreSum > 0)
+        {
+            if (perfect)
+            {
+                scoreMult *= 1.5f;
+            }
+
+            scoreSum = (int)(scoreSum * scoreMult);
+
+            IncrementScore(scoreSum);
+            Debug.Log("Added " + scoreSum + " * " + scoreMult + " = " + (scoreSum * scoreMult) + " to score ");
+
+            scoreSum = 0;
+            scoreMult = 0;
+        }
+    }
+
+    /// <summary>
+    /// Resets trick score sum if the player messes up
+    /// </summary>
+    public void loseTrickScore()
+    {
+        scoreSum = 0;
     }
 }
