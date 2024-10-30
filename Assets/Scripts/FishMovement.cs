@@ -47,7 +47,8 @@ public class FishMovement : MonoBehaviour
     private float surfaceAlignmentForce = -20f;
 
     [SerializeField]
-    private float buoyancy = 40f;
+    private const float baseBouyancy = 40f;
+    private float buoyancy = baseBouyancy;
 
     [SerializeField]
     private float minHeight = 1f; // Define the minimum height
@@ -208,6 +209,7 @@ public class FishMovement : MonoBehaviour
         {
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
             state = FishMovementState.DIVING;
+            buoyancy = baseBouyancy; // Ensure bouyancy is reset
 
             scoreTracker.gainTrickScore(false);
         }
@@ -362,7 +364,10 @@ public class FishMovement : MonoBehaviour
     //super jump
     public void SuperJump()
     {
+        //increase jump force
         activeJumpForce = jumpForce * 1.2f;
+        //decrease bouyancy for slower rise
+        buoyancy *= .4f;
     }
 
     //normal jump
