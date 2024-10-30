@@ -125,6 +125,7 @@ public class FishMovement : MonoBehaviour
                     // Zero out vertical forces and reset height
                     rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Set vertical velocity to 0
                     rb.position = new Vector3(rb.position.x, minHeight, rb.position.z); // Reset height
+                    activeJumpForce = jumpForce; // Reset jump force
                 }
 
                 Jump();
