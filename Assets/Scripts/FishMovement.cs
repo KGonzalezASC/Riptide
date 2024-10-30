@@ -55,6 +55,7 @@ public class FishMovement : MonoBehaviour
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
     private bool perfectDismountReady = false;
+    private bool bounceReady = false;
 
     private Vector2 moveDirection = Vector2.zero;
 
@@ -115,11 +116,17 @@ public class FishMovement : MonoBehaviour
             {
                 if (perfectDismountReady && state == FishMovementState.GRINDING)
                 {
-                    Debug.Log("Perfect dismount!");
+                    //Debug.Log("Perfect dismount!");
                     scoreTracker.buildTrickMultiplier(1.5f);
                 }
 
                 Jump();
+            }
+            else if (state == FishMovementState.JUMPING && bounceReady)
+            {
+                hazardBounce();
+                scoreTracker.buildTrickScore(100);
+                Debug.Log("Player successfully performed a hazard bounce");
             }
         }
 
@@ -300,6 +307,17 @@ public class FishMovement : MonoBehaviour
         perfectDismountReady = true;
         SuperJump();
 
+    }
+
+    public void setHazardBounceReady(bool value)
+    {
+        bounceReady = value;
+    }
+
+    private void hazardBounce()
+    {
+        // Apply a smaller fixed upward force for a hazard bounce
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 4, rb.velocity.z);
     }
 
     public void resetState()
