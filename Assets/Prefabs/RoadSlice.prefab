@@ -251,7 +251,7 @@ MonoBehaviour:
   rowSpacing: 3.05
   gizmoSphereSize: 0.45
   itemsPerRow: 3
-  spacingBetweenItems: 0.82
+  spacingBetweenItems: 1.1
   obstaclePositions:
   - 0
   - 0.33333334

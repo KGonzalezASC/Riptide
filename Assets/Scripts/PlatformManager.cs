@@ -473,8 +473,8 @@ public class PlatformManager : MonoBehaviour
         FlyWeight pole = FlyWeightFactory.Spawn(hazards[2]);
         MeshRenderer meshRenderer = pole.transform.GetChild(0).GetComponent<MeshRenderer>();
         float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
-        pole.transform.position = polePosition + new Vector3(0, 0, halfwayPointZ);
-       // pole.transform.Rotate(-15f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
+        pole.transform.position = polePosition + new Vector3(0, .3f, halfwayPointZ);
+        pole.transform.Rotate(-3.2f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
         (pole as Hazard).isIgnored = false;
         trackHandler.occupiedPositions.Add(polePosition);
         pole.transform.SetParent(emptyParentHazard.transform);
@@ -483,7 +483,7 @@ public class PlatformManager : MonoBehaviour
 
         // Spawn and position the power-up
         FlyWeight powerUp = FlyWeightFactory.Spawn(hazards[3]);
-        powerUp.transform.position = polePosition + new Vector3(0, 2f, halfwayPointZ);
+        powerUp.transform.position = polePosition + new Vector3(0, 2f, halfwayPointZ-10f);
         (powerUp as Hazard).isIgnored = false;
         trackHandler.occupiedPositions.Add(powerUp.transform.position);
         powerUp.transform.SetParent(emptyParentCoin.transform);
@@ -528,10 +528,10 @@ public class PlatformManager : MonoBehaviour
             }
 
             // Z keeps increasing even as Y ascends or descends
-            float currentZ = halfwayPointZ + 1.85f + (i * zIncrement);
+            float currentZ = halfwayPointZ + 4f + (i * zIncrement);
 
             // Calculate the coin position
-            var coinPosition = polePosition + new Vector3(0, currentY / 4.2f, currentZ);
+            var coinPosition = polePosition + new Vector3(0, currentY / 3f, currentZ);
             SpawnCoinAtPosition(coinPosition, trackHandler);
         }
         return PlatformType.GrindingPattern;
