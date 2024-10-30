@@ -6,6 +6,8 @@ using System.Xml;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public enum FishMovementState
 {
@@ -89,6 +91,9 @@ public class FishMovement : MonoBehaviour
 
     private ScoreTracker scoreTracker;
 
+    [SerializeField]  //global volume ref
+    private Volume volume;
+
     private void OnEnable()
     {
         playerControls.Enable();
@@ -99,7 +104,11 @@ public class FishMovement : MonoBehaviour
         if (scoreTracker == null && GameObject.FindWithTag("UI") != null)
         {
             scoreTracker = GameObject.FindWithTag("UI").GetComponent<ScoreTracker>();
-            //Debug.Log("Player found score tracker");
+        }
+        //find global volume in scene
+        if (volume == null)
+        {
+            volume = GameObject.FindObjectOfType<Volume>();
         }
         activeJumpForce = jumpForce;
     }
@@ -295,6 +304,10 @@ public class FishMovement : MonoBehaviour
         // Only apply a fixed upward force for the jump
         rb.velocity = new Vector3(rb.velocity.x, activeJumpForce, rb.velocity.z);
         state = FishMovementState.JUMPING;
+        if (perfectDismountReady)
+        {
+            StartCoroutine(FishAscension());
+        }
     }
 
     private float getAnchorDist()
@@ -410,6 +423,33 @@ public class FishMovement : MonoBehaviour
     public void NormalJump()
     {
         activeJumpForce = jumpForce;
+    }
+
+    public IEnumerator FishAscension()
+    {
+        yield return Helpers.GetWaitForSeconds(.22f);
+
+        if (volume.profile.TryGet(out Bloom bloomEffect))
+        {
+            bloomEffect.intensity.value = 20.0f;
+            bloomEffect.dirtIntensity.value = 100;
+        }
+
+        if (volume.profile.TryGet(out ColorAdjustments colorAdjustments))
+        {
+            colorAdjustments.postExposure.value = 100.0f;
+        }
+
+
+        yield return Helpers.GetWaitForSeconds(.22f);
+
+        //reset bloom
+        if (volume.profile.TryGet(out Bloom bloomEffect2))
+        {
+            bloomEffect2.intensity.value = 0.75f;
+            bloomEffect2.dirtIntensity.value = 0;
+        }
+        StopCoroutine(FishAscension());
     }
 
 }
