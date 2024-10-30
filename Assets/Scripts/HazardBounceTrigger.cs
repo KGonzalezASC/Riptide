@@ -7,7 +7,7 @@ public class HazardBounceTrigger : MonoBehaviour
 {
     private FishMovement player = null;
 
-    void onEnable()
+    private void Update()
     {
         if (player == null && GameManager.instance.topState.GetName() == "Game" && GameObject.FindWithTag("Player") != null)
         {
@@ -16,18 +16,18 @@ public class HazardBounceTrigger : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
-        if (GetComponent<Collider>().CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
             Debug.Log("Player hit bounce trigger");
             player.setHazardBounceReady(true);
         }
     }
 
-    void OnTriggerExit(Collider other)
+    private void OnTriggerExit(Collider other)
     {
-        if (GetComponent<Collider>().CompareTag("Player"))
+        if (other.CompareTag("Player"))
         {
             Debug.Log("Player left bounce trigger");
             player.setHazardBounceReady(false);

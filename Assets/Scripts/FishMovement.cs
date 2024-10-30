@@ -250,6 +250,11 @@ public class FishMovement : MonoBehaviour
             rb.useGravity = true;
         }
 
+        if (state != FishMovementState.JUMPING)
+        {
+            setHazardBounceReady(false);
+        }
+
         if (rb.velocity.x > Math.Pow(maxLateralSpeed, 2))
         {
             rb.velocity.Set(maxLateralSpeed, rb.velocity.y, rb.velocity.z);
@@ -317,7 +322,8 @@ public class FishMovement : MonoBehaviour
     private void hazardBounce()
     {
         // Apply a smaller fixed upward force for a hazard bounce
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 4, rb.velocity.z);
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2, rb.velocity.z);
+        setHazardBounceReady(false);
     }
 
     public void resetState()
