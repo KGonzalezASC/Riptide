@@ -5,14 +5,21 @@ using UnityEngine;
 
 public class HazardBounceTrigger : MonoBehaviour
 {
+    private Hazard parentScript;
+
     private FishMovement player = null;
+
+    private void Awake()
+    {
+        parentScript = GetComponentInParent<Hazard>();
+    }
 
     private void Update()
     {
         if (player == null && GameManager.instance.topState.GetName() == "Game" && GameObject.FindWithTag("Player") != null)
         {
             player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
-            Debug.Log("Bounce trigger found player");
+            //Debug.Log("Bounce trigger found player");
         }
     }
 
@@ -20,7 +27,7 @@ public class HazardBounceTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player hit bounce trigger");
+            //Debug.Log("Player hit bounce trigger");
             player.setHazardBounceReady(true);
         }
     }
@@ -29,7 +36,7 @@ public class HazardBounceTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player left bounce trigger");
+            //Debug.Log("Player left bounce trigger");
             player.setHazardBounceReady(false);
         }
     }

@@ -57,7 +57,7 @@ public class Hazard : FlyWeight
         switch (this.name)
         {
             case "Hazard":
-                HandleHazardCollision(fish);
+                //HandleHazardCollision(fish);
                 break;
 
             case "PowerUp":
@@ -70,7 +70,7 @@ public class Hazard : FlyWeight
         }
     }
 
-    private void HandleHazardCollision(FishMovement fish)
+    public void HandleHazardCollision(FishMovement fish)
     {
         if (fish.powerUpState == 0)
         {

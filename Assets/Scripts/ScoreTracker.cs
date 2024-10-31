@@ -81,7 +81,7 @@ public class ScoreTracker : MonoBehaviour
     public void buildTrickScore(int addedAmount)
     {
         scoreSum += addedAmount;
-        //Debug.Log("scoreSum: " + scoreSum);
+        Debug.Log("scoreSum: " + scoreSum);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public class ScoreTracker : MonoBehaviour
         if (scoreSum > 0)
         {
             scoreMult += addedMult;
-            //Debug.Log("scoreMult: " + scoreMult);
+            Debug.Log("scoreMult: " + scoreMult);
         }
     }
 
@@ -113,10 +113,10 @@ public class ScoreTracker : MonoBehaviour
             scoreSum = (int)(scoreSum * scoreMult);
 
             IncrementScore(scoreSum);
-            //Debug.Log("Added " + scoreSum + " * " + scoreMult + " = " + (scoreSum * scoreMult) + " to score ");
+            Debug.Log("Added " + scoreSum + " * " + scoreMult + " = " + (scoreSum * scoreMult) + " to score ");
 
             scoreSum = 0;
-            scoreMult = 0;
+            scoreMult = 1.0f;
         }
     }
 
@@ -126,5 +126,6 @@ public class ScoreTracker : MonoBehaviour
     public void loseTrickScore()
     {
         scoreSum = 0;
+        scoreMult = 1.0f;
     }
 }
