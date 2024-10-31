@@ -441,13 +441,21 @@ public class FishMovement : MonoBehaviour
         }
 
 
-        yield return Helpers.GetWaitForSeconds(.22f);
+        yield return Helpers.GetWaitForSeconds(.12f);
 
         //reset bloom
         if (volume.profile.TryGet(out Bloom bloomEffect2))
         {
-            bloomEffect2.intensity.value = 0.75f;
-            bloomEffect2.dirtIntensity.value = 0;
+            //interpolate back to original values:
+            float elapsed = 0f;
+            float duration = 1.0f;
+            while(elapsed < duration)
+            {
+                bloomEffect2.intensity.value = Mathf.Lerp(20.0f, 0.75f, elapsed / duration);
+                bloomEffect2.dirtIntensity.value = Mathf.Lerp(100.0f, 0.0f, elapsed / duration);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
         }
         StopCoroutine(FishAscension());
     }
