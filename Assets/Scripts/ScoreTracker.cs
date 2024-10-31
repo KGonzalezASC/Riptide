@@ -116,7 +116,7 @@ public class ScoreTracker : MonoBehaviour
             Debug.Log("Added " + scoreSum + " * " + scoreMult + " = " + (scoreSum * scoreMult) + " to score ");
 
             scoreSum = 0;
-            scoreMult = 0;
+            scoreMult = 1.0f;
         }
     }
 
@@ -126,5 +126,6 @@ public class ScoreTracker : MonoBehaviour
     public void loseTrickScore()
     {
         scoreSum = 0;
+        scoreMult = 1.0f;
     }
 }

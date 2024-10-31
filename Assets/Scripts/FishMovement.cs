@@ -56,6 +56,9 @@ public class FishMovement : MonoBehaviour
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
     private bool perfectDismountReady = false;
+    
+    private bool bounceReady = false;
+    private int hazardBounceCounter = 0;
 
     private Vector2 moveDirection = Vector2.zero;
 
@@ -116,8 +119,8 @@ public class FishMovement : MonoBehaviour
             {
                 if (perfectDismountReady && state == FishMovementState.GRINDING)
                 {
-                    Debug.Log("Perfect dismount!");
-                    scoreTracker.buildTrickMultiplier(1.5f);
+                    //Debug.Log("Perfect dismount!");
+                    scoreTracker.buildTrickMultiplier(0.5f);
                 }
 
                 // If underwater and jump is pressed
@@ -130,6 +133,19 @@ public class FishMovement : MonoBehaviour
                 }
 
                 Jump();
+            }
+            else if (jumpAction.triggered && state == FishMovementState.JUMPING && bounceReady)
+            {
+                hazardBounce();
+                Debug.Log("Player successfully performed a hazard bounce");
+                scoreTracker.buildTrickScore(100);
+
+                if (hazardBounceCounter >= 1)
+                {
+                    scoreTracker.buildTrickMultiplier(0.1f);
+                }
+
+                hazardBounceCounter++;
             }
         }
 
@@ -212,6 +228,7 @@ public class FishMovement : MonoBehaviour
             buoyancy = baseBouyancy; // Ensure bouyancy is reset
 
             scoreTracker.gainTrickScore(false);
+            hazardBounceCounter = 0;
         }
         else if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
         {
@@ -252,6 +269,11 @@ public class FishMovement : MonoBehaviour
         if (state == FishMovementState.JUMPING || state == FishMovementState.DIVING)
         {
             rb.useGravity = true;
+        }
+
+        if (state != FishMovementState.JUMPING)
+        {
+            setHazardBounceReady(false);
         }
 
         if (rb.velocity.x > Math.Pow(maxLateralSpeed, 2))
@@ -313,6 +335,18 @@ public class FishMovement : MonoBehaviour
 
     }
 
+    public void setHazardBounceReady(bool value)
+    {
+        bounceReady = value;
+    }
+
+    public void hazardBounce()
+    {
+        // Apply a smaller fixed upward force for a hazard bounce
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2, rb.velocity.z);
+        setHazardBounceReady(false);
+    }
+
     public void resetState()
     {
         state = FishMovementState.SURFACE;
@@ -359,6 +393,8 @@ public class FishMovement : MonoBehaviour
         stopGrind();
         state = FishMovementState.JUMPING;
         powerUpState = FishPowerUpState.NONE;
+        hazardBounceCounter = 0;
+        scoreTracker.loseTrickScore();
     }
 
     //super jump
