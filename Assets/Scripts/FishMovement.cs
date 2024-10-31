@@ -47,7 +47,8 @@ public class FishMovement : MonoBehaviour
     private float surfaceAlignmentForce = -20f;
 
     [SerializeField]
-    private float buoyancy = 40f;
+    private const float baseBouyancy = 40f;
+    private float buoyancy = baseBouyancy;
 
     [SerializeField]
     private float minHeight = 1f; // Define the minimum height
@@ -63,7 +64,7 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private FishMovementState state = FishMovementState.SURFACE;
- 
+
     public FishPowerUpState powerUpState = FishPowerUpState.NONE;
 
     [SerializeField]
@@ -114,12 +115,21 @@ public class FishMovement : MonoBehaviour
         if (GameManager.instance.topState.GetName() == "Game")
         {
             moveDirection = playerControls.ReadValue<Vector2>();
-            if (jumpAction.triggered && state != FishMovementState.JUMPING && state != FishMovementState.DIVING)
+            if (jumpAction.triggered && state != FishMovementState.JUMPING)
             {
                 if (perfectDismountReady && state == FishMovementState.GRINDING)
                 {
                     //Debug.Log("Perfect dismount!");
                     scoreTracker.buildTrickMultiplier(0.5f);
+                }
+
+                // If underwater and jump is pressed
+                if (state == FishMovementState.DIVING)
+                {
+                    // Zero out vertical forces and reset height
+                    rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Set vertical velocity to 0
+                    rb.position = new Vector3(rb.position.x, minHeight, rb.position.z); // Reset height
+                    activeJumpForce = jumpForce; // Reset jump force
                 }
 
                 Jump();
@@ -215,6 +225,7 @@ public class FishMovement : MonoBehaviour
         {
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
             state = FishMovementState.DIVING;
+            buoyancy = baseBouyancy; // Ensure bouyancy is reset
 
             scoreTracker.gainTrickScore(false);
             hazardBounceCounter = 0;
@@ -377,7 +388,8 @@ public class FishMovement : MonoBehaviour
         }
     }
 
-    public void OnFishDeath() {
+    public void OnFishDeath()
+    {
         stopGrind();
         state = FishMovementState.JUMPING;
         powerUpState = FishPowerUpState.NONE;
@@ -388,7 +400,10 @@ public class FishMovement : MonoBehaviour
     //super jump
     public void SuperJump()
     {
+        //increase jump force
         activeJumpForce = jumpForce * 1.2f;
+        //decrease bouyancy for slower rise
+        buoyancy *= .4f;
     }
 
     //normal jump
