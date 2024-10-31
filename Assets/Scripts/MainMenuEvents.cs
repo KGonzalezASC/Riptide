@@ -86,6 +86,8 @@ public class MainMenuEvents : MonoBehaviour
     private void OnEndGameButtonClick(ClickEvent evt)
     {
         // Exits the game
+        PlayerSaveData.Instance.Save(); //double check
+        
         Application.Quit();
 
         // If running in the Unity editor, stop playing

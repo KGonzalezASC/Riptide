@@ -10,7 +10,7 @@ public class SFXManager : MonoBehaviour
 
     public AudioClip collectCoinSFX;
     public AudioClip hitHazardSFX;
-
+    public AudioClip bottleBreakerSFX;
     private void Awake()
     {
         if (instance == null)

@@ -232,8 +232,8 @@ MonoBehaviour:
   maxUnderwaterSpeed: 3
   maxLateralSpeed: 1.1
   surfaceAlignmentForce: -20
-  buoyancy: 55
   minHeight: 0.0115
+  maxDiveDepth: -4.345
   state: 0
   powerUpState: 0
   friction: 0.1
@@ -241,6 +241,7 @@ MonoBehaviour:
   anchorPoint: {x: 0, y: -2, z: 0}
   maxAngle: 64
   maxRange: 4
+  volume: {fileID: 0}
 --- !u!65 &9010484434768118025
 BoxCollider:
   m_ObjectHideFlags: 0

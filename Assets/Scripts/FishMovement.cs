@@ -54,6 +54,9 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float minHeight = 1f; // Define the minimum height
+    [SerializeField]
+    private float maxDiveDepth = -10f;  // Adjust based on the maximum dive depth you want
+
 
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
@@ -132,13 +135,21 @@ public class FishMovement : MonoBehaviour
                     scoreTracker.buildTrickMultiplier(0.5f);
                 }
 
-                // If underwater and jump is pressed
-                if (state == FishMovementState.DIVING)
+                // If underwater and jump is pressed check for depth in some way
+                if (state == FishMovementState.DIVING )
                 {
-                    // Zero out vertical forces and reset height
-                    rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Set vertical velocity to 0
-                    rb.position = new Vector3(rb.position.x, minHeight, rb.position.z); // Reset height
-                    activeJumpForce = jumpForce; // Reset jump force
+                    float currentDepth = rb.position.y;
+                    float diveRange = minHeight - maxDiveDepth;
+                    float depthPercentage = (minHeight - currentDepth) / diveRange;
+
+                    // Allow jump cancel if within the first 20% of the dive depth range
+                    if (depthPercentage <= 0.2f)
+                    {
+                        // Zero out vertical forces and reset height
+                        rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);  // Set vertical velocity to 0
+                        rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);  // Reset height
+                        activeJumpForce = jumpForce;  // Reset jump force
+                    }
                 }
 
                 Jump();
@@ -355,8 +366,8 @@ public class FishMovement : MonoBehaviour
 
     public void hazardBounce()
     {
-        // Apply a smaller fixed upward force for a hazard bounce
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2, rb.velocity.z);
+        // Apply a smaller fixed upward force for a hazard bounce 
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.5f, rb.velocity.z);
         setHazardBounceReady(false);
     }
 
@@ -427,11 +438,11 @@ public class FishMovement : MonoBehaviour
 
     public IEnumerator FishAscension()
     {
-        yield return Helpers.GetWaitForSeconds(.22f);
+        yield return Helpers.GetWaitForSeconds(.2f);
 
         if (volume.profile.TryGet(out Bloom bloomEffect))
         {
-            bloomEffect.intensity.value = 20.0f;
+            bloomEffect.intensity.value = 1.25f;
             bloomEffect.dirtIntensity.value = 100;
         }
 
@@ -439,10 +450,6 @@ public class FishMovement : MonoBehaviour
         {
             colorAdjustments.postExposure.value = 100.0f;
         }
-
-
-        yield return Helpers.GetWaitForSeconds(.12f);
-
         //reset bloom
         if (volume.profile.TryGet(out Bloom bloomEffect2))
         {
