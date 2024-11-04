@@ -114,4 +114,27 @@ public abstract class gState : MonoBehaviour
     public abstract void Execute(); // Tick function for the state 
     public abstract void Exit(gState to);
     public abstract string GetName();
+
+    protected IEnumerator CameraTransition(Transform cameraTransform, float transitionDuration, Vector3 loadPos, Vector3 loadRotation)
+    {
+        float elapsedTime = 0f;
+        Vector3 startPos = cameraTransform.position;
+        Quaternion startRotation = cameraTransform.rotation;
+
+        while (elapsedTime < transitionDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / transitionDuration;
+
+            // Smoothly interpolate position and rotation
+            cameraTransform.position = Vector3.Lerp(startPos, loadPos, t);
+            cameraTransform.rotation = Quaternion.Slerp(startRotation, Quaternion.Euler(loadRotation), t);
+
+            yield return null; // Wait for the next frame
+        }
+
+        // Ensure final position and rotation match the target exactly
+        cameraTransform.position = loadPos;
+        cameraTransform.rotation = Quaternion.Euler(loadRotation);
+    }
 }

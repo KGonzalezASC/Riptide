@@ -1322,6 +1322,11 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 9197481963319205126, guid: b97cfbb92f8f73d46a31c06c40b0ef9e,
         type: 3}
+    - target: {fileID: 3518559087198813365, guid: 602bf57b500703949a84d589d7755f72,
+        type: 3}
+      propertyPath: cameraPos
+      value: 
+      objectReference: {fileID: 330585546}
     - target: {fileID: 6217360588276719934, guid: 602bf57b500703949a84d589d7755f72,
         type: 3}
       propertyPath: m_Name
@@ -1564,6 +1569,10 @@ MonoBehaviour:
   gm: {fileID: 0}
   uiGameObject: {fileID: 696140860}
   exampleRoutine: {fileID: 63004234}
+  cameraTransform: {fileID: 330585546}
+  loadPos: {x: 0, y: 3, z: 0}
+  loadRotation: {x: 18, y: 90, z: 0}
+  transitionDuration: 1.5
 --- !u!1001 &1832469194
 PrefabInstance:
   m_ObjectHideFlags: 0
