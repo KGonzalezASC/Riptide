@@ -24,6 +24,11 @@ public class PlayState : gState
     [SerializeField, Range(0f, 200f)]
     private const int scoreValue = 100;
 
+    [SerializeField] Transform cameraTransform;
+    [SerializeField] float transitionDuration;
+    [SerializeField] Vector3 gameplayCamPos = Vector3.zero;
+    [SerializeField] Vector3 gameplayCamRotation = Vector3.zero;
+
 
     public void Awake() //gstates are monobehaviours so they can an have awake
     {
@@ -70,6 +75,9 @@ public class PlayState : gState
         scoreTracker.TimeLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-time");
         speedIncrement = 0.01f; //reset speed increment
         difficultyCoroutine = StartCoroutine(DifficultyHandler(6f));
+
+        //move camera after setup
+        StartCoroutine(CameraTransition(cameraTransform, transitionDuration, gameplayCamPos, gameplayCamRotation));
     }
     public override void Execute()
     {

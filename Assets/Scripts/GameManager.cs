@@ -117,6 +117,7 @@ public abstract class gState : MonoBehaviour
 
     protected IEnumerator CameraTransition(Transform cameraTransform, float transitionDuration, Vector3 loadPos, Vector3 loadRotation)
     {
+        //apply transformation
         float elapsedTime = 0f;
         Vector3 startPos = cameraTransform.position;
         Quaternion startRotation = cameraTransform.rotation;
