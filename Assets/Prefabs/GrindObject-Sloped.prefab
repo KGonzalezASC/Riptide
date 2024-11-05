@@ -201,8 +201,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 0.16079429, z: 1.0956767}
-  m_Center: {x: 0, y: -0.41960287, z: 0.53676784}
+  m_Size: {x: 1, y: 0.16079426, z: 1.5546887}
+  m_Center: {x: 0, y: -0.41960287, z: 0.76627386}
 --- !u!114 &3140502881958093389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308,9 +308,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4062384526006364555}
   - component: {fileID: 6681972035621018137}
-  - component: {fileID: 9026116669814591156}
   m_Layer: 0
-  m_Name: GrindObject-Slope
+  m_Name: GrindObject-Sloped
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -324,8 +323,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7199849796211610501}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.23123845, y: 0, z: 0, w: 0.9728972}
+  m_LocalPosition: {x: 0, y: 0.45, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -335,7 +334,7 @@ Transform:
   - {fileID: 4646082883207880398}
   - {fileID: 5854390047122913610}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -26.74, y: 0, z: 0}
 --- !u!114 &6681972035621018137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -349,27 +348,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
---- !u!65 &9026116669814591156
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7199849796211610501}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 3
-  m_Size: {x: 0.724304, y: 0.6325531, z: 7.5889864}
-  m_Center: {x: 0, y: 0, z: 0.056623936}
+  grindDirX: 0
+  grindDirY: 0.1
 --- !u!1 &7957267472113406262
 GameObject:
   m_ObjectHideFlags: 0
@@ -422,8 +402,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.2, y: 2.0313108, z: 0.19811013}
-  m_Center: {x: 0, y: 0.061292026, z: -0.3489109}
+  m_Size: {x: 1.2, y: 2.1468654, z: 0.19811022}
+  m_Center: {x: 0, y: 0.11906336, z: -0.34891084}
 --- !u!114 &73669485218050090
 MonoBehaviour:
   m_ObjectHideFlags: 0

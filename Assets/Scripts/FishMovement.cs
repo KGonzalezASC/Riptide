@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+
 //using System.Diagnostics;
 using System.Xml;
 using UnityEngine;
@@ -59,6 +61,7 @@ public class FishMovement : MonoBehaviour
 
 
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
+    private Vector3 grindDir = new Vector3(0, 0, 0);
     private float grindSnapX = 0.0f;
     private bool perfectDismountReady = false;
     
@@ -157,7 +160,7 @@ public class FishMovement : MonoBehaviour
             else if (jumpAction.triggered && state == FishMovementState.JUMPING && bounceReady)
             {
                 hazardBounce();
-                Debug.Log("Player successfully performed a hazard bounce");
+                //Debug.Log("Player successfully performed a hazard bounce");
                 scoreTracker.buildTrickScore(100);
 
                 if (hazardBounceCounter >= 1)
@@ -274,6 +277,7 @@ public class FishMovement : MonoBehaviour
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = grindHeight;
+            grindHeight += grindDir.y;
             rb.position = correctedPosition;
 
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
@@ -329,12 +333,13 @@ public class FishMovement : MonoBehaviour
         return distFromAnchor.magnitude;
     }
 
-    public void startGrind(float snapXTo, float snapYTo)
+    public void startGrind(float snapXTo, float snapYTo, Vector3 moveDir)
     {
         if (state != FishMovementState.GRINDING)
         {
             grindSnapX = snapXTo;
             grindHeight = snapYTo;
+            grindDir = moveDir;
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
             state = FishMovementState.GRINDING;
@@ -367,7 +372,7 @@ public class FishMovement : MonoBehaviour
     public void hazardBounce()
     {
         // Apply a smaller fixed upward force for a hazard bounce 
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2.0f, rb.velocity.z);
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.5f, rb.velocity.z);
         setHazardBounceReady(false);
     }
 
