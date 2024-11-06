@@ -21,6 +21,8 @@ public class MainMenuEvents : MonoBehaviour
     private VisualTreeAsset menuUXML; // Optional: Keep a reference to the original menu UXML
     private bool isGameplayActive = false; //honestly not sure if this safeguard will be needed in future
 
+    [SerializeField]private GameManager gameManager;
+
     private void BindStartUI() //when visual tree asset changes it needs to be binded as well.
     {
         _button = _document.rootVisualElement.Q<Button>("btn-start");
@@ -100,6 +102,7 @@ public class MainMenuEvents : MonoBehaviour
     {
         _document.visualTreeAsset = menuUXML;
         BindStartUI();
+        gameManager.pushState("Load");
     }
 
 
