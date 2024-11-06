@@ -97,6 +97,9 @@ public class FishMovement : MonoBehaviour
     [SerializeField]  //global volume ref
     private Volume volume;
 
+    [SerializeField]
+    private ParticleSystem splash;
+
     private void OnEnable()
     {
         playerControls.Enable();
@@ -136,7 +139,7 @@ public class FishMovement : MonoBehaviour
                 }
 
                 // If underwater and jump is pressed check for depth in some way
-                if (state == FishMovementState.DIVING )
+                if (state == FishMovementState.DIVING)
                 {
                     float currentDepth = rb.position.y;
                     float diveRange = minHeight - maxDiveDepth;
@@ -240,9 +243,15 @@ public class FishMovement : MonoBehaviour
         // Handle vertical physics (gravity, jumping)
         rb.velocity = new Vector3(currentVelocity.x, verticalVelocity, 0); // Ensure Z velocity remains zero
 
+       
+
         // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
         if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING))
         {
+            if (state != FishMovementState.DIVING)
+            {
+                Instantiate(splash, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
+            }
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
             state = FishMovementState.DIVING;
             buoyancy = baseBouyancy; // Ensure bouyancy is reset

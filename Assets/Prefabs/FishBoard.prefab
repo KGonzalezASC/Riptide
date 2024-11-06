@@ -242,6 +242,7 @@ MonoBehaviour:
   maxAngle: 64
   maxRange: 4
   volume: {fileID: 0}
+  splash: {fileID: 766498622860441890, guid: dd72c2e0650c07c429bc88a3a2395f90, type: 3}
 --- !u!65 &9010484434768118025
 BoxCollider:
   m_ObjectHideFlags: 0
