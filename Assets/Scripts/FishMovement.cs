@@ -2,8 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-
-//using System.Diagnostics;
+using System.Diagnostics;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
@@ -194,40 +193,38 @@ public class FishMovement : MonoBehaviour
             float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
             currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
         }
-        else if (state == FishMovementState.SURFACE || state == FishMovementState.DIVING) // Apply gradual slow-down when grounded and no input
+
+        Vector3 newPosition = rb.position;
+
+        if (state != FishMovementState.GRINDING)
         {
-            // Gradually reduce horizontal velocity using friction
-            // This line was the reason for the pull towards the middle,
-            // and the movement seems to work alright without it. May want to revisit, though
-            //currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, friction);
+            // Calculate new position after applying horizontal velocity
+            newPosition += new Vector3(currentVelocity.x, 0, 0); // Z component is zero
+
+            // Calculate the direction from the anchor point to the new position
+            Vector3 directionToNewPosition = newPosition - anchorPoint;
+            directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
+
+            // Clamp the distance to the maximum range if necessary
+            if (directionToNewPosition.magnitude > maxRange)
+            {
+                directionToNewPosition = directionToNewPosition.normalized * maxRange;
+            }
+
+            // Calculate the angle between the forward direction and the direction to the new position
+            float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
+
+            // Clamp the angle to the allowed range
+            if (Mathf.Abs(newAngle) > maxAngle)
+            {
+                float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
+                Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
+                directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
+            }
+
+            // Update the player's position after clamping (X and Z axes only)
+            newPosition = anchorPoint + directionToNewPosition;
         }
-
-        // Calculate new position after applying horizontal velocity
-        Vector3 newPosition = rb.position + new Vector3(currentVelocity.x, 0, 0); // Z component is zero
-
-        // Calculate the direction from the anchor point to the new position
-        Vector3 directionToNewPosition = newPosition - anchorPoint;
-        directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
-
-        // Clamp the distance to the maximum range if necessary
-        if (directionToNewPosition.magnitude > maxRange)
-        {
-            directionToNewPosition = directionToNewPosition.normalized * maxRange;
-        }
-
-        // Calculate the angle between the forward direction and the direction to the new position
-        float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
-
-        // Clamp the angle to the allowed range
-        if (Mathf.Abs(newAngle) > maxAngle)
-        {
-            float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
-            Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
-            directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
-        }
-
-        // Update the player's position after clamping (X and Z axes only)
-        newPosition = anchorPoint + directionToNewPosition;
 
         if (state == FishMovementState.GRINDING)
         {
@@ -239,6 +236,8 @@ public class FishMovement : MonoBehaviour
 
         // Apply the new position to the Rigidbody
         rb.MovePosition(newPosition);
+
+        //UnityEngine.Debug.Log("x vel = " + currentVelocity.x);
 
         // Handle vertical physics (gravity, jumping)
         rb.velocity = new Vector3(currentVelocity.x, verticalVelocity, 0); // Ensure Z velocity remains zero
@@ -409,20 +408,21 @@ public class FishMovement : MonoBehaviour
             powerUpState = FishPowerUpState.BOTTLEBREAKER;
             yield return Helpers.GetWaitForSeconds(delay);
             powerUpState = FishPowerUpState.NONE;
-            Debug.Log("Powerup time ended");
+            UnityEngine.Debug.Log("Powerup time ended");
         }
         else
         {
-            Debug.Log("Powerup time already active");
+            UnityEngine.Debug.Log("Powerup time already active");
         }
     }
 
     public void OnFishDeath()
     {
         stopGrind();
-        state = FishMovementState.JUMPING;
+        state = FishMovementState.SURFACE;
         powerUpState = FishPowerUpState.NONE;
         hazardBounceCounter = 0;
+        rb.velocity = Vector3.zero;
         scoreTracker.loseTrickScore();
     }
 
