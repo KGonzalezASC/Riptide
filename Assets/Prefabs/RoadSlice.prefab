@@ -234,7 +234,7 @@ MeshCollider:
   m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
-  m_CookingOptions: 0
+  m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &7558328361829613034
 MonoBehaviour:
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 684d2344c841f0f4e87209297eb03ae8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rowSpacing: 2.69
+  rowSpacing: 3.05
   gizmoSphereSize: 0.45
   itemsPerRow: 3
   spacingBetweenItems: 1.1

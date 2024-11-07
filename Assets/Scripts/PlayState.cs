@@ -8,27 +8,26 @@ using UnityEngine.UIElements;
 //all gstates are monobehaviours wrappeers for the state machine
 public class PlayState : gState
 {
-    [SerializeField] MainMenuEvents uiGameObject; 
+    [SerializeField] MainMenuEvents uiGameObject; //its fine to have direct reference cause combo text later on
     private DisplayComboText comboText;
     private ScoreTracker scoreTracker;
 
+    /// <summary>
     /// read only public reference to score tracker
+    /// </summary>
     public ScoreTracker ScoreTracker { get { return scoreTracker; } }
 
     //static float to increment speed of the game
     public static float speedIncrement = 0.01f;
     private Coroutine difficultyCoroutine;
-    private Coroutine powerUpCoroutine = null;
 
+    [SerializeField, Range(0f, 200f)]
     private const int scoreValue = 100;
 
     [SerializeField] Transform cameraTransform;
     [SerializeField] float transitionDuration;
     [SerializeField] Vector3 gameplayCamPos = Vector3.zero;
     [SerializeField] Vector3 gameplayCamRotation = Vector3.zero;
-
-
-    private float powerUpTimer = 0f;
 
 
     public void Awake() //gstates are monobehaviours so they can an have awake
@@ -48,38 +47,9 @@ public class PlayState : gState
         scoreTracker.IncrementScore(scoreValue);
     }
 
-    public void PowerupTime(FishMovement player)
+    public void StartPowerSlider()
     {
-        IncreaseScore();
-        //increase powerup time if powerup is already active
-        powerUpTimer += 5.6f;
-        if (powerUpCoroutine == null)
-        {
-            //set initial powerup time = 20 seconds
-            powerUpTimer = 20f;
-            powerUpCoroutine = StartCoroutine(PowerUpTimer(player));
-        }
-
-    }
-
-    public void ExtendTimer() => powerUpTimer +=.45f;
-
-    private IEnumerator PowerUpTimer(FishMovement player)
-    {
-        player.powerUpState = FishPowerUpState.BOTTLEBREAKER;
-        while (powerUpTimer > 0f)
-        {
-            powerUpTimer -= Time.deltaTime;
-            //pass reference to powerup timer since we need to change the value of the progress bar and a copy of the value would not work
-            comboText.powerUpTimerLength(ref powerUpTimer);
-            if (powerUpTimer < 2f) {
-                //if close to 2 seconds left, invoke player raycast method to check for hazards
-                player.CheckForHazards();
-            }
-            yield return null;
-        }
-        player.powerUpState = FishPowerUpState.NONE;
-        powerUpCoroutine = null;
+        comboText.StartPowerSlider();
     }
 
 
@@ -103,8 +73,6 @@ public class PlayState : gState
         //assign score label
         scoreTracker.ScoreLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-score");
         scoreTracker.TimeLabel = uiGameObject.GetComponent<UIDocument>().rootVisualElement.Q<Label>("label-time");
-        scoreTracker.resetColor();
-
         speedIncrement = 0.01f; //reset speed increment
         difficultyCoroutine = StartCoroutine(DifficultyHandler(6f));
 

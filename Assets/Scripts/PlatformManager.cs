@@ -36,34 +36,34 @@ public class PlatformManager : MonoBehaviour
         GrindingPattern,
     }
     private readonly Dictionary<PlatformType, List<Func<TrackHandler, PlatformType>>> platformPatterns;
-    private readonly Queue<Func<TrackHandler, PlatformType>> lastThreeActions = new(3); // Store the last three patterns
+    private readonly Queue<Func<TrackHandler, PlatformType>> lastTwoActions = new(2); // Store the last two patterns
     public PlatformManager()
     {
-        platformPatterns = new Dictionary<PlatformType, List<Func<TrackHandler, PlatformType>>>
-    {
+      platformPatterns = new Dictionary<PlatformType, List<Func<TrackHandler, PlatformType>>>
+      {
         { PlatformType.SafePattern, new List<Func<TrackHandler,PlatformType>>
             {
-                SpawnCoinPair,
-                SpawnCoinLine,
-                SpawnCoinLineAllRows
+                trackHandler => SpawnCoinPair(trackHandler),
+                trackHandler => SpawnCoinLine(trackHandler),
+                trackHandler => SpawnCoinLineAllRows(trackHandler)
             }
         },
         { PlatformType.HazardPattern, new List<Func<TrackHandler,PlatformType>>
             {
-                SpawnDangerousNonPatternRandom,
-                SpawnHazardLines,
-                SpawnHazardRow, // Named method reference
+                trackHandler => SpawnDangerousNonPatternRandom(trackHandler),
+                trackHandler => SpawnHazardLines(trackHandler),
+                trackHandler => SpawnHazardLinesRandom(trackHandler),
                 trackHandler => SpawnPatternOnPlatform(trackHandler, Random.Range(0, spawnPatternManager.spawnPatterns.Count))
             }
         },
         { PlatformType.GrindingPattern, new List<Func<TrackHandler,PlatformType>>
             {
-                SpawnGrindingPole,
-                SpawnGrindingPolesCoin,
-                //SpawnGrindRailsElevated sucks replace
+                trackHandler => SpawnGrindingPole(trackHandler),
+                trackHandler => SpawnGrindingPolesCoin(trackHandler),
+                trackHandler => SpawnGrindRailsElevated(trackHandler)
             }
         }
-    };
+      };
     }
 
 
@@ -106,10 +106,10 @@ public class PlatformManager : MonoBehaviour
             : Vector3.zero;
 
         // Check if any of the last two actions were Grinding Patterns
-        bool anyGrindingPattern = lastThreeActions.Any(action => IsGrindingPattern(action));
+        bool anyGrindingPattern = lastTwoActions.Any(action => IsGrindingPattern(action));
 
         // Set gap based on the presence of any Grinding Pattern in the last two actions
-        float adjustedGap = anyGrindingPattern ? 2f : gap;
+        float adjustedGap = anyGrindingPattern ? 0 : gap;
 
 
         Vector3 firstNewSectionPos = new(0, 0, lastPlatformChildPosition.z + sectionLength);
@@ -141,6 +141,7 @@ public class PlatformManager : MonoBehaviour
     // Method to handle spawning hazards on a given platform
     private void SpawnHazardOnPlatform(GameObject platform)
     {
+        // Retrieve the TrackHandler component from the platform's child object
         TrackHandler trackHandler = platform.GetComponentInChildren<TrackHandler>();
 
         if (trackHandler == null || hazards.Count == 0)
@@ -152,70 +153,65 @@ public class PlatformManager : MonoBehaviour
         Func<TrackHandler, PlatformType> selectedAction = null;
         float randomValue = Random.Range(0f, 1f);
 
-        Func<TrackHandler, PlatformType> GetRandomAction(PlatformType type)
+        // Helper function to select a random action from a specific pattern type
+        Func<PlatformType, Func<TrackHandler, PlatformType>> GetRandomAction = (PlatformType type) =>
+            platformPatterns[type][Random.Range(0, platformPatterns[type].Count)];
+
+        bool hasTwoGrindingActions = lastTwoActions.Count > 1 &&
+                                IsGrindingPattern(lastTwoActions.ElementAt(0)) &&
+                                IsGrindingPattern(lastTwoActions.ElementAt(1));
+
+        bool isAnyGrindingPattern = lastTwoActions.Count > 1 &&
+                                    (lastTwoActions.ElementAt(0) == SpawnGrindingPole ^ lastTwoActions.ElementAt(1) == SpawnGrindingPole); //do not use isgrinding because it will make it very deterministic
+
+        // Determine which pattern to spawn
+        if (lastTwoActions.Count == 0)
         {
-            var validMethods = platformPatterns[type];
-            return validMethods[Random.Range(0, validMethods.Count)];
+            // Select pattern based on probabilities when queue is empty
+            selectedAction = randomValue < 0.40f ? GetRandomAction(PlatformType.SafePattern) :
+                             randomValue < 0.60f ? GetRandomAction(PlatformType.HazardPattern) :
+                             GetRandomAction(PlatformType.GrindingPattern);
         }
-
-        Func<TrackHandler, PlatformType> GetRandomActionExcluded(PlatformType type, Func<TrackHandler, PlatformType> excludeMethod)
+        else if (isAnyGrindingPattern)
         {
-            var validMethods = platformPatterns[type].Where(action => action != excludeMethod).ToList();
-            return validMethods[Random.Range(0, validMethods.Count)];
-        }
-
-        bool hasTwoGrindingActions = lastThreeActions.Count > 1 &&
-                                      IsGrindingPattern(lastThreeActions.ElementAt(0)) &&
-                                      IsGrindingPattern(lastThreeActions.ElementAt(1));
-
-
-        bool isMostRecentGrindingPattern = lastThreeActions.Count > 0 && IsGrindingPattern(lastThreeActions.Peek());
-
-        //bool to check if any of the last two actions were grinding patterns
-        bool anyGrindingPattern = lastThreeActions.Any(action => IsGrindingPattern(action));
-
-
-        selectedAction = randomValue < 0.38f ? GetRandomAction(PlatformType.SafePattern) :
-                         randomValue < 0.76f ? GetRandomActionExcluded(PlatformType.HazardPattern, SpawnHazardRow) :
-                         GetRandomAction(PlatformType.GrindingPattern);
-
-        if (hasTwoGrindingActions)
-        {
-            //if two grinding patterns in a row, chance a safe pattern or hazard pattern with row of hazards
-            selectedAction = randomValue < 0.73f ? GetRandomActionExcluded(PlatformType.HazardPattern, SpawnHazardRow) :
-                                                   GetRandomAction(PlatformType.SafePattern);
-            goto SectionComplete;
-
-        }
-        else if (isMostRecentGrindingPattern)
-        {
-            //if most recent action was grinding pattern, chance a safe pattern or another grinding pattern
+            // Reroll random value for XOR condition and give a higher chance for grinding
             float xorReroll = Random.Range(0f, 1f);
-            selectedAction = xorReroll < 0.78f ? GetRandomAction(PlatformType.GrindingPattern) :
-                                                 GetRandomAction(PlatformType.SafePattern);
-
-            goto SectionComplete;
+            if (xorReroll < 0.95f) // Reroll with a 90% chance for grinding pattern
+            {
+                selectedAction = GetRandomAction(PlatformType.GrindingPattern);
+            }
+            else
+            {
+                selectedAction = GetRandomAction(PlatformType.HazardPattern); // 10% chance for hazard
+            }
         }
-        else {
-            //if no grinding patterns in last two actions, chance all patterns (allows for coin hazard row stuff just fine without grind into hazard row)
-            selectedAction = randomValue < 0.32f ? GetRandomAction(PlatformType.SafePattern) :
+        else if (lastTwoActions.Peek() == SpawnGrindingPole)
+        {
+            // If the last action was grinding, 80% chance for another grinding pattern
+            selectedAction = randomValue < 0.72f ? GetRandomAction(PlatformType.GrindingPattern) :
+                             GetRandomAction(PlatformType.HazardPattern);
+        }
+        else if (hasTwoGrindingActions)
+        {
+            // If there are two grinding patterns in the queue, reduce chance for another
+            selectedAction = randomValue < 0.45f ? GetRandomAction(PlatformType.GrindingPattern) :
+                             GetRandomAction(PlatformType.SafePattern);
+        }
+        else
+        {
+            // General case when none of the above conditions are met
+            selectedAction = randomValue < 0.4f ? GetRandomAction(PlatformType.SafePattern) :
                              randomValue < 0.78f ? GetRandomAction(PlatformType.HazardPattern) :
                              GetRandomAction(PlatformType.GrindingPattern);
         }
 
-     SectionComplete: //label to jump to prevent grind rail into hazard row
-        if (lastThreeActions.Any(action => IsGrindingPattern(action)) && selectedAction == SpawnHazardRow)
-        {
-            // Reselect to prevent any GrindingPattern in the queue followed by SpawnHazardRow
-            selectedAction = GetRandomActionExcluded(PlatformType.HazardPattern, SpawnHazardRow);
-        }
+        // If a valid action was selected, track and call it
         if (selectedAction != null)
         {
-            TrackLastThreeActions(selectedAction);
-            selectedAction(trackHandler);
+            TrackLastTwoActions(selectedAction); // Track the action
+            selectedAction(trackHandler); // Call the selected action
         }
     }
-
 
 
 
@@ -405,10 +401,10 @@ public class PlatformManager : MonoBehaviour
     }
 
     //pick a random row and fill up that column with hazards
-    private PlatformType SpawnHazardRow(TrackHandler trackHandler)
+    private PlatformType SpawnHazardLinesRandom(TrackHandler trackHandler)
     {
         // Pick a random row from trackHandler obstacle positions
-        int randomRow = Random.Range(0, trackHandler.obstaclePositions.Length); //trying to die less lol
+        int randomRow = Random.Range(0, trackHandler.obstaclePositions.Length);
         for (int column = 0; column < trackHandler.itemsPerRow; column++)
         {
             var hazardPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[randomRow], column);
@@ -478,7 +474,7 @@ public class PlatformManager : MonoBehaviour
         MeshRenderer meshRenderer = pole.transform.GetChild(0).GetComponent<MeshRenderer>();
         float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
         pole.transform.position = polePosition + new Vector3(0, .3f, halfwayPointZ);
-        pole.transform.Rotate(-3f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
+        pole.transform.Rotate(-3.2f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
         (pole as Hazard).isIgnored = false;
         trackHandler.occupiedPositions.Add(polePosition);
         pole.transform.SetParent(emptyParentHazard.transform);
@@ -616,14 +612,14 @@ public class PlatformManager : MonoBehaviour
         return position;
     }
 
-    private void TrackLastThreeActions(Func<TrackHandler, PlatformType> func)
+    private void TrackLastTwoActions(Func<TrackHandler, PlatformType> func)
     {
-        if (lastThreeActions.Count >= 3)
+        if (lastTwoActions.Count >= 2)
         {
             // Remove the oldest action if there are already two actions in the queue
-            lastThreeActions.Dequeue();
+            lastTwoActions.Dequeue();
         }
-        lastThreeActions.Enqueue(func);
+        lastTwoActions.Enqueue(func);
     }
 
     private bool IsGrindingPattern(Func<TrackHandler, PlatformType> action)

@@ -4,6 +4,6 @@
         <ui:Label tabindex="-1" text="Time:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="label-time" style="-unity-text-align: middle-left; white-space: nowrap; background-color: rgba(255, 255, 255, 0); color: rgb(255, 255, 255); font-size: 20px; width: 116px; margin-top: 20px;" />
         <ui:Label tabindex="-1" text="Score:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="label-score" style="-unity-text-align: middle-left; white-space: nowrap; background-color: rgba(255, 255, 255, 0); color: rgb(255, 255, 255); font-size: 20px; width: 116px; margin-top: 20px;" />
         <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="label-combo" class="label" style="align-items: flex-start; align-self: flex-end; margin-top: 100px; margin-right: 100px; justify-content: center;" />
-        <ui:ProgressBar value="20" title="Bottle Breaker" name="label-powerup" usage-hints="DynamicColor" high-value="20" style="width: 784px; opacity: 1; left: auto; top: -100px; height: 42px; display: flex; visibility: hidden;" />
+        <ui:ProgressBar value="100" title="Bottle Breaker" name="label-powerup" usage-hints="None" style="width: 382px; opacity: 1; left: auto; top: -100px; height: 112px; display: flex; visibility: hidden;" />
     </ui:VisualElement>
 </ui:UXML>

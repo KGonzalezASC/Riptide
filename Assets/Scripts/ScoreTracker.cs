@@ -1,10 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-
 //using System.Diagnostics;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.UIElements;
 
 public class ScoreTracker : MonoBehaviour
@@ -22,14 +19,10 @@ public class ScoreTracker : MonoBehaviour
     public Label ScoreLabel { set { scoreLabel = value; } }
     public Label TimeLabel { set { timeLabel = value; } }
 
+    private VisualTreeAsset gameplayUXML;
+
     private Label scoreLabel;
     private Label timeLabel;
-
-    [SerializeField]
-    private GameObject pipe;
-    [SerializeField]
-    private Light directionalLight;
-
 
     /// <summary>
     /// gets/sets the value od score
@@ -72,38 +65,14 @@ public class ScoreTracker : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// increases the player's score by a set amount plus an additional amount for the time survived
+    /// </summary>
     /// <param name="baseAmount">base value added to the player's score</param>
     public void IncrementScore(int baseAmount)
     {
-        // Increment the score based on the provided formula
         score += (int)(baseAmount + baseAmount * (time * timeScale));
-
-        // Calculate the next threshold the score should reach for color change
-        int nextThreshold = ((score / 5000) + 1) * 5000;
-
-        // If the score has crossed a 5000-point boundary
-        if (score >= nextThreshold - 5000)
-        {
-            // Get the pipe's material
-            Material pipeMaterial = pipe.GetComponent<Renderer>().material;
-
-            // Calculate the index in the colors array
-            int colorIndex = (score / 5000) % colors.Length;
-
-            // Set the pipe's color to the new color
-            pipeMaterial.color = colors[colorIndex];
-
-
-            //decerment light intensity up to .03f by substracting .1f every 5000 points
-            if (directionalLight.intensity > .03f && score % 5000==0)
-            {
-                directionalLight.intensity -= .03f;
-            }
-        }
     }
-
-
 
     /// <summary>
     /// Adds to a score sum, which will be added to total score when gainTrickScore is called
@@ -158,25 +127,5 @@ public class ScoreTracker : MonoBehaviour
     {
         scoreSum = 0;
         scoreMult = 1.0f;
-    }
-
-
-    //array of colors 
-    public Color[] colors = new Color[]
-   {
-        new(255f / 255f, 0f / 255f, 204f / 255f), // FF00CC
-        new(125f / 255f, 70f / 255f, 0f / 255f),   // 7D4600
-        new(245f / 255f, 143f / 255f, 41f / 255f),  // F58F29
-        new(164f / 255f, 176f / 255f, 245f / 255f),// A4B0F5
-        new(68f / 255f, 100f / 255f, 173f / 255f)   // 4464AD
-   };
-
-    //set reset color method to first color in array
-    public void resetColor()
-    {
-        Material pipeMaterial = pipe.GetComponent<Renderer>().material;
-        pipeMaterial.color = colors[0];
-        //reset light intensity
-        directionalLight.intensity = 0.5f;
     }
 }

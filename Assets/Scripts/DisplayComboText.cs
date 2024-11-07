@@ -24,6 +24,38 @@ public class DisplayComboText : MonoBehaviour
         combo_label.text = GenerateText();
     }
 
+    public void StartPowerSlider()
+    {
+        progressBar = _document.rootVisualElement.Q<ProgressBar>("label-powerup");
+        // Check if the progress bar is currently visible
+        if (!progressBar.style.visibility.Equals(Visibility.Visible))
+        {
+            progressBar.style.visibility = Visibility.Visible;
+            StartCoroutine(DecrementProgressBar(13f)); // Pass 13 seconds as the duration
+        }
+    }
+
+    private IEnumerator DecrementProgressBar(float duration)
+    {
+        progressBar.value = 100;
+        float delay = 0.1f;
+        float decrementAmount = 100f / (duration / delay);
+
+        // Continue decrementing over the specified duration
+        while (progressBar.value > 0)
+        {
+            progressBar.value -= decrementAmount;
+            yield return new WaitForSeconds(delay);
+        }
+
+        // Hide the progress bar once it reaches 0
+        progressBar.style.visibility = Visibility.Hidden;
+        //stop coroutine
+        StopCoroutine(DecrementProgressBar(duration));
+    }
+
+
+
 
     /// <summary>
     /// Clears the contents of the combo text's label
@@ -32,15 +64,6 @@ public class DisplayComboText : MonoBehaviour
     {
         //set text to empty string
         combo_label.text = string.Empty;
-    
-    }
-    public void ClearBar() {
-        progressBar = _document.rootVisualElement.Q<ProgressBar>("label-powerup");
-
-        if (progressBar.style.visibility.Equals(Visibility.Visible))
-        {
-            progressBar.style.visibility = Visibility.Hidden;
-        }
     }
 
     /// <summary>
@@ -64,23 +87,4 @@ public class DisplayComboText : MonoBehaviour
     {
         _document = GetComponent<UIDocument>();
     }
-    //using ref to pass by reference so we get the direct value of the timer, not a copy
-    public void powerUpTimerLength(ref float powerUpTimer)
-    {
-        progressBar = _document.rootVisualElement.Q<ProgressBar>("label-powerup");
-        if (GameManager.instance.topState.GetName() == "Game")
-        {
-            if (!progressBar.style.visibility.Equals(Visibility.Visible) && powerUpTimer >19f) //you have to do manually 1 less than time because a tick has already passed
-            {
-                progressBar.style.visibility = Visibility.Visible;
-            }
-            else if (powerUpTimer <= 0)
-            {
-                progressBar.style.visibility = Visibility.Hidden; // Hide the bar when the timer ends
-            }
-            progressBar.value = powerUpTimer;
-        }
-    }
-
-
 }
