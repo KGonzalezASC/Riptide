@@ -9,6 +9,9 @@ public class GrindableObject : MonoBehaviour
     private BoxCollider grindBox;
     private BoxCollider killBox;
 
+    [SerializeField] private float grindStartHeight = 0.0f;
+
+    // These are both multiplied by the grind rail's speed
     [SerializeField] private float grindDirX;
     [SerializeField] private float grindDirY;
 
@@ -17,6 +20,11 @@ public class GrindableObject : MonoBehaviour
     private void OnEnable()
     {
         playerGrindDir = new Vector3(grindDirX, grindDirY, 0);
+
+        if (grindStartHeight == 0.0f)
+        {
+            grindStartHeight = transform.position.y + 0.63f;
+        }
 
         grindBox = transform.GetChild(2).GetComponent<BoxCollider>();
 
@@ -58,12 +66,16 @@ public class GrindableObject : MonoBehaviour
             }
         }
 
+        if (GameManager.instance.topState.GetName() == "Game" && transform.GetComponent<Hazard>() != null)
+        {
+            playerGrindDir.y = transform.GetComponent<Hazard>().ReturnAdjustedSpeed() * grindDirY;
+        }
     }
 
     public void startPlayerGrinding()
     {
         //Debug.Log("Attempting grinding start");
-        player.startGrind(transform.position.x, transform.position.y + 0.63f, playerGrindDir);
+        player.startGrind(transform.position.x, grindStartHeight, playerGrindDir);
     }
 
     public void stopPlayerGrinding()

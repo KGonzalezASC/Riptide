@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+//using System.Runtime.Remoting.Services;
 using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -58,9 +59,10 @@ public class PlatformManager : MonoBehaviour
         },
         { PlatformType.GrindingPattern, new List<Func<TrackHandler,PlatformType>>
             {
-                trackHandler => SpawnGrindingPole(trackHandler),
-                trackHandler => SpawnGrindingPolesCoin(trackHandler),
-                trackHandler => SpawnGrindRailsElevated(trackHandler)
+                //trackHandler => SpawnGrindingPole(trackHandler),
+                //trackHandler => SpawnGrindingPolesCoin(trackHandler),
+                //trackHandler => SpawnGrindRailsElevated(trackHandler),
+                trackHandler => SpawnGrindRailSloped(trackHandler)
             }
         }
       };
@@ -573,7 +575,33 @@ public class PlatformManager : MonoBehaviour
         return PlatformType.GrindingPattern;
     }
 
+    private PlatformType SpawnGrindRailSloped(TrackHandler trackHandler)
+    {
+        // Select a random column and always use row 0 for the pole
+        int randomColumn = Random.Range(0, trackHandler.itemsPerRow);
+        var polePosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], randomColumn);
 
+        // Spawn and position the pole
+        FlyWeight pole = FlyWeightFactory.Spawn(hazards[4]);
+        MeshRenderer meshRenderer = pole.transform.GetChild(0).GetComponent<MeshRenderer>();
+        float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
+        pole.transform.position = polePosition + new Vector3(0, .3f, halfwayPointZ);
+        pole.transform.Rotate(-3.2f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
+        (pole as Hazard).isIgnored = false;
+        trackHandler.occupiedPositions.Add(polePosition);
+        pole.transform.SetParent(emptyParentHazard.transform);
+
+
+
+        // Spawn and position the power-up
+        FlyWeight powerUp = FlyWeightFactory.Spawn(hazards[3]);
+        powerUp.transform.position = polePosition + new Vector3(0, 2f, halfwayPointZ - 10f);
+        (powerUp as Hazard).isIgnored = false;
+        trackHandler.occupiedPositions.Add(powerUp.transform.position);
+        powerUp.transform.SetParent(emptyParentCoin.transform);
+
+        return PlatformType.GrindingPattern;
+    }
 
     public void RemovePlatform(GameObject platform)
     {

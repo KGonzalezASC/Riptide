@@ -26,6 +26,11 @@ public class Hazard : FlyWeight
         transform.Translate(Vector3.back * (adjustedSpeed * Time.deltaTime), Space.World);
     }
 
+    public float ReturnAdjustedSpeed()
+    {
+        return Settings.speed + PlayState.speedIncrement;
+    }
+
 
     private IEnumerator DespawnAfterDelay(float delay)
     {

@@ -276,7 +276,7 @@ public class FishMovement : MonoBehaviour
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = grindHeight;
-            grindHeight += grindDir.y;
+            grindHeight += grindDir.y * Time.deltaTime;
             rb.position = correctedPosition;
 
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
@@ -337,8 +337,16 @@ public class FishMovement : MonoBehaviour
         if (state != FishMovementState.GRINDING)
         {
             grindSnapX = snapXTo;
-            grindHeight = snapYTo;
             grindDir = moveDir;
+
+            if (snapYTo != -1.0f)
+            {
+                grindHeight = snapYTo;
+            }
+            else
+            {
+                grindHeight = rb.position.y;
+            }
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
             state = FishMovementState.GRINDING;
