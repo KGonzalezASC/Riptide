@@ -134,7 +134,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8073257913005948786}
   serializedVersion: 4
-  m_Mass: 0.9
+  m_Mass: 0.89
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -228,20 +228,21 @@ MonoBehaviour:
       m_Flags: 0
     m_Flags: 0
   movementSpeed: 7.7
-  jumpForce: 6.57
+  jumpForce: 6.42
   maxUnderwaterSpeed: 3
   maxLateralSpeed: 1.1
   surfaceAlignmentForce: -20
-  minHeight: 0.0115
-  maxDiveDepth: -4.345
+  minHeight: -0.1
+  maxDiveDepth: -4.235
+  friction: 0.1
+  anchorPoint: {x: 0, y: -2, z: 0}
+  maxAngle: 65
+  maxRange: 4.3
   state: 0
   powerUpState: 0
-  friction: 0.1
   rb: {fileID: 7141695999175163664}
-  anchorPoint: {x: 0, y: -2, z: 0}
-  maxAngle: 64
-  maxRange: 4
   volume: {fileID: 0}
+  hazardCheckDistance: 4
 --- !u!65 &9010484434768118025
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -261,5 +262,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.555, y: 0.78, z: 0.88}
-  m_Center: {x: 0, y: 0.16, z: 0.111411}
+  m_Size: {x: 0.555, y: 0.78, z: 0.8}
+  m_Center: {x: 0, y: 0.1, z: 0.3}

@@ -8,7 +8,7 @@ public class Hazard : FlyWeight
     public bool isIgnored = false;
 
     HazardSettings Settings => (HazardSettings)base.settings;
-
+    
     private void Update()
     {
         // Only move the hazard when in "Game" state and if it's not ignored
@@ -83,25 +83,25 @@ public class Hazard : FlyWeight
         {
             // Player hit a hazard but has a power-up
             // Insert bottle break soundFX here
+            SFXManager.instance.playSFXClip(SFXManager.instance.bottleBreakerSFX, transform, .35f);
+            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
             var playState = GameManager.instance.topState as PlayState;
             playState.IncreaseScore();
-            SFXManager.instance.playSFXClip(SFXManager.instance.bottleBreakerSFX, transform, .035f);
-            StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
         }
         MoveToSafeSpace();
     }
 
     private void HandlePowerUpCollision(FishMovement fish)
     {
-        //Debug.Log("Player hit a power-up");
-        fish.StartCoroutine(fish.PowerupTime(13)); // Start power-up effect
-        StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
+        StartCoroutine(DespawnAfterDelay(Settings.despawnDelay)); //we can not handle the routine for managing powerup here since they get depooled / deleted..
         isIgnored = true;
         MoveToSafeSpace();
         var playState = GameManager.instance.topState as PlayState;
-        playState.IncreaseScore(); 
-        playState.StartPowerSlider();
+        playState.PowerupTime(fish);
     }
+
+
+
 
     private void HandleCollectibleCollision()
     {
@@ -109,9 +109,11 @@ public class Hazard : FlyWeight
         SFXManager.instance.playSFXClip(SFXManager.instance.collectCoinSFX, transform, .025f);
         // Update game state (combo text, score)
         var playState = GameManager.instance.topState as PlayState;
-        if(GameManager.instance.topState.GetName() == "Game")
-        playState.showComboText();
-        playState.IncreaseScore();
+        if (GameManager.instance.topState.GetName() == "Game")
+        {
+            playState.showComboText();
+            playState.IncreaseScore();
+        }
         isIgnored = true;
         MoveToSafeSpace();
         StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
