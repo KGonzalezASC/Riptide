@@ -122,13 +122,13 @@ Material:
     - _WorkflowMode: 1
     - _ZWrite: 1
     - _curve: -0.005
-    - _intensityEmission: 1.81
+    - _intensityEmission: 2.3
     - _useEmissionTexture: 1
-    - _useTexture: 1
+    - _useTexture: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _EmissionColor: {r: 1, g: 0.504727, b: 0, a: 1}
+    - _Color: {r: 0.0047169924, g: 1, b: 0.093795486, a: 1}
+    - _EmissionColor: {r: 0.0141509175, g: 1, b: 0.1091748, a: 1}
     - _EmissionTint: {r: 0.7615683, g: 1, b: 0.31760997, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

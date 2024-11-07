@@ -25,7 +25,7 @@ public enum FishPowerUpState
 
 public class FishMovement : MonoBehaviour
 {
-    [Header("Movement")]
+    [Header("Movement Values")]
     [SerializeField]
     private InputAction playerControls; // Input for Movement
 
@@ -37,7 +37,6 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float jumpForce = 5.8f; // The force applied when jumping
-    private float activeJumpForce;
 
     [SerializeField]
     private float maxUnderwaterSpeed = 2.0f;
@@ -57,45 +56,49 @@ public class FishMovement : MonoBehaviour
     [SerializeField]
     private float maxDiveDepth = -10f;  // Adjust based on the maximum dive depth you want
 
-
-    private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
-    private float grindSnapX = 0.0f;
-    private bool perfectDismountReady = false;
-    
-    private bool bounceReady = false;
-    private int hazardBounceCounter = 0;
-
-    private Vector2 moveDirection = Vector2.zero;
-
-    [SerializeField]
-    private FishMovementState state = FishMovementState.SURFACE;
-
-    public FishPowerUpState powerUpState = FishPowerUpState.NONE;
-
     [SerializeField]
     private float friction = 0.05f; // Friction factor for slowing down
 
-    [SerializeField]
-    private Rigidbody rb;
-
     [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
-    private Vector2 distFromAnchor;
 
 
     [Header("Movement Constraints")]
     [SerializeField]
     private float maxAngle = 45f;  // Maximum angle (in degrees) left/right from anchor point
-
     [SerializeField]
     private float maxRange = 5f;   // Maximum distance from anchor point
 
-    private bool isGrounded;
-    private bool canJump;
+ 
+    [Header("Misc")]
 
-    private ScoreTracker scoreTracker;
-
+    [SerializeField]
+    private FishMovementState state = FishMovementState.SURFACE;
+    public FishPowerUpState powerUpState = FishPowerUpState.NONE;
+    [SerializeField]
+    private Rigidbody rb;
     [SerializeField]  //global volume ref
     private Volume volume;
+    [SerializeField]
+    private float hazardCheckDistance = 8.0f;
+
+
+
+
+    [Header("Not Serialized")]
+    private bool isGrounded;
+    private bool canJump;
+    private ScoreTracker scoreTracker;
+    private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
+    private float grindSnapX = 0.0f;
+    private bool perfectDismountReady = false;
+    private bool bounceReady = false;
+    private int hazardBounceCounter = 0;
+    private Vector2 moveDirection = Vector2.zero;
+    private float activeJumpForce;
+    private Vector2 distFromAnchor;
+
+
+
 
     private void OnEnable()
     {
@@ -367,7 +370,7 @@ public class FishMovement : MonoBehaviour
     public void hazardBounce()
     {
         // Apply a smaller fixed upward force for a hazard bounce 
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.5f, rb.velocity.z);
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.4f, rb.velocity.z);
         setHazardBounceReady(false);
     }
 
@@ -394,22 +397,11 @@ public class FishMovement : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawLine(anchorPoint, anchorPoint + leftLimit);  // Left constraint
         Gizmos.DrawLine(anchorPoint, anchorPoint + rightLimit); // Right constraint
-    }
 
-    public IEnumerator PowerupTime(float delay)
-    {
-        //set powerup state only if powerup state is none
-        if (powerUpState == FishPowerUpState.NONE)
-        {
-            powerUpState = FishPowerUpState.BOTTLEBREAKER;
-            yield return Helpers.GetWaitForSeconds(delay);
-            powerUpState = FishPowerUpState.NONE;
-            Debug.Log("Powerup time ended");
-        }
-        else
-        {
-            Debug.Log("Powerup time already active");
-        }
+        //draw hazard check distance with line in front of fish
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(transform.position, transform.position + (-transform.forward * hazardCheckDistance));
+
     }
 
     public void OnFishDeath()
@@ -425,15 +417,38 @@ public class FishMovement : MonoBehaviour
     public void SuperJump()
     {
         //increase jump force
-        activeJumpForce = jumpForce * 1.2f;
+        activeJumpForce = jumpForce * 1.33f;
         //decrease bouyancy for slower rise
-        buoyancy *= .4f;
+        buoyancy *= .56f;
     }
 
     //normal jump
     public void NormalJump()
     {
         activeJumpForce = jumpForce;
+        buoyancy = baseBouyancy;
+    }
+
+    public void CheckForHazards() {
+        //draw raycast mactching gizmos line and collecting length of objects hit
+        RaycastHit[] hits = Physics.RaycastAll(transform.position, -transform.forward, hazardCheckDistance);
+        Debug.DrawRay(transform.position, -transform.forward * hazardCheckDistance, Color.yellow);
+        //check if any of the objects hit are Hazard objects
+        if (hits.Length > 0)
+        {
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider.name=="Hazard")
+                {
+                  var playState= GameManager.instance.topState as PlayState;
+                  playState.ExtendTimer();
+                  //exit out of loop if hazard is found
+                  break;
+                }
+            }
+        }
+
+
     }
 
     public IEnumerator FishAscension()
@@ -442,13 +457,13 @@ public class FishMovement : MonoBehaviour
 
         if (volume.profile.TryGet(out Bloom bloomEffect))
         {
-            bloomEffect.intensity.value = 1.25f;
-            bloomEffect.dirtIntensity.value = 100;
+            bloomEffect.intensity.value = 1.1f;
+            bloomEffect.dirtIntensity.value = 40;
         }
 
         if (volume.profile.TryGet(out ColorAdjustments colorAdjustments))
         {
-            colorAdjustments.postExposure.value = 100.0f;
+            colorAdjustments.postExposure.value = 50.0f;
         }
         //reset bloom
         if (volume.profile.TryGet(out Bloom bloomEffect2))
@@ -458,13 +473,12 @@ public class FishMovement : MonoBehaviour
             float duration = 1.0f;
             while(elapsed < duration)
             {
-                bloomEffect2.intensity.value = Mathf.Lerp(20.0f, 0.75f, elapsed / duration);
-                bloomEffect2.dirtIntensity.value = Mathf.Lerp(100.0f, 0.0f, elapsed / duration);
+                bloomEffect2.intensity.value = Mathf.Lerp(1.1f, 0.75f, elapsed / duration);
+                bloomEffect2.dirtIntensity.value = Mathf.Lerp(40.0f, 0.0f, elapsed / duration);
                 elapsed += Time.deltaTime;
                 yield return null;
             }
         }
         StopCoroutine(FishAscension());
     }
-
 }
