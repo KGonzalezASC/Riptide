@@ -243,6 +243,7 @@ MonoBehaviour:
   rb: {fileID: 7141695999175163664}
   volume: {fileID: 0}
   hazardCheckDistance: 4
+  splash: {fileID: 766498622860441890, guid: 7c29bedb328f45349a320351c69a988f, type: 3}
 --- !u!65 &9010484434768118025
 BoxCollider:
   m_ObjectHideFlags: 0
