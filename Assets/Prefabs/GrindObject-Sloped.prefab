@@ -254,8 +254,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 0.16079426, z: 1.5546887}
-  m_Center: {x: 0, y: -0.41960287, z: 0.76627386}
+  m_Size: {x: 1, y: 0.28561762, z: 1.5546887}
+  m_Center: {x: 0, y: -0.35719138, z: 0.766274}
 --- !u!114 &3140502881958093389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,7 +404,7 @@ MonoBehaviour:
   player: {fileID: 0}
   grindStartHeight: -1
   grindDirX: 0
-  grindDirY: 0.55677354
+  grindDirY: 0.558
 --- !u!1 &7957267472113406262
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,8 +457,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.2, y: 2.1468654, z: 0.19811022}
-  m_Center: {x: 0, y: 0.11906336, z: -0.34891084}
+  m_Size: {x: 1.2, y: 2.1468658, z: 0.44114375}
+  m_Center: {x: 0, y: 0.119063355, z: -0.4704267}
 --- !u!114 &73669485218050090
 MonoBehaviour:
   m_ObjectHideFlags: 0
