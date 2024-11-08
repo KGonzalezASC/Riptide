@@ -134,7 +134,7 @@ Material:
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
-    - _curve: 0.0016
+    - _curve: 0.001602
     - _intensityEmission: 2.21
     - _useEmissionTexture: 1
     - _useTexture: 1
