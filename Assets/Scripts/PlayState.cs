@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -27,7 +28,7 @@ public class PlayState : gState
     [SerializeField] Vector3 gameplayCamPos = Vector3.zero;
     [SerializeField] Vector3 gameplayCamRotation = Vector3.zero;
 
-
+    [SerializeField] GameObject waterMaterial;
     private float powerUpTimer = 0f;
 
 
@@ -155,7 +156,7 @@ public class PlayState : gState
                 // Ensure the speedIncrement doesn't exceed 5
                 if (speedIncrement > 14f)
                 {
-                    speedIncrement = 12f;
+                    speedIncrement = 14f;
                 }
 
                 Debug.Log("Game speed increased by: " + speedIncrement);
