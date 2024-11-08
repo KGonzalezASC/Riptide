@@ -57,22 +57,6 @@ public class FishMovement : MonoBehaviour
     [SerializeField]
     private float maxDiveDepth = -10f;  // Adjust based on the maximum dive depth you want
 
-
-    private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
-    private Vector3 grindDir = new Vector3(0, 0, 0);
-    private float grindSnapX = 0.0f;
-    private bool perfectDismountReady = false;
-    
-    private bool bounceReady = false;
-    private int hazardBounceCounter = 0;
-
-    private Vector2 moveDirection = Vector2.zero;
-
-    [SerializeField]
-    private FishMovementState state = FishMovementState.SURFACE;
-
-    public FishPowerUpState powerUpState = FishPowerUpState.NONE;
-
     [SerializeField]
     private float friction = 0.05f; // Friction factor for slowing down
 
@@ -85,7 +69,7 @@ public class FishMovement : MonoBehaviour
     [SerializeField]
     private float maxRange = 5f;   // Maximum distance from anchor point
 
- 
+
     [Header("Misc")]
 
     [SerializeField]
@@ -107,6 +91,7 @@ public class FishMovement : MonoBehaviour
     private ScoreTracker scoreTracker;
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
+    private Vector3 grindDir = new Vector3(0, 0, 0);
     private bool perfectDismountReady = false;
     private bool bounceReady = false;
     private int hazardBounceCounter = 0;
@@ -263,7 +248,7 @@ public class FishMovement : MonoBehaviour
         // Handle vertical physics (gravity, jumping)
         rb.velocity = new Vector3(currentVelocity.x, verticalVelocity, 0); // Ensure Z velocity remains zero
 
-       
+
 
         // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
         if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING))
@@ -433,6 +418,7 @@ public class FishMovement : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawLine(anchorPoint, anchorPoint + leftLimit);  // Left constraint
         Gizmos.DrawLine(anchorPoint, anchorPoint + rightLimit); // Right constraint
+    }
 
     public IEnumerator PowerupTime(float delay)
     {
@@ -480,21 +466,22 @@ public class FishMovement : MonoBehaviour
         buoyancy = baseBouyancy;
     }
 
-    public void CheckForHazards() {
+    public void CheckForHazards()
+    {
         //draw raycast mactching gizmos line and collecting length of objects hit
         RaycastHit[] hits = Physics.RaycastAll(transform.position, -transform.forward, hazardCheckDistance);
-        Debug.DrawRay(transform.position, -transform.forward * hazardCheckDistance, Color.yellow);
+        UnityEngine.Debug.DrawRay(transform.position, -transform.forward * hazardCheckDistance, Color.yellow);
         //check if any of the objects hit are Hazard objects
         if (hits.Length > 0)
         {
             foreach (RaycastHit hit in hits)
             {
-                if (hit.collider.name=="Hazard")
+                if (hit.collider.name == "Hazard")
                 {
-                  var playState= GameManager.instance.topState as PlayState;
-                  playState.ExtendTimer();
-                  //exit out of loop if hazard is found
-                  break;
+                    var playState = GameManager.instance.topState as PlayState;
+                    playState.ExtendTimer();
+                    //exit out of loop if hazard is found
+                    break;
                 }
             }
         }
@@ -522,7 +509,7 @@ public class FishMovement : MonoBehaviour
             //interpolate back to original values:
             float elapsed = 0f;
             float duration = 1.0f;
-            while(elapsed < duration)
+            while (elapsed < duration)
             {
                 bloomEffect2.intensity.value = Mathf.Lerp(1.1f, 0.75f, elapsed / duration);
                 bloomEffect2.dirtIntensity.value = Mathf.Lerp(40.0f, 0.0f, elapsed / duration);
