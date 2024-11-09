@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        for(int i = 0; i < gStates.Length; i++)
+        for (int i = 0; i < gStates.Length; i++)
         {
             gStates[i].gm = this;
             gStatesDict.Add(gStates[i].GetName(), gStates[i]);
@@ -117,7 +117,7 @@ public abstract class gState : MonoBehaviour
 
     protected IEnumerator CameraTransition(Transform cameraTransform, float transitionDuration, Vector3 loadPos, Vector3 loadRotation)
     {
-        //apply transformation
+
         float elapsedTime = 0f;
         Vector3 startPos = cameraTransform.position;
         Quaternion startRotation = cameraTransform.rotation;
@@ -127,15 +127,14 @@ public abstract class gState : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / transitionDuration;
 
-            // Smoothly interpolate position and rotation
             cameraTransform.position = Vector3.Lerp(startPos, loadPos, t);
             cameraTransform.rotation = Quaternion.Slerp(startRotation, Quaternion.Euler(loadRotation), t);
 
-            yield return null; // Wait for the next frame
+            yield return null; //wait for the next frame
         }
 
-        // Ensure final position and rotation match the target exactly
         cameraTransform.position = loadPos;
         cameraTransform.rotation = Quaternion.Euler(loadRotation);
     }
+
 }
