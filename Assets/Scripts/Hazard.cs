@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -124,5 +125,14 @@ public class Hazard : FlyWeight
         StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
     }
 
-    private void MoveToSafeSpace() => transform.position = new Vector3(0, -20, 0);
+    private void MoveToSafeSpace()
+    {
+        transform.position = new Vector3(0, -20, 0);
+
+        if (GetComponentInChildren<HazardBounceTrigger>() != null)
+        {
+            //UnityEngine.Debug.Log("Trying to reset material");
+            GetComponentInChildren<HazardBounceTrigger>().ResetMat();
+        }
+    }
 }
