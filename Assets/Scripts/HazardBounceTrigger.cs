@@ -48,7 +48,6 @@ public class HazardBounceTrigger : MonoBehaviour
         {
             //Debug.Log("Player left bounce trigger");
             player.setHazardBounceReady(false);
-            light.intensity = 0;
             ResetMat();
         }
     }
@@ -56,5 +55,6 @@ public class HazardBounceTrigger : MonoBehaviour
     public void ResetMat()
     {
         transform.parent.GetComponent<MeshRenderer>().material = regularMaterial;
+        light.intensity = 0;
     }
 }
