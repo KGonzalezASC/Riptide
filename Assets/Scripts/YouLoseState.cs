@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Playables;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
@@ -12,6 +13,14 @@ public class YouLoseState : gState
     private VisualElement scoreContainer;
     private Label _label;
     private PlayState playState;
+
+    [SerializeField] Transform cameraTransform;
+
+    //position of camera during gameplay
+    //camera in editor is already in gameplay position on game start so these are assigned on start
+    [SerializeField] Vector3 loadPos = Vector3.zero;
+    [SerializeField] Vector3 loadRotation = Vector3.zero;
+    [SerializeField] private float transitionDuration = 1.5f; //time for transition
 
     public override void Enter(gState from)
     {
@@ -51,6 +60,8 @@ public class YouLoseState : gState
     {
         //TODO: implement some way to type in name
         PlayerSaveData.Instance.Save();
+        //transition to load camera position
+        StartCoroutine(CameraTransition(cameraTransform, transitionDuration, loadPos, loadRotation));
     }
 
     public override string GetName()

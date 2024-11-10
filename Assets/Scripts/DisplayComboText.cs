@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Xml.Linq;
 using UnityEngine;
@@ -14,6 +15,8 @@ public class DisplayComboText : MonoBehaviour
     //array of words that could be displayed
     string[] words = new string[] { "GNARLY", "SWAG-O-LICIOUS", "TUBULAR", "KABOOM", "FINCREDIBLE", "FLOP SHUV-IT", "FINSANE", "FISH OUT OF WATER" };
 
+    //list of key value pairs containing a combo-text label and the time it was added
+    //List<KeyValuePair<Label, float>> comboLabels = new List<KeyValuePair<Label, float>>();
 
     /// <summary>
     /// Changes the text displayed in the combo UI container
@@ -32,9 +35,10 @@ public class DisplayComboText : MonoBehaviour
     {
         //set text to empty string
         combo_label.text = string.Empty;
-    
+
     }
-    public void ClearBar() {
+    public void ClearBar()
+    {
         progressBar = _document.rootVisualElement.Q<ProgressBar>("label-powerup");
 
         if (progressBar.style.visibility.Equals(Visibility.Visible))
@@ -70,7 +74,7 @@ public class DisplayComboText : MonoBehaviour
         progressBar = _document.rootVisualElement.Q<ProgressBar>("label-powerup");
         if (GameManager.instance.topState.GetName() == "Game")
         {
-            if (!progressBar.style.visibility.Equals(Visibility.Visible) && powerUpTimer >19f) //you have to do manually 1 less than time because a tick has already passed
+            if (!progressBar.style.visibility.Equals(Visibility.Visible) && powerUpTimer > 19f) //you have to do manually 1 less than time because a tick has already passed
             {
                 progressBar.style.visibility = Visibility.Visible;
             }

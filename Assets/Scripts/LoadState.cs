@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,16 +9,18 @@ public class LoadState : gState
 {
     [SerializeField] MainMenuEvents uiGameObject;
     [SerializeField] private GameObject exampleRoutine;
+
+    //camera transition fields
+    [Header("Camera Transition")]
+    [SerializeField] private Transform cameraTransform;
+
+    [SerializeField] private Vector3 endPosition = Vector3.zero;
+    [SerializeField] private Vector3 endRotation = Vector3.zero;
+
+    [SerializeField] private float transitionDuration = 0.3f;
+
     //might reference MainMenuEvents here
     protected int m_UsedAccessory = -1;
-
-    [SerializeField] Transform cameraTransform;
-
-    //position of camera during gameplay
-    //camera in editor is already in gameplay position on game start so these are assigned on start
-    [SerializeField] Vector3 loadPos = Vector3.zero;
-    [SerializeField] Vector3 loadRotation = Vector3.zero;
-    [SerializeField] private float transitionDuration = 1.5f; // Time for transition
 
 
     public override void Enter(gState from)
@@ -25,9 +28,9 @@ public class LoadState : gState
         uiGameObject.gameObject.SetActive(true);
         uiGameObject.OnPlayButtonClicked += LoadGame;
 
-        // start the camera transition from game position to menu position
-        StartCoroutine(CameraTransition(cameraTransform, transitionDuration, loadPos, loadRotation));
+        StartCoroutine(CameraTransition(cameraTransform, transitionDuration, endPosition, endRotation));
     }
+
 
     //Tick /update if we have transparent UI with something in background we can do that here
     public override void Execute()
@@ -37,13 +40,11 @@ public class LoadState : gState
         //we want to await the callback from MainMenuEvents OnPlayGameClick
         //rotate example routine only updates in this state
         exampleRoutine.transform.Rotate(0, 0, 1);
-
     }
 
     public override void Exit(gState to)
     {
         Debug.Log("Exiting Load State");
-
     }
 
     public override string GetName()
