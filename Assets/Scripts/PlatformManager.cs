@@ -59,10 +59,10 @@ public class PlatformManager : MonoBehaviour
         },
         { PlatformType.GrindingPattern, new List<Func<TrackHandler,PlatformType>>
             {
-                //trackHandler => SpawnGrindingPole(trackHandler),
-                //trackHandler => SpawnGrindingPolesCoin(trackHandler),
-                //trackHandler => SpawnGrindRailsElevated(trackHandler),
-                trackHandler => SpawnGrindRailSloped(trackHandler)
+                trackHandler => SpawnGrindingPole(trackHandler),
+                trackHandler => SpawnGrindingPolesCoin(trackHandler),
+                trackHandler => SpawnGrindRailsElevated(trackHandler),
+                trackHandler => SpawnGrindRailSloped(trackHandler) // Just method 1 but sloped. Please feel free to edit
             }
         }
     };
