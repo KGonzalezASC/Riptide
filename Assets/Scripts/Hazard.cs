@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Security.Cryptography;
 using UnityEngine;
 using UnityEngine.Playables;
 
@@ -24,6 +25,11 @@ public class Hazard : FlyWeight
         float adjustedSpeed = Settings.speed + PlayState.speedIncrement;
         // Move in world space along the Z-axis (forward direction in world space) //allows to locally rotate any hazard
         transform.Translate(Vector3.back * (adjustedSpeed * Time.deltaTime), Space.World);
+    }
+
+    public float ReturnAdjustedSpeed()
+    {
+        return Settings.speed + PlayState.speedIncrement;
     }
 
 
@@ -119,5 +125,14 @@ public class Hazard : FlyWeight
         StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
     }
 
-    private void MoveToSafeSpace() => transform.position = new Vector3(0, -20, 0);
+    private void MoveToSafeSpace()
+    {
+        transform.position = new Vector3(0, -20, 0);
+
+        if (GetComponentInChildren<HazardBounceTrigger>() != null)
+        {
+            //UnityEngine.Debug.Log("Trying to reset material");
+            GetComponentInChildren<HazardBounceTrigger>().ResetMat();
+        }
+    }
 }

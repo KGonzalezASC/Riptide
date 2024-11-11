@@ -1,7 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-//using System.Diagnostics;
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
@@ -68,7 +69,7 @@ public class FishMovement : MonoBehaviour
     [SerializeField]
     private float maxRange = 5f;   // Maximum distance from anchor point
 
- 
+
     [Header("Misc")]
 
     [SerializeField]
@@ -90,6 +91,7 @@ public class FishMovement : MonoBehaviour
     private ScoreTracker scoreTracker;
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
+    private Vector3 grindDir = new Vector3(0, 0, 0);
     private bool perfectDismountReady = false;
     private bool bounceReady = false;
     private int hazardBounceCounter = 0;
@@ -163,7 +165,7 @@ public class FishMovement : MonoBehaviour
             else if (jumpAction.triggered && state == FishMovementState.JUMPING && bounceReady)
             {
                 hazardBounce();
-                Debug.Log("Player successfully performed a hazard bounce");
+                //Debug.Log("Player successfully performed a hazard bounce");
                 scoreTracker.buildTrickScore(100);
 
                 if (hazardBounceCounter >= 1)
@@ -197,40 +199,38 @@ public class FishMovement : MonoBehaviour
             float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
             currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
         }
-        else if (state == FishMovementState.SURFACE || state == FishMovementState.DIVING) // Apply gradual slow-down when grounded and no input
+
+        Vector3 newPosition = rb.position;
+
+        if (state != FishMovementState.GRINDING)
         {
-            // Gradually reduce horizontal velocity using friction
-            // This line was the reason for the pull towards the middle,
-            // and the movement seems to work alright without it. May want to revisit, though
-            //currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, friction);
+            // Calculate new position after applying horizontal velocity
+            newPosition += new Vector3(currentVelocity.x, 0, 0); // Z component is zero
+
+            // Calculate the direction from the anchor point to the new position
+            Vector3 directionToNewPosition = newPosition - anchorPoint;
+            directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
+
+            // Clamp the distance to the maximum range if necessary
+            if (directionToNewPosition.magnitude > maxRange)
+            {
+                directionToNewPosition = directionToNewPosition.normalized * maxRange;
+            }
+
+            // Calculate the angle between the forward direction and the direction to the new position
+            float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
+
+            // Clamp the angle to the allowed range
+            if (Mathf.Abs(newAngle) > maxAngle)
+            {
+                float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
+                Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
+                directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
+            }
+
+            // Update the player's position after clamping (X and Z axes only)
+            newPosition = anchorPoint + directionToNewPosition;
         }
-
-        // Calculate new position after applying horizontal velocity
-        Vector3 newPosition = rb.position + new Vector3(currentVelocity.x, 0, 0); // Z component is zero
-
-        // Calculate the direction from the anchor point to the new position
-        Vector3 directionToNewPosition = newPosition - anchorPoint;
-        directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
-
-        // Clamp the distance to the maximum range if necessary
-        if (directionToNewPosition.magnitude > maxRange)
-        {
-            directionToNewPosition = directionToNewPosition.normalized * maxRange;
-        }
-
-        // Calculate the angle between the forward direction and the direction to the new position
-        float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
-
-        // Clamp the angle to the allowed range
-        if (Mathf.Abs(newAngle) > maxAngle)
-        {
-            float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
-            Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
-            directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
-        }
-
-        // Update the player's position after clamping (X and Z axes only)
-        newPosition = anchorPoint + directionToNewPosition;
 
         if (state == FishMovementState.GRINDING)
         {
@@ -243,10 +243,12 @@ public class FishMovement : MonoBehaviour
         // Apply the new position to the Rigidbody
         rb.MovePosition(newPosition);
 
+        //UnityEngine.Debug.Log("x vel = " + currentVelocity.x);
+
         // Handle vertical physics (gravity, jumping)
         rb.velocity = new Vector3(currentVelocity.x, verticalVelocity, 0); // Ensure Z velocity remains zero
 
-       
+
 
         // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
         if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING))
@@ -286,6 +288,7 @@ public class FishMovement : MonoBehaviour
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = grindHeight;
+            grindHeight += grindDir.y * Time.deltaTime;
             rb.position = correctedPosition;
 
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
@@ -341,12 +344,21 @@ public class FishMovement : MonoBehaviour
         return distFromAnchor.magnitude;
     }
 
-    public void startGrind(float snapXTo, float snapYTo)
+    public void startGrind(float snapXTo, float snapYTo, Vector3 moveDir)
     {
         if (state != FishMovementState.GRINDING)
         {
             grindSnapX = snapXTo;
-            grindHeight = snapYTo;
+            grindDir = moveDir;
+
+            if (snapYTo != -1.0f)
+            {
+                grindHeight = snapYTo;
+            }
+            else
+            {
+                grindHeight = rb.position.y;
+            }
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
             state = FishMovementState.GRINDING;
@@ -406,7 +418,22 @@ public class FishMovement : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawLine(anchorPoint, anchorPoint + leftLimit);  // Left constraint
         Gizmos.DrawLine(anchorPoint, anchorPoint + rightLimit); // Right constraint
+    }
 
+    public IEnumerator PowerupTime(float delay)
+    {
+        //set powerup state only if powerup state is none
+        if (powerUpState == FishPowerUpState.NONE)
+        {
+            powerUpState = FishPowerUpState.BOTTLEBREAKER;
+            yield return Helpers.GetWaitForSeconds(delay);
+            powerUpState = FishPowerUpState.NONE;
+            UnityEngine.Debug.Log("Powerup time ended");
+        }
+        else
+        {
+            UnityEngine.Debug.Log("Powerup time already active");
+        }
         //draw hazard check distance with line in front of fish
         Gizmos.color = Color.yellow;
         Gizmos.DrawLine(transform.position, transform.position + (-transform.forward * hazardCheckDistance));
@@ -416,9 +443,10 @@ public class FishMovement : MonoBehaviour
     public void OnFishDeath()
     {
         stopGrind();
-        state = FishMovementState.JUMPING;
+        state = FishMovementState.SURFACE;
         powerUpState = FishPowerUpState.NONE;
         hazardBounceCounter = 0;
+        rb.velocity = Vector3.zero;
         scoreTracker.loseTrickScore();
     }
 
@@ -438,21 +466,22 @@ public class FishMovement : MonoBehaviour
         buoyancy = baseBouyancy;
     }
 
-    public void CheckForHazards() {
+    public void CheckForHazards()
+    {
         //draw raycast mactching gizmos line and collecting length of objects hit
         RaycastHit[] hits = Physics.RaycastAll(transform.position, -transform.forward, hazardCheckDistance);
-        Debug.DrawRay(transform.position, -transform.forward * hazardCheckDistance, Color.yellow);
+        UnityEngine.Debug.DrawRay(transform.position, -transform.forward * hazardCheckDistance, Color.yellow);
         //check if any of the objects hit are Hazard objects
         if (hits.Length > 0)
         {
             foreach (RaycastHit hit in hits)
             {
-                if (hit.collider.name=="Hazard")
+                if (hit.collider.name == "Hazard")
                 {
-                  var playState= GameManager.instance.topState as PlayState;
-                  playState.ExtendTimer();
-                  //exit out of loop if hazard is found
-                  break;
+                    var playState = GameManager.instance.topState as PlayState;
+                    playState.ExtendTimer();
+                    //exit out of loop if hazard is found
+                    break;
                 }
             }
         }
@@ -480,7 +509,7 @@ public class FishMovement : MonoBehaviour
             //interpolate back to original values:
             float elapsed = 0f;
             float duration = 1.0f;
-            while(elapsed < duration)
+            while (elapsed < duration)
             {
                 bloomEffect2.intensity.value = Mathf.Lerp(1.1f, 0.75f, elapsed / duration);
                 bloomEffect2.dirtIntensity.value = Mathf.Lerp(40.0f, 0.0f, elapsed / duration);

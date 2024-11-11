@@ -1,20 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using UnityEngine;
 
 public class GrindableObject : MonoBehaviour
 {
-    [SerializeField] public FishMovement player = null;
+    public FishMovement player = null;
     private BoxCollider grindBox;
     private BoxCollider killBox;
 
-    private void Awake()
-    {
+    [SerializeField] private float grindStartHeight = 0.0f;
 
-    }
+    // These are both multiplied by the grind rail's speed
+    [SerializeField] private float grindDirX;
+    [SerializeField] private float grindDirY;
+
+    private Vector3 playerGrindDir;
 
     private void OnEnable()
     {
+        playerGrindDir = new Vector3(grindDirX, grindDirY, 0);
+
+        if (grindStartHeight == 0.0f)
+        {
+            grindStartHeight = transform.position.y + 0.63f;
+        }
+
         grindBox = transform.GetChild(2).GetComponent<BoxCollider>();
 
         if (grindBox)
@@ -55,12 +66,16 @@ public class GrindableObject : MonoBehaviour
             }
         }
 
+        if (GameManager.instance.topState.GetName() == "Game" && transform.GetComponent<Hazard>() != null)
+        {
+            playerGrindDir.y = transform.GetComponent<Hazard>().ReturnAdjustedSpeed() * grindDirY;
+        }
     }
 
     public void startPlayerGrinding()
     {
         //Debug.Log("Attempting grinding start");
-        player.startGrind(transform.position.x, transform.position.y + 0.63f);
+        player.startGrind(transform.position.x, grindStartHeight, playerGrindDir);
     }
 
     public void stopPlayerGrinding()

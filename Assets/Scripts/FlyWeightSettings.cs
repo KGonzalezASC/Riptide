@@ -19,5 +19,5 @@ public abstract class FlyWeightSettings : ScriptableObject
     }
 }
 
-public enum FlyWeightType { Hazard,Coin ,GrindablePole, PowerUp }
+public enum FlyWeightType { Hazard,Coin ,GrindablePole, PowerUp, SlopedGrindablePole }
 
