@@ -9,6 +9,7 @@ public class HazardBounceTrigger : MonoBehaviour
     private Hazard parentScript;
 
     private FishMovement player = null;
+    private DummyFish dummy = null;
 
     private Light light;
     [SerializeField] private Material regularMaterial;
@@ -29,6 +30,11 @@ public class HazardBounceTrigger : MonoBehaviour
             player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
             //Debug.Log("Bounce trigger found player");
         }
+        //if in load state and dummy fish is not found
+        if (dummy == null && GameManager.instance.topState.GetName() == "Load" && GameObject.FindWithTag("Dummy") != null)
+        {
+            dummy = GameObject.FindWithTag("Dummy").GetComponent<DummyFish>();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -39,6 +45,11 @@ public class HazardBounceTrigger : MonoBehaviour
             player.setHazardBounceReady(true);
             light.intensity = 15;
             transform.parent.GetComponent<MeshRenderer>().material = highlightedMaterial;
+        }
+        if(other.CompareTag("Dummy"))
+        {
+           dummy.setHazardBounceReady(true);
+           dummy.bottleBounce();
         }
     }
 
