@@ -21,16 +21,16 @@ public class GrindableObject : MonoBehaviour
     {
         playerGrindDir = new Vector3(grindDirX, grindDirY, 0);
 
-        if (grindStartHeight == 0.0f)
-        {
-            grindStartHeight = transform.position.y + 0.63f;
-        }
-
         grindBox = transform.GetChild(2).GetComponent<BoxCollider>();
 
         if (grindBox)
         {
             //Debug.Log("Grind object found grind box");
+
+            if (grindStartHeight == 0.0f)
+            {
+                grindStartHeight = grindBox.transform.position.y + 0.5f;
+            }
         }
         else
         {

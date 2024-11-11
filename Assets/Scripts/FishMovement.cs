@@ -15,7 +15,8 @@ public enum FishMovementState
     SURFACE,
     JUMPING,
     DIVING,
-    GRINDING
+    GRINDING,
+    TRICK
 }
 
 public enum FishPowerUpState
@@ -29,6 +30,9 @@ public class FishMovement : MonoBehaviour
     [Header("Movement Values")]
     [SerializeField]
     private InputAction playerControls; // Input for Movement
+
+    [SerializeField]
+    private InputAction trickControls; // Input for trick directions
 
     [SerializeField]
     private InputAction jumpAction; // Input for jumping
@@ -96,6 +100,7 @@ public class FishMovement : MonoBehaviour
     private bool bounceReady = false;
     private int hazardBounceCounter = 0;
     private Vector2 moveDirection = Vector2.zero;
+    private Vector2 trickDirection = Vector3.zero;
     private float activeJumpForce;
     private Vector2 distFromAnchor;
 
@@ -108,6 +113,7 @@ public class FishMovement : MonoBehaviour
     private void OnEnable()
     {
         playerControls.Enable();
+        trickControls.Enable();
         jumpAction.Enable();
         transform.Rotate(0, 180, 0);
         state = FishMovementState.SURFACE;
@@ -127,6 +133,7 @@ public class FishMovement : MonoBehaviour
     private void OnDisable()
     {
         playerControls.Disable();
+        trickControls.Disable();
         jumpAction.Disable();
     }
 
@@ -174,6 +181,17 @@ public class FishMovement : MonoBehaviour
                 }
 
                 hazardBounceCounter++;
+            }
+
+            trickDirection = trickControls.ReadValue<Vector2>();
+
+            //UnityEngine.Debug.Log("trickdir x: " + trickDirection.x + ", trickdir y: " + trickDirection.y);
+
+            if (state == FishMovementState.JUMPING && trickDirection != Vector2.zero)
+            {
+                state = FishMovementState.TRICK;
+
+
             }
         }
 
@@ -251,7 +269,7 @@ public class FishMovement : MonoBehaviour
 
 
         // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
-        if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING))
+        if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING || state == FishMovementState.TRICK))
         {
             if (state != FishMovementState.DIVING)
             {
