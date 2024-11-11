@@ -10,6 +10,7 @@ public class GrindableObject : MonoBehaviour
     private BoxCollider killBox;
 
     [SerializeField] private float grindStartHeight = 0.0f;
+    [SerializeField] private bool sloped;
 
     // These are both multiplied by the grind rail's speed
     [SerializeField] private float grindDirX;
@@ -21,16 +22,17 @@ public class GrindableObject : MonoBehaviour
     {
         playerGrindDir = new Vector3(grindDirX, grindDirY, 0);
 
+        if (grindStartHeight != -1.0f)
+        {
+            grindStartHeight = transform.position.y + 0.63f;
+            //UnityEngine.Debug.Log("grind start height: " + grindStartHeight);
+        }
+
         grindBox = transform.GetChild(2).GetComponent<BoxCollider>();
 
         if (grindBox)
         {
             //Debug.Log("Grind object found grind box");
-
-            if (grindStartHeight == 0.0f)
-            {
-                grindStartHeight = grindBox.transform.position.y + 0.5f;
-            }
         }
         else
         {
@@ -64,10 +66,17 @@ public class GrindableObject : MonoBehaviour
             {
                 Debug.Log("Grind object couldn't find player");
             }
+
+            if (grindStartHeight != -1.0f)
+            {
+                grindStartHeight = transform.position.y + 0.63f;
+                //UnityEngine.Debug.Log("grind start height: " + grindStartHeight);
+            }
         }
 
         if (GameManager.instance.topState.GetName() == "Game" && transform.GetComponent<Hazard>() != null)
         {
+            playerGrindDir.x = transform.GetComponent<Hazard>().ReturnAdjustedSpeed() * grindDirX;
             playerGrindDir.y = transform.GetComponent<Hazard>().ReturnAdjustedSpeed() * grindDirY;
         }
     }
