@@ -16,7 +16,13 @@ public class GrindTriggerScript : MonoBehaviour
         if (collider.CompareTag("Player"))
         {
             //Debug.Log("Player hit grind trigger");
-            parentScript.startPlayerGrinding();
+            parentScript.startPlayerGrinding(collider.GetComponent<FishMovement>());
+        }
+
+        else if (collider.CompareTag("DummyGrind"))
+        {
+            //Debug.Log("Dummy hit grind trigger"); works
+            parentScript.startPlayerGrinding(collider.GetComponent<FishMovement>());
         }
     }
 
@@ -25,7 +31,12 @@ public class GrindTriggerScript : MonoBehaviour
         if (collider.CompareTag("Player"))
         {
             //Debug.Log("Player exited grind trigger");
-            parentScript.stopPlayerGrinding();
+            parentScript.stopPlayerGrinding(collider.GetComponent<FishMovement>());
+        }
+        else if (collider.CompareTag("DummyGrind"))
+        {
+            //Debug.Log("Dummy exited grind trigger");
+            parentScript.stopPlayerGrinding(collider.GetComponent<FishMovement>());
         }
     }
 }

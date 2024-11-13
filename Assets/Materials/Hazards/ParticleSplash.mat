@@ -21,8 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ParticleSplash
-  m_Shader: {fileID: -6465566751694194690, guid: 9f2f6c4d28d7633469f977205f8c6787,
-    type: 3}
+  m_Shader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -77,4 +76,5 @@ Material:
     - Color_7D9A58EC: {r: 0.14035237, g: 0.16532877, b: 0.35849056, a: 0}
     - Color_F01C36BF: {r: 0.10196077, g: 0.462745, b: 0.57647055, a: 1}
     - Vector2_37B21477: {r: 1, g: 1, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

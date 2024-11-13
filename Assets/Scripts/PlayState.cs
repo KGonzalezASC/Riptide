@@ -126,11 +126,12 @@ public class PlayState : gState
     {
         Debug.Log("Exiting Game State");
         uiGameObject.OnRestart();
-        Time.timeScale = 0;
         PlatformManager.Instance.ClearAllPlatforms();
+        Time.timeScale = 0;
         FlyWeightFactory.ClearPool(FlyWeightType.Coin);
         FlyWeightFactory.ClearPool(FlyWeightType.Hazard);
         FlyWeightFactory.ClearPool(FlyWeightType.GrindablePole); //the idea for the pole is that we can make specicfic script that just switches between prefab on its own settings for different types of poles
+        FlyWeightFactory.ClearPool(FlyWeightType.SlopedGrindablePole);
         FlyWeightFactory.ClearPool(FlyWeightType.PowerUp);
         StopCoroutine(difficultyCoroutine);
         Time.timeScale = 1;

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2463944934150380005}
   - component: {fileID: 766498622860441890}
   - component: {fileID: 1690197464858041753}
-  - component: {fileID: -4135513732101700922}
   m_Layer: 0
   m_Name: Splash
   m_TagString: Untagged
@@ -672,7 +671,7 @@ ParticleSystem:
     radiusThickness: 1
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
-    m_Rotation: {x: 250.3, y: 0, z: 0}
+    m_Rotation: {x: 90, y: 0, z: 0}
     m_Scale: {x: 1, y: 1, z: 1}
     placementMode: 0
     m_MeshMaterialIndex: 0
@@ -2300,7 +2299,7 @@ ParticleSystem:
     z:
       serializedVersion: 2
       minMaxState: 0
-      scalar: -8.7
+      scalar: -100
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -4831,15 +4830,3 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &-4135513732101700922
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6999502142761509866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93b83db22fe11e44bb7a91e9ca8032e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -81,6 +81,8 @@ public class FishMovement : MonoBehaviour
     private Volume volume;
     [SerializeField]
     private float hazardCheckDistance = 8.0f;
+    [SerializeField]
+    private ParticleSystem splash;
 
 
 
@@ -99,11 +101,6 @@ public class FishMovement : MonoBehaviour
     private float activeJumpForce;
     private Vector2 distFromAnchor;
 
-
-
-
-    [SerializeField]
-    private ParticleSystem splash;
 
     private void OnEnable()
     {
@@ -164,7 +161,6 @@ public class FishMovement : MonoBehaviour
             else if (jumpAction.triggered && state == FishMovementState.JUMPING && bounceReady)
             {
                 hazardBounce();
-                //Debug.Log("Player successfully performed a hazard bounce");
                 scoreTracker.buildTrickScore(100);
 
                 if (hazardBounceCounter >= 1)
@@ -254,15 +250,12 @@ public class FishMovement : MonoBehaviour
         // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
         if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING))
         {
-            if (state != FishMovementState.DIVING)
-            {
-                Instantiate(splash, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
-            }
+            BottleImpact();
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
             state = FishMovementState.DIVING;
             buoyancy = baseBouyancy; // Ensure bouyancy is reset
-            if(scoreTracker != null)
-            scoreTracker.gainTrickScore(false);
+            if (scoreTracker != null)
+                scoreTracker.gainTrickScore(false);
             hazardBounceCounter = 0;
         }
         else if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
@@ -274,7 +267,7 @@ public class FishMovement : MonoBehaviour
         else if (state == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
         {
             //if tag is player
-            if(gameObject.name == "FishBoard(Clone)")
+            if (gameObject.name == "FishBoard(Clone)")
             {
                 rb.rotation = Quaternion.Euler(0f, -180f, 0f);
             }
@@ -297,8 +290,8 @@ public class FishMovement : MonoBehaviour
             rb.position = correctedPosition;
 
             rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
-
-            scoreTracker.buildTrickScore(5);
+            if (scoreTracker != null)
+                scoreTracker.buildTrickScore(5);
         }
 
         if (state == FishMovementState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
@@ -341,7 +334,7 @@ public class FishMovement : MonoBehaviour
     public void DemoJump()
     {
         //if on surface jump
-        if (state == FishMovementState.SURFACE)
+        if (state == FishMovementState.SURFACE || state == FishMovementState.GRINDING)
         {
             Jump();
         }
@@ -370,6 +363,8 @@ public class FishMovement : MonoBehaviour
             {
                 grindHeight = rb.position.y;
             }
+            //rotate player.rotation.y to match to grind direction.y
+            grindDir.y = moveDir.y;
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
             state = FishMovementState.GRINDING;
@@ -384,6 +379,13 @@ public class FishMovement : MonoBehaviour
         if (perfectDismountReady)
         {
             perfectDismountReady = false;
+        }
+    }
+
+    public void BottleImpact() {
+        if (state != FishMovementState.DIVING)
+        {
+            Instantiate(splash, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
         }
     }
 
@@ -402,7 +404,7 @@ public class FishMovement : MonoBehaviour
     public void hazardBounce()
     {
         // Apply a smaller fixed upward force for a hazard bounce 
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.4f, rb.velocity.z);
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.36f, rb.velocity.z);
         setHazardBounceReady(false);
     }
 
@@ -410,6 +412,13 @@ public class FishMovement : MonoBehaviour
     {
         state = FishMovementState.SURFACE;
     }
+
+    public void SetFishState(FishMovementState state) {
+        //set movement state
+        this.state = state;
+    }
+
+  
 
     // This function will help visualize the anchor point and movement vector in the editor
     private void OnDrawGizmos()

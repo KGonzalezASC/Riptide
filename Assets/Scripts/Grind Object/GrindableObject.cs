@@ -54,23 +54,21 @@ public class GrindableObject : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (player == null && GameManager.instance.topState.GetName() == "Game" && GameObject.FindWithTag("Player") != null)
+        //if (player == null && GameManager.instance.topState.GetName() == "Game" && GameObject.FindWithTag("Player") != null)
+        //{
+        //    player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
+
+        //    if (grindStartHeight != -1.0f)
+        //    {
+        //        grindStartHeight = transform.position.y + 0.63f;
+        //        //UnityEngine.Debug.Log("grind start height: " + grindStartHeight);
+        //    }
+        //}
+        if (GameManager.instance.topState.GetName() == "Game")
         {
-            player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
-
-            if (player)
-            {
-                //Debug.Log("Grind object found player");
-            }
-            else
-            {
-                Debug.Log("Grind object couldn't find player");
-            }
-
             if (grindStartHeight != -1.0f)
             {
                 grindStartHeight = transform.position.y + 0.63f;
-                //UnityEngine.Debug.Log("grind start height: " + grindStartHeight);
             }
         }
 
@@ -81,22 +79,22 @@ public class GrindableObject : MonoBehaviour
         }
     }
 
-    public void startPlayerGrinding()
+    public void startPlayerGrinding(FishMovement fish)
     {
         //Debug.Log("Attempting grinding start");
-        player.startGrind(transform.position.x, grindStartHeight, playerGrindDir);
+        fish.startGrind(transform.position.x, grindStartHeight, playerGrindDir);
     }
 
-    public void stopPlayerGrinding()
+    public void stopPlayerGrinding(FishMovement fish)
     {
         //Debug.Log("Attempting grinding stop");
-        player.stopGrind();
+        fish.stopGrind();
     }
 
-    public void preparePlayerPerfectDismount()
+    public void preparePlayerPerfectDismount(FishMovement fish)
     {
         Debug.Log("Player ready for perfect dismount");
-        player.preparePerfectDismount();
+        fish.preparePerfectDismount();
     }
 
     public void killPlayer()

@@ -16,7 +16,17 @@ public class PerfectDismountTriggerScript : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            parentScript.preparePlayerPerfectDismount();
+            parentScript.preparePlayerPerfectDismount(other.GetComponent<FishMovement>());
+        }
+
+        //check for DummyGrind tag
+        if (other.CompareTag("DummyGrind"))
+        {
+            parentScript.preparePlayerPerfectDismount(other.GetComponent<FishMovement>());
+            //demo jump
+            Debug.Log("demo jump");
+            if (GameManager.instance.topState.GetName() == "Load")
+                other.GetComponent<FishMovement>().DemoJump();
         }
     }
 }

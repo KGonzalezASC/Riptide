@@ -31,9 +31,9 @@ public class HazardBounceTrigger : MonoBehaviour
             //Debug.Log("Bounce trigger found player");
         }
         //if in load state and dummy fish is not found
-        if (dummy == null && GameManager.instance.topState.GetName() == "Load" && GameObject.FindWithTag("Dummy") != null)
+        if (dummy == null && GameManager.instance.topState.GetName() == "Load" && GameObject.FindWithTag("DummyBounce") != null)
         {
-            dummy = GameObject.FindWithTag("Dummy").GetComponent<DummyFish>();
+            dummy = GameObject.FindWithTag("DummyBounce").GetComponent<DummyFish>();
         }
     }
 
@@ -46,7 +46,7 @@ public class HazardBounceTrigger : MonoBehaviour
             light.intensity = 15;
             transform.parent.GetComponent<MeshRenderer>().material = highlightedMaterial;
         }
-        if(other.CompareTag("Dummy"))
+        if(other.CompareTag("DummyBounce"))
         {
            dummy.setHazardBounceReady(true);
            dummy.bottleBounce();

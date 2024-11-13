@@ -12,13 +12,16 @@ public class DummyFish : MonoBehaviour
 
     void Start()
     {
-        
+        if (CompareTag("DummyBottle")) 
+        {
+            fishMovement.powerUpState = FishPowerUpState.BOTTLEBREAKER;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(fishMovement != null && GameManager.instance.topState.GetName() =="Load")
+        if (GameManager.instance.topState.GetName() == "Load" && CompareTag("DummyBounce") && fishMovement != null)
         {
             fishMovement.DemoJump();
         }

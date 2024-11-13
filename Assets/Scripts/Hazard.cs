@@ -88,8 +88,8 @@ public class Hazard : FlyWeight
         else
         {
             // Player hit a hazard but has a power-up
-            // Insert bottle break soundFX here
             SFXManager.instance.playSFXClip(SFXManager.instance.bottleBreakerSFX, transform, .35f);
+            Instantiate(Settings.impactParticle,transform.position + new Vector3(0f, 0.0f, .5f), Quaternion.identity);
             StartCoroutine(DespawnAfterDelay(Settings.despawnDelay));
             var playState = GameManager.instance.topState as PlayState;
             playState.IncreaseScore();
