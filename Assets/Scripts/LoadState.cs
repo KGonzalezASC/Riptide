@@ -36,7 +36,9 @@ public class LoadState : gState
         uiGameObject.gameObject.SetActive(true);
         uiGameObject.OnPlayButtonClicked += LoadGame;
 
-        StartCoroutine(CameraTransition(cameraTransform, transitionDuration, endPosition, endRotation));
+        this.co = CameraTransition(cameraTransform, transitionDuration, endPosition, endRotation);
+        StopCoroutine(from.co);
+        StartCoroutine(this.co);
 
         //set demo room to active
         demoRoom.SetActive(true);
@@ -61,7 +63,7 @@ public class LoadState : gState
 
     public override void Exit(gState to)
     {
-       demoRoom.SetActive(false);
+        demoRoom.SetActive(false);
     }
 
 

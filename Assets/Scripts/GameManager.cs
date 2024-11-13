@@ -109,6 +109,9 @@ public abstract class gState : MonoBehaviour
     [HideInInspector]
     public GameManager gm;
 
+    //Stores the Coroutine for camera transitions
+    public IEnumerator co;
+
     // State transition methods
     public abstract void Enter(gState from);
     public abstract void Execute(); // Tick function for the state 

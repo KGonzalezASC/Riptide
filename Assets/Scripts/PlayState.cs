@@ -109,8 +109,13 @@ public class PlayState : gState
         speedIncrement = 0.01f; //reset speed increment
         difficultyCoroutine = StartCoroutine(DifficultyHandler(6f));
 
+        //ensure previous camera routine has been stopped
+        StopCoroutine(from.co);
+        //set this camera coroutine
+        this.co = CameraTransition(cameraTransform, transitionDuration, gameplayCamPos, gameplayCamRotation);
+
         //move camera after setup
-        StartCoroutine(CameraTransition(cameraTransform, transitionDuration, gameplayCamPos, gameplayCamRotation));
+        StartCoroutine(this.co);
     }
     public override void Execute()
     {
