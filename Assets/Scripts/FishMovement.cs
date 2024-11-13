@@ -142,7 +142,7 @@ public class FishMovement : MonoBehaviour
         if (GameManager.instance.topState.GetName() == "Game")
         {
             moveDirection = playerControls.ReadValue<Vector2>();
-            if (jumpAction.triggered && state != FishMovementState.JUMPING)
+            if (jumpAction.triggered && state != FishMovementState.JUMPING && state != FishMovementState.TRICK)
             {
                 if (perfectDismountReady && state == FishMovementState.GRINDING)
                 {
@@ -169,7 +169,7 @@ public class FishMovement : MonoBehaviour
 
                 Jump();
             }
-            else if (jumpAction.triggered && state == FishMovementState.JUMPING && bounceReady)
+            else if (jumpAction.triggered && (state == FishMovementState.JUMPING || state == FishMovementState.TRICK) && bounceReady)
             {
                 hazardBounce();
                 //Debug.Log("Player successfully performed a hazard bounce");
