@@ -16,7 +16,8 @@ public enum FishMovementState
     SURFACE,
     JUMPING,
     DIVING,
-    GRINDING
+    GRINDING,
+    TRICK
 }
 
 public enum FishPowerUpState
@@ -33,6 +34,9 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private InputAction jumpAction; // Input for jumping
+
+    [SerializeField]
+    private InputAction trickControls;
 
     [SerializeField]
     private float movementSpeed = 100f;
@@ -208,7 +212,7 @@ public class FishMovement : MonoBehaviour
                 }
             }
         }
-        
+
         if (state != FishMovementState.TRICK || gameObject.name == "FishBoard(Clone)")
         {
             rb.rotation = Quaternion.Euler(0f, -180f, 0f);
@@ -294,380 +298,383 @@ public class FishMovement : MonoBehaviour
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
             state = FishMovementState.DIVING;
             buoyancy = baseBouyancy; // Ensure bouyancy is reset
-          
-          if (scoreTracker != null)
-          {
-              if (state == FishMovementState.JUMPING)
-              {
-                  scoreTracker.gainTrickScore(false);
-              }
-              else
-              {
-                  scoreTracker.loseTrickScore();
-              }
 
-              hazardBounceCounter = 0;
-              perfectDismountReady = false;
-              trickCounter = 0;
-          }
-        
-          if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
-          {
-              //rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
-              state = FishMovementState.SURFACE;
-              NormalJump();
-          }
-          else if (state == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
-          {
-              //if tag is player
-              if (gameObject.name == "FishBoard(Clone)")
-              {
-                  rb.rotation = Quaternion.Euler(0f, -180f, 0f);
-              }
-              //Vector3 correctedPosition = rb.position;
-              //correctedPosition.y = minHeight;
-              //rb.position = correctedPosition;
-
-              rb.AddForce(Vector3.up * surfaceAlignmentForce * (rb.position.y - minHeight), ForceMode.Acceleration); // correction force
-              if (rb.position.y < minHeight)
-              {
-                  rb.useGravity = false;
-                  rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
-              }
-          }
-          else if (state == FishMovementState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
-          {
-              Vector3 correctedPosition = rb.position;
-              correctedPosition.y = grindHeight;
-              grindHeight += grindDir.y * Time.deltaTime;
-              rb.position = correctedPosition;
-
-              rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
-              if (scoreTracker != null)
-                  scoreTracker.buildTrickScore(5);
-          }
-
-          if (state == FishMovementState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
-          {
-              rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
-          }
-
-          if (state == FishMovementState.JUMPING || state == FishMovementState.DIVING)
-          {
-              rb.useGravity = true;
-          }
-
-          if (state != FishMovementState.JUMPING)
-          {
-              setHazardBounceReady(false);
-          }
-
-          if (rb.velocity.x > Math.Pow(maxLateralSpeed, 2))
-          {
-              rb.velocity.Set(maxLateralSpeed, rb.velocity.y, rb.velocity.z);
-          }
-        
-          if (rb.velocity.x < 0f - Math.Pow(maxLateralSpeed, 2))
-          {
-              rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
-          }
-
-          if (state == FishMovementState.TRICK)
-          {
-              Vector3 spin = spinDir * spinSpeed;
-
-              Quaternion deltaRotation = Quaternion.Euler(spin * Time.deltaTime);
-
-              rb.MoveRotation(rb.rotation * deltaRotation);
-
-              trickTimer += Time.deltaTime;
-
-              if (trickTimer >= 0.5f)
-              {
-                  completeTrick();
-              }
-          }
-
-        //Debug.Log(rb.position + " " + state);
-    }
-
-    public void Jump()
-    {
-        // Only apply a fixed upward force for the jump
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce, rb.velocity.z);
-        state = FishMovementState.JUMPING;
-        if (perfectDismountReady)
-        {
-            StartCoroutine(FishAscension());
-        }
-    }
-
-    //Demo jump call jump if grounded
-    public void DemoJump()
-    {
-        //if on surface jump
-        if (state == FishMovementState.SURFACE || state == FishMovementState.GRINDING)
-        {
-            Jump();
-        }
-    }
-
-    private float getAnchorDist()
-    {
-        distFromAnchor.x = transform.position.x - anchorPoint.x;
-        distFromAnchor.y = transform.position.y - anchorPoint.y;
-
-        return distFromAnchor.magnitude;
-    }
-
-    public void startGrind(float snapXTo, float snapYTo, Vector3 moveDir)
-    {
-        if (state != FishMovementState.GRINDING)
-        {
-            grindSnapX = snapXTo;
-            grindDir = moveDir;
-
-            if (snapYTo != -1.0f)
+            if (scoreTracker != null)
             {
-                grindHeight = snapYTo;
+                if (state == FishMovementState.JUMPING)
+                {
+                    scoreTracker.gainTrickScore(false);
+                }
+                else
+                {
+                    scoreTracker.loseTrickScore();
+                }
+
+                hazardBounceCounter = 0;
+                perfectDismountReady = false;
+                trickCounter = 0;
+            }
+
+            if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
+            {
+                //rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
+                state = FishMovementState.SURFACE;
+                NormalJump();
+            }
+            else if (state == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
+            {
+                //if tag is player
+                if (gameObject.name == "FishBoard(Clone)")
+                {
+                    rb.rotation = Quaternion.Euler(0f, -180f, 0f);
+                }
+                //Vector3 correctedPosition = rb.position;
+                //correctedPosition.y = minHeight;
+                //rb.position = correctedPosition;
+
+                rb.AddForce(Vector3.up * surfaceAlignmentForce * (rb.position.y - minHeight), ForceMode.Acceleration); // correction force
+                if (rb.position.y < minHeight)
+                {
+                    rb.useGravity = false;
+                    rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
+                }
+            }
+            else if (state == FishMovementState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
+            {
+                Vector3 correctedPosition = rb.position;
+                correctedPosition.y = grindHeight;
+                grindHeight += grindDir.y * Time.deltaTime;
+                rb.position = correctedPosition;
+
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
+                if (scoreTracker != null)
+                    scoreTracker.buildTrickScore(5);
+            }
+
+            if (state == FishMovementState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
+            }
+
+            if (state == FishMovementState.JUMPING || state == FishMovementState.DIVING)
+            {
+                rb.useGravity = true;
+            }
+
+            if (state != FishMovementState.JUMPING)
+            {
+                setHazardBounceReady(false);
+            }
+
+            if (rb.velocity.x > Math.Pow(maxLateralSpeed, 2))
+            {
+                rb.velocity.Set(maxLateralSpeed, rb.velocity.y, rb.velocity.z);
+            }
+
+            if (rb.velocity.x < 0f - Math.Pow(maxLateralSpeed, 2))
+            {
+                rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
+            }
+
+            if (state == FishMovementState.TRICK)
+            {
+                Vector3 spin = spinDir * spinSpeed;
+
+                Quaternion deltaRotation = Quaternion.Euler(spin * Time.deltaTime);
+
+                rb.MoveRotation(rb.rotation * deltaRotation);
+
+                trickTimer += Time.deltaTime;
+
+                if (trickTimer >= 0.5f)
+                {
+                    completeTrick();
+                }
+            }
+
+            //Debug.Log(rb.position + " " + state);
+        }
+    }
+
+        public void Jump()
+        {
+            // Only apply a fixed upward force for the jump
+            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce, rb.velocity.z);
+            state = FishMovementState.JUMPING;
+            if (perfectDismountReady)
+            {
+                StartCoroutine(FishAscension());
+            }
+        }
+
+        //Demo jump call jump if grounded
+        public void DemoJump()
+        {
+            //if on surface jump
+            if (state == FishMovementState.SURFACE || state == FishMovementState.GRINDING)
+            {
+                Jump();
+            }
+        }
+
+        private float getAnchorDist()
+        {
+            distFromAnchor.x = transform.position.x - anchorPoint.x;
+            distFromAnchor.y = transform.position.y - anchorPoint.y;
+
+            return distFromAnchor.magnitude;
+        }
+
+        public void startGrind(float snapXTo, float snapYTo, Vector3 moveDir)
+        {
+            if (state != FishMovementState.GRINDING)
+            {
+                grindSnapX = snapXTo;
+                grindDir = moveDir;
+
+                if (snapYTo != -1.0f)
+                {
+                    grindHeight = snapYTo;
+                }
+                else
+                {
+                    grindHeight = rb.position.y;
+                }
+                //rotate player.rotation.y to match to grind direction.y
+                grindDir.y = moveDir.y;
+
+                rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
+                state = FishMovementState.GRINDING;
+                //Debug.Log("Started grinding, x snap loc is: " + snapXTo);
+            }
+        }
+
+        public void stopGrind()
+        {
+            state = FishMovementState.JUMPING;
+
+            if (perfectDismountReady)
+            {
+                perfectDismountReady = false;
+            }
+        }
+
+        public void BottleImpact()
+        {
+            if (state != FishMovementState.DIVING)
+            {
+                Instantiate(splash, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
+            }
+        }
+
+        public void preparePerfectDismount()
+        {
+            perfectDismountReady = true;
+            SuperJump();
+
+        }
+
+        public void setHazardBounceReady(bool value)
+        {
+            bounceReady = value;
+        }
+
+        public void hazardBounce()
+        {
+            // Apply a smaller fixed upward force for a hazard bounce 
+            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.36f, rb.velocity.z);
+            setHazardBounceReady(false);
+        }
+
+        private void startTrick(int direction, bool first)
+        {
+            if (first)
+            {
+                rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2.2f, rb.velocity.z);
+            }
+
+            switch (direction)
+            {
+                case 1:
+                    UnityEngine.Debug.Log("Front Flip");
+                    spinDir.x = -1;
+                    spinDir.y = 0;
+                    spinDir.z = 0;
+                    break;
+                case 2:
+                    UnityEngine.Debug.Log("Back Flip");
+                    spinDir.x = 1;
+                    spinDir.y = 0;
+                    spinDir.z = 0;
+                    break;
+                case 3:
+                    UnityEngine.Debug.Log("Clockwise Barrel Roll");
+                    spinDir.x = 0;
+                    spinDir.y = 0;
+                    spinDir.z = 1;
+                    break;
+                case 4:
+                    UnityEngine.Debug.Log("Counterclockwise Barrel Roll");
+                    spinDir.x = 0;
+                    spinDir.y = 0;
+                    spinDir.z = -1;
+                    break;
+            }
+
+            state = FishMovementState.TRICK;
+        }
+
+        private void completeTrick()
+        {
+            UnityEngine.Debug.Log("Trick done");
+
+            scoreTracker.buildTrickScore(100);
+            trickCounter++;
+
+            trickTimer = 0.0f;
+
+            if (trickCounter > 1)
+            {
+                scoreTracker.buildTrickMultiplier(0.1f);
+            }
+
+            rb.rotation = Quaternion.Euler(0f, -180f, 0f);
+            transform.rotation = Quaternion.Euler(0f, -180f, 0f);
+
+            spinDir = Vector2.zero;
+            state = FishMovementState.JUMPING;
+        }
+
+        public void resetState()
+        {
+            state = FishMovementState.SURFACE;
+        }
+
+        public void SetFishState(FishMovementState state)
+        {
+            //set movement state
+            this.state = state;
+        }
+
+
+
+        // This function will help visualize the anchor point and movement vector in the editor
+        private void OnDrawGizmos()
+        {
+            // Draw the anchor point in the scene view
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(anchorPoint, 0.2f);  // Visualize the anchor point
+
+            // Draw the max range
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(anchorPoint, maxRange); // Visualize the max range
+
+            // Draw the allowed movement angle
+            Vector3 leftLimit = Quaternion.Euler(0, -maxAngle, 0) * Vector3.forward * maxRange;
+            Vector3 rightLimit = Quaternion.Euler(0, maxAngle, 0) * Vector3.forward * maxRange;
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(anchorPoint, anchorPoint + leftLimit);  // Left constraint
+            Gizmos.DrawLine(anchorPoint, anchorPoint + rightLimit); // Right constraint
+        }
+
+        public IEnumerator PowerupTime(float delay)
+        {
+            //set powerup state only if powerup state is none
+            if (powerUpState == FishPowerUpState.NONE)
+            {
+                powerUpState = FishPowerUpState.BOTTLEBREAKER;
+                yield return Helpers.GetWaitForSeconds(delay);
+                powerUpState = FishPowerUpState.NONE;
+                UnityEngine.Debug.Log("Powerup time ended");
             }
             else
             {
-                grindHeight = rb.position.y;
+                UnityEngine.Debug.Log("Powerup time already active");
             }
-            //rotate player.rotation.y to match to grind direction.y
-            grindDir.y = moveDir.y;
+            //draw hazard check distance with line in front of fish
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(transform.position, transform.position + (-transform.forward * hazardCheckDistance));
 
-            rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
-            state = FishMovementState.GRINDING;
-            //Debug.Log("Started grinding, x snap loc is: " + snapXTo);
-        }
-    }
-
-    public void stopGrind()
-    {
-        state = FishMovementState.JUMPING;
-
-        if (perfectDismountReady)
-        {
-            perfectDismountReady = false;
-        }
-    }
-
-    public void BottleImpact() {
-        if (state != FishMovementState.DIVING)
-        {
-            Instantiate(splash, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
-        }
-    }
-
-    public void preparePerfectDismount()
-    {
-        perfectDismountReady = true;
-        SuperJump();
-
-    }
-
-    public void setHazardBounceReady(bool value)
-    {
-        bounceReady = value;
-    }
-
-    public void hazardBounce()
-    {
-        // Apply a smaller fixed upward force for a hazard bounce 
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.36f, rb.velocity.z);
-        setHazardBounceReady(false);
-    }
-
-    private void startTrick(int direction, bool first)
-    {
-        if (first)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2.2f, rb.velocity.z);
         }
 
-        switch (direction)
+        public void OnFishDeath()
         {
-            case 1:
-                UnityEngine.Debug.Log("Front Flip");
-                spinDir.x = -1;
-                spinDir.y = 0;
-                spinDir.z = 0;
-                break;
-            case 2:
-                UnityEngine.Debug.Log("Back Flip");
-                spinDir.x = 1;
-                spinDir.y = 0;
-                spinDir.z = 0;
-                break;
-            case 3:
-                UnityEngine.Debug.Log("Clockwise Barrel Roll");
-                spinDir.x = 0;
-                spinDir.y = 0;
-                spinDir.z = 1;
-                break;
-            case 4:
-                UnityEngine.Debug.Log("Counterclockwise Barrel Roll");
-                spinDir.x = 0;
-                spinDir.y = 0;
-                spinDir.z = -1;
-                break;
-        }
-
-        state = FishMovementState.TRICK;
-    }
-
-    private void completeTrick()
-    {
-        UnityEngine.Debug.Log("Trick done");
-
-        scoreTracker.buildTrickScore(100);
-        trickCounter++;
-
-        trickTimer = 0.0f;
-
-        if (trickCounter > 1)
-        {
-            scoreTracker.buildTrickMultiplier(0.1f);
-        }
-
-        rb.rotation = Quaternion.Euler(0f, -180f, 0f);
-        transform.rotation = Quaternion.Euler(0f, -180f, 0f);
-
-        spinDir = Vector2.zero;
-        state = FishMovementState.JUMPING;
-    }
-
-    public void resetState()
-    {
-        state = FishMovementState.SURFACE;
-    }
-
-    public void SetFishState(FishMovementState state) {
-        //set movement state
-        this.state = state;
-    }
-
-  
-
-    // This function will help visualize the anchor point and movement vector in the editor
-    private void OnDrawGizmos()
-    {
-        // Draw the anchor point in the scene view
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(anchorPoint, 0.2f);  // Visualize the anchor point
-
-        // Draw the max range
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(anchorPoint, maxRange); // Visualize the max range
-
-        // Draw the allowed movement angle
-        Vector3 leftLimit = Quaternion.Euler(0, -maxAngle, 0) * Vector3.forward * maxRange;
-        Vector3 rightLimit = Quaternion.Euler(0, maxAngle, 0) * Vector3.forward * maxRange;
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(anchorPoint, anchorPoint + leftLimit);  // Left constraint
-        Gizmos.DrawLine(anchorPoint, anchorPoint + rightLimit); // Right constraint
-    }
-
-    public IEnumerator PowerupTime(float delay)
-    {
-        //set powerup state only if powerup state is none
-        if (powerUpState == FishPowerUpState.NONE)
-        {
-            powerUpState = FishPowerUpState.BOTTLEBREAKER;
-            yield return Helpers.GetWaitForSeconds(delay);
+            stopGrind();
+            state = FishMovementState.SURFACE;
             powerUpState = FishPowerUpState.NONE;
-            UnityEngine.Debug.Log("Powerup time ended");
+            hazardBounceCounter = 0;
+            rb.velocity = Vector3.zero;
+            scoreTracker.loseTrickScore();
         }
-        else
+
+        //super jump
+        public void SuperJump()
         {
-            UnityEngine.Debug.Log("Powerup time already active");
+            //increase jump force
+            activeJumpForce = jumpForce * 1.33f;
+            //decrease bouyancy for slower rise
+            buoyancy *= .56f;
         }
-        //draw hazard check distance with line in front of fish
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(transform.position, transform.position + (-transform.forward * hazardCheckDistance));
 
-    }
-
-    public void OnFishDeath()
-    {
-        stopGrind();
-        state = FishMovementState.SURFACE;
-        powerUpState = FishPowerUpState.NONE;
-        hazardBounceCounter = 0;
-        rb.velocity = Vector3.zero;
-        scoreTracker.loseTrickScore();
-    }
-
-    //super jump
-    public void SuperJump()
-    {
-        //increase jump force
-        activeJumpForce = jumpForce * 1.33f;
-        //decrease bouyancy for slower rise
-        buoyancy *= .56f;
-    }
-
-    //normal jump
-    public void NormalJump()
-    {
-        activeJumpForce = jumpForce;
-        buoyancy = baseBouyancy;
-    }
-
-    public void CheckForHazards()
-    {
-        //draw raycast mactching gizmos line and collecting length of objects hit
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, -transform.forward, hazardCheckDistance);
-        UnityEngine.Debug.DrawRay(transform.position, -transform.forward * hazardCheckDistance, Color.yellow);
-        //check if any of the objects hit are Hazard objects
-        if (hits.Length > 0)
+        //normal jump
+        public void NormalJump()
         {
-            foreach (RaycastHit hit in hits)
+            activeJumpForce = jumpForce;
+            buoyancy = baseBouyancy;
+        }
+
+        public void CheckForHazards()
+        {
+            //draw raycast mactching gizmos line and collecting length of objects hit
+            RaycastHit[] hits = Physics.RaycastAll(transform.position, -transform.forward, hazardCheckDistance);
+            UnityEngine.Debug.DrawRay(transform.position, -transform.forward * hazardCheckDistance, Color.yellow);
+            //check if any of the objects hit are Hazard objects
+            if (hits.Length > 0)
             {
-                if (hit.collider.name == "Hazard")
+                foreach (RaycastHit hit in hits)
                 {
-                    var playState = GameManager.instance.topState as PlayState;
-                    playState.ExtendTimer();
-                    //exit out of loop if hazard is found
-                    break;
+                    if (hit.collider.name == "Hazard")
+                    {
+                        var playState = GameManager.instance.topState as PlayState;
+                        playState.ExtendTimer();
+                        //exit out of loop if hazard is found
+                        break;
+                    }
                 }
             }
+
+
         }
 
-
-    }
-
-    public IEnumerator FishAscension()
-    {
-        yield return Helpers.GetWaitForSeconds(.2f);
-
-        if (volume.profile.TryGet(out Bloom bloomEffect))
+        public IEnumerator FishAscension()
         {
-            bloomEffect.intensity.value = 1.1f;
-            bloomEffect.dirtIntensity.value = 40;
-        }
+            yield return Helpers.GetWaitForSeconds(.2f);
 
-        if (volume.profile.TryGet(out ColorAdjustments colorAdjustments))
-        {
-            colorAdjustments.postExposure.value = 50.0f;
-        }
-        //reset bloom
-        if (volume.profile.TryGet(out Bloom bloomEffect2))
-        {
-            //interpolate back to original values:
-            float elapsed = 0f;
-            float duration = 1.0f;
-            while (elapsed < duration)
+            if (volume.profile.TryGet(out Bloom bloomEffect))
             {
-                bloomEffect2.intensity.value = Mathf.Lerp(1.1f, 0.75f, elapsed / duration);
-                bloomEffect2.dirtIntensity.value = Mathf.Lerp(40.0f, 0.0f, elapsed / duration);
-                elapsed += Time.deltaTime;
-                yield return null;
+                bloomEffect.intensity.value = 1.1f;
+                bloomEffect.dirtIntensity.value = 40;
             }
+
+            if (volume.profile.TryGet(out ColorAdjustments colorAdjustments))
+            {
+                colorAdjustments.postExposure.value = 50.0f;
+            }
+            //reset bloom
+            if (volume.profile.TryGet(out Bloom bloomEffect2))
+            {
+                //interpolate back to original values:
+                float elapsed = 0f;
+                float duration = 1.0f;
+                while (elapsed < duration)
+                {
+                    bloomEffect2.intensity.value = Mathf.Lerp(1.1f, 0.75f, elapsed / duration);
+                    bloomEffect2.dirtIntensity.value = Mathf.Lerp(40.0f, 0.0f, elapsed / duration);
+                    elapsed += Time.deltaTime;
+                    yield return null;
+                }
+            }
+            StopCoroutine(FishAscension());
         }
-        StopCoroutine(FishAscension());
     }
-}
