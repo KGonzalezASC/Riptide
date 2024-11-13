@@ -309,6 +309,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4062384526006364555}
   - component: {fileID: 6681972035621018137}
+  - component: {fileID: 9026116669814591156}
   m_Layer: 0
   m_Name: GrindObject
   m_TagString: Untagged
@@ -349,6 +350,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
+  grindStartHeight: 0
   grindDirX: 0
   grindDirY: 0
 --- !u!65 &9026116669814591156
