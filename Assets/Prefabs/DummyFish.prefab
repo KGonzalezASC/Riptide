@@ -31,12 +31,12 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.909
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -24.53
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
@@ -97,7 +97,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
       propertyPath: m_TagString
-      value: Player
+      value: DummyBounce
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -114,11 +114,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 477622571402236769}
+      addedObject: {fileID: 9010484434768118025}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 9010484434768118025}
+      addedObject: {fileID: 1429608751833903689}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6165362456372808098}
   m_SourcePrefab: {fileID: 100100000, guid: 90b14975e6f0ec8458519f79aa5cf4a5, type: 3}
 --- !u!1 &8073257913005948786 stripped
 GameObject:
@@ -165,84 +169,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab6692fbdeb718e44a5474f29374b36e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &477622571402236769
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8073257913005948786}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec98975ecc0aac74a8028104ddaff58e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerControls:
-    m_Name: Player Controls
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 43f86177-611d-46b3-ab36-63b35b537ee5
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 2D Vector
-      m_Id: 19160551-9589-46b3-a19f-adc1a830fda2
-      m_Path: 2DVector
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Controls
-      m_Flags: 4
-    - m_Name: left
-      m_Id: bf4f9dd9-306e-4d60-b09c-5c3aeee33ec5
-      m_Path: <Keyboard>/a
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Controls
-      m_Flags: 8
-    - m_Name: right
-      m_Id: e7bc27f1-7c31-4d79-b711-37039626cd2b
-      m_Path: <Keyboard>/d
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Player Controls
-      m_Flags: 8
-    m_Flags: 0
-  jumpAction:
-    m_Name: Jump
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: e1eaf962-fd63-49d6-a321-112833d219c7
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 0a728763-e8d3-4cb4-8131-7f28bb288a30
-      m_Path: <Keyboard>/space
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Jump
-      m_Flags: 0
-    m_Flags: 0
-  movementSpeed: 7.7
-  jumpForce: 6.42
-  maxUnderwaterSpeed: 3
-  maxLateralSpeed: 1.1
-  surfaceAlignmentForce: -20
-  minHeight: -0.1
-  maxDiveDepth: -4.235
-  friction: 0.1
-  anchorPoint: {x: 0, y: -2, z: 0}
-  maxAngle: 65
-  maxRange: 4.3
-  state: 0
-  powerUpState: 0
-  rb: {fileID: 7141695999175163664}
-  volume: {fileID: 0}
-  hazardCheckDistance: 4
 --- !u!65 &9010484434768118025
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -264,3 +190,64 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.555, y: 0.78, z: 0.8}
   m_Center: {x: 0, y: 0.1, z: 0.3}
+--- !u!114 &1429608751833903689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8073257913005948786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec98975ecc0aac74a8028104ddaff58e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerControls:
+    m_Name: Player Controls
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 43f86177-611d-46b3-ab36-63b35b537ee5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  jumpAction:
+    m_Name: Jump
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: e1eaf962-fd63-49d6-a321-112833d219c7
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
+  movementSpeed: 7.7
+  jumpForce: 6.42
+  maxUnderwaterSpeed: 3
+  maxLateralSpeed: 1.1
+  surfaceAlignmentForce: -20
+  minHeight: -0.1
+  maxDiveDepth: -4.235
+  friction: 0.1
+  anchorPoint: {x: 0, y: -2, z: 0}
+  maxAngle: 0
+  maxRange: 0
+  state: 0
+  powerUpState: 0
+  rb: {fileID: 7141695999175163664}
+  volume: {fileID: 0}
+  hazardCheckDistance: 4
+  splash: {fileID: 766498622860441890, guid: 7c29bedb328f45349a320351c69a988f, type: 3}
+--- !u!114 &6165362456372808098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8073257913005948786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54b9867cb3d129743ab4374fefb3da7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fishMovement: {fileID: 1429608751833903689}
+  hazardBounceDelay: 0.085

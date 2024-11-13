@@ -8,6 +8,9 @@ TagManager:
   - Destroy
   - Interactible
   - UI
+  - DummyBounce
+  - DummyGrind
+  - DummyBottle
   layers:
   - Default
   - TransparentFX

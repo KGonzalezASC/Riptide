@@ -10,6 +10,7 @@ public class GrindableObject : MonoBehaviour
     private BoxCollider killBox;
 
     [SerializeField] private float grindStartHeight = 0.0f;
+    [SerializeField] private bool sloped;
 
     // These are both multiplied by the grind rail's speed
     [SerializeField] private float grindDirX;
@@ -21,16 +22,17 @@ public class GrindableObject : MonoBehaviour
     {
         playerGrindDir = new Vector3(grindDirX, grindDirY, 0);
 
+        if (grindStartHeight != -1.0f)
+        {
+            grindStartHeight = transform.position.y + 0.63f;
+            //UnityEngine.Debug.Log("grind start height: " + grindStartHeight);
+        }
+
         grindBox = transform.GetChild(2).GetComponent<BoxCollider>();
 
         if (grindBox)
         {
             //Debug.Log("Grind object found grind box");
-
-            if (grindStartHeight == 0.0f)
-            {
-                grindStartHeight = grindBox.transform.position.y + 0.5f;
-            }
         }
         else
         {
@@ -52,42 +54,47 @@ public class GrindableObject : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        if (player == null && GameManager.instance.topState.GetName() == "Game" && GameObject.FindWithTag("Player") != null)
-        {
-            player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
+        //if (player == null && GameManager.instance.topState.GetName() == "Game" && GameObject.FindWithTag("Player") != null)
+        //{
+        //    player = GameObject.FindWithTag("Player").GetComponent<FishMovement>();
 
-            if (player)
+        //    if (grindStartHeight != -1.0f)
+        //    {
+        //        grindStartHeight = transform.position.y + 0.63f;
+        //        //UnityEngine.Debug.Log("grind start height: " + grindStartHeight);
+        //    }
+        //}
+        if (GameManager.instance.topState.GetName() == "Game")
+        {
+            if (grindStartHeight != -1.0f)
             {
-                //Debug.Log("Grind object found player");
-            }
-            else
-            {
-                Debug.Log("Grind object couldn't find player");
+                grindStartHeight = transform.position.y + 0.63f;
             }
         }
 
         if (GameManager.instance.topState.GetName() == "Game" && transform.GetComponent<Hazard>() != null)
         {
+            playerGrindDir.x = transform.GetComponent<Hazard>().ReturnAdjustedSpeed() * grindDirX;
             playerGrindDir.y = transform.GetComponent<Hazard>().ReturnAdjustedSpeed() * grindDirY;
         }
     }
 
-    public void startPlayerGrinding()
+    public void startPlayerGrinding(FishMovement fish)
     {
         //Debug.Log("Attempting grinding start");
-        player.startGrind(transform.position.x, grindStartHeight, playerGrindDir);
+        fish.startGrind(transform.position.x, grindStartHeight, playerGrindDir);
     }
 
-    public void stopPlayerGrinding()
+    public void stopPlayerGrinding(FishMovement fish)
     {
         //Debug.Log("Attempting grinding stop");
-        player.stopGrind();
+        fish.stopGrind();
     }
 
-    public void preparePlayerPerfectDismount()
+    public void preparePlayerPerfectDismount(FishMovement fish)
     {
         Debug.Log("Player ready for perfect dismount");
-        player.preparePerfectDismount();
+        fish.preparePerfectDismount();
     }
 
     public void killPlayer()

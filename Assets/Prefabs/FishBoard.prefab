@@ -210,55 +210,6 @@ MonoBehaviour:
       m_Action: Player Controls
       m_Flags: 8
     m_Flags: 0
-  trickControls:
-    m_Name: Trick Controls
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 5f218bd9-28cf-452b-abc4-4c79b9b344d3
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 2D Vector
-      m_Id: 7dc89780-1310-4be9-bcb8-00f102e553f8
-      m_Path: 2DVector
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Trick Controls
-      m_Flags: 4
-    - m_Name: up
-      m_Id: fb215370-f7bb-400e-8871-04bdfab076f3
-      m_Path: <Keyboard>/upArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Trick Controls
-      m_Flags: 8
-    - m_Name: down
-      m_Id: 30f17483-bc6b-42d5-b1e7-246c599ff58b
-      m_Path: <Keyboard>/downArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Trick Controls
-      m_Flags: 8
-    - m_Name: left
-      m_Id: b40f25bf-9cd5-4187-8324-27664d64f09d
-      m_Path: <Keyboard>/leftArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Trick Controls
-      m_Flags: 8
-    - m_Name: right
-      m_Id: 8f33da97-0ea5-465e-b179-85b4f9602746
-      m_Path: <Keyboard>/rightArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Trick Controls
-      m_Flags: 8
-    m_Flags: 0
   jumpAction:
     m_Name: Jump
     m_Type: 0
@@ -277,7 +228,7 @@ MonoBehaviour:
       m_Flags: 0
     m_Flags: 0
   movementSpeed: 7.7
-  jumpForce: 6.42
+  jumpForce: 6.41
   maxUnderwaterSpeed: 3
   maxLateralSpeed: 1.1
   surfaceAlignmentForce: -20

@@ -40,8 +40,8 @@ public class PlatformManager : MonoBehaviour
     private readonly Queue<Func<TrackHandler, PlatformType>> lastThreeActions = new(3); // Store the last three patterns
     public PlatformManager()
     {
-        platformPatterns = new Dictionary<PlatformType, List<Func<TrackHandler, PlatformType>>>
-    {
+      platformPatterns = new Dictionary<PlatformType, List<Func<TrackHandler, PlatformType>>>
+      {
         { PlatformType.SafePattern, new List<Func<TrackHandler,PlatformType>>
             {
                 SpawnCoinPair,
@@ -61,15 +61,12 @@ public class PlatformManager : MonoBehaviour
             {
                 trackHandler => SpawnGrindingPole(trackHandler),
                 trackHandler => SpawnGrindingPolesCoin(trackHandler),
-                trackHandler => SpawnGrindRailsElevated(trackHandler),
+                //trackHandler => SpawnGrindRailCenter(trackHandler),
                 trackHandler => SpawnGrindRailSloped(trackHandler) // Just method 1 but sloped. Please feel free to edit
             }
         }
-    };
+      };
     }
-
-
-
 
 
     private void Awake()
@@ -480,7 +477,7 @@ public class PlatformManager : MonoBehaviour
         MeshRenderer meshRenderer = pole.transform.GetChild(0).GetComponent<MeshRenderer>();
         float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
         pole.transform.position = polePosition + new Vector3(0, .3f, halfwayPointZ);
-        pole.transform.Rotate(-3f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
+        pole.transform.Rotate(-3.5f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
         (pole as Hazard).isIgnored = false;
         trackHandler.occupiedPositions.Add(polePosition);
         pole.transform.SetParent(emptyParentHazard.transform);
@@ -579,6 +576,34 @@ public class PlatformManager : MonoBehaviour
         return PlatformType.GrindingPattern;
     }
 
+    //spawn grind rail in center of platform
+    private PlatformType SpawnGrindRailCenter(TrackHandler trackHandler)
+    {
+        // Select the center column for the grind rail
+        int centerColumn = trackHandler.itemsPerRow / 2;
+        var railPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], centerColumn);
+
+        // Spawn and position the grind rail
+        FlyWeight grindRail = FlyWeightFactory.Spawn(hazards[2]);        
+        MeshRenderer meshRenderer = grindRail.transform.GetChild(0).GetComponent<MeshRenderer>();
+        float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
+        grindRail.transform.position = railPosition + new Vector3(0, .3f, halfwayPointZ);
+        (grindRail as Hazard).isIgnored = false;
+        //rotate grind rail 30 degrees on y
+        grindRail.transform.Rotate(0, 10f, 0, Space.World);
+
+
+        trackHandler.occupiedPositions.Add(railPosition);
+        grindRail.transform.SetParent(emptyParentHazard.transform);
+
+        return PlatformType.GrindingPattern;
+    }
+
+
+
+
+
+
     private PlatformType SpawnGrindRailSloped(TrackHandler trackHandler)
     {
         // Select a random column and always use row 0 for the pole
@@ -590,7 +615,7 @@ public class PlatformManager : MonoBehaviour
         MeshRenderer meshRenderer = pole.transform.GetChild(0).GetComponent<MeshRenderer>();
         float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
         pole.transform.position = polePosition + new Vector3(0, .3f, halfwayPointZ);
-        pole.transform.Rotate(-3.2f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
+        pole.transform.Rotate(-2.75f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
         (pole as Hazard).isIgnored = false;
         trackHandler.occupiedPositions.Add(polePosition);
         pole.transform.SetParent(emptyParentHazard.transform);

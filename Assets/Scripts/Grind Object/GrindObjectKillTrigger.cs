@@ -16,8 +16,10 @@ public class GrindObjectKillTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            var fish = other.GetComponent<FishMovement>();
             SFXManager.instance.playSFXClip(SFXManager.instance.hitHazardSFX, transform, .025f);
-            parentScript.killPlayer();
+            fish.OnFishDeath();
+            GameManager.instance.switchState("YouLose");
         }
     }
 }

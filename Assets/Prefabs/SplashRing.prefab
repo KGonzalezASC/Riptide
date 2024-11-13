@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2463944934150380005}
   - component: {fileID: 766498622860441890}
   - component: {fileID: 1690197464858041753}
-  - component: {fileID: -4135513732101700922}
   m_Layer: 0
   m_Name: SplashRing
   m_TagString: Untagged
@@ -117,7 +116,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.74
+      scalar: 0.2
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -224,7 +223,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 1, b: 1, a: 1}
+      maxColor: {r: 0.6287825, g: 0.8490566, b: 0.6634125, a: 0.45490196}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -288,7 +287,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.17
+      scalar: 0.065
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -553,7 +552,7 @@ ParticleSystem:
     startRotation:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 1.7453293
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -605,14 +604,14 @@ ParticleSystem:
         m_RotationOrder: 4
     randomizeRotationDirection: 0
     gravitySource: 0
-    maxNumParticles: 1000
+    maxNumParticles: 100
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.74
+      scalar: -1
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -666,11 +665,11 @@ ParticleSystem:
     serializedVersion: 6
     enabled: 1
     type: 17
-    angle: 20.55
+    angle: 90
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
-    donutRadius: 0.0001
+    donutRadius: 0.03
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 90, y: 0, z: 0}
     m_Scale: {x: 1, y: 1, z: 1}
@@ -752,7 +751,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.8
+      value: 0.5
       mode: 0
       spread: 0
       speed:
@@ -809,7 +808,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
     arc:
-      value: 360
+      value: 180
       mode: 0
       spread: 0
       speed:
@@ -2190,7 +2189,7 @@ ParticleSystem:
         m_RotationOrder: 4
     m_Range: {x: 0, y: 1}
   ForceModule:
-    enabled: 0
+    enabled: 1
     x:
       serializedVersion: 2
       minMaxState: 0
@@ -2300,7 +2299,7 @@ ParticleSystem:
     z:
       serializedVersion: 2
       minMaxState: 0
-      scalar: -8.7
+      scalar: -100
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -4831,15 +4830,3 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &-4135513732101700922
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6999502142761509866}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93b83db22fe11e44bb7a91e9ca8032e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

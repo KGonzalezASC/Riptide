@@ -16,4 +16,5 @@ MonoBehaviour:
   prefab: {fileID: 839118507278211180, guid: 017e4d0407bf79145b381392229059d5, type: 3}
   despawnDelay: 0
   speed: 7
-  damage: 10
+  impactParticle: {fileID: 766498622860441890, guid: dd72c2e0650c07c429bc88a3a2395f90,
+    type: 3}

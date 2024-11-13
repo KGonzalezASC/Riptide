@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 684d2344c841f0f4e87209297eb03ae8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rowSpacing: 2.69
+  rowSpacing: 2.585
   gizmoSphereSize: 0.45
   itemsPerRow: 3
   spacingBetweenItems: 1.1

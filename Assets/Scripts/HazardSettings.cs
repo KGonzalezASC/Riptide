@@ -7,7 +7,7 @@ public class HazardSettings : FlyWeightSettings
 {
     public float despawnDelay = 5f;
     public float speed = 10f;
-    public float damage = 10f;
+    public ParticleSystem impactParticle;
 
     //create override
     public override FlyWeight Create(Vector3 position, Quaternion quat)
