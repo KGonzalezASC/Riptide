@@ -9,22 +9,29 @@ using UnityEngine.UIElements;
 public class DisplayComboText : MonoBehaviour
 {
     private UIDocument _document;
-    private Label combo_label;
+    private VisualElement combo_container;
     private ProgressBar progressBar;
 
     //array of words that could be displayed
     string[] words = new string[] { "GNARLY", "SWAG-O-LICIOUS", "TUBULAR", "KABOOM", "FINCREDIBLE", "FLOP SHUV-IT", "FINSANE", "FISH OUT OF WATER" };
 
-    //list of key value pairs containing a combo-text label and the time it was added
-    //List<KeyValuePair<Label, float>> comboLabels = new List<KeyValuePair<Label, float>>();
+    //time since combo-worthy event occurred
+    float timeSinceComboItem = 0.0f;
+    //time combo text remains on screen in-between combo-worthy actions
+    [SerializeField]float comboDisplayDuration = 0.8f;
+    //labels being displayed in combo
+    List<Label> comboList = new List<Label>();
 
     /// <summary>
     /// Changes the text displayed in the combo UI container
     /// </summary>
     public void ChangeText()
     {
-        combo_label = _document.rootVisualElement.Q<Label>("label-combo"); //we need to this because the document changes when we switch states
-        combo_label.text = GenerateText();
+        combo_container = _document.rootVisualElement.Q<VisualElement>("container-combo"); //we need to this because the document changes when we switch states
+        Label newLabel = GenerateComboLabel();
+        newLabel.AddToClassList("label-combo");
+        combo_container.Add(newLabel);
+        timeSinceComboItem = Time.time;
     }
 
 
@@ -33,8 +40,8 @@ public class DisplayComboText : MonoBehaviour
     /// </summary>
     public void ClearText()
     {
-        //set text to empty string
-        combo_label.text = string.Empty;
+        //empty label
+        combo_container.Clear();
 
     }
     public void ClearBar()
@@ -51,23 +58,27 @@ public class DisplayComboText : MonoBehaviour
     /// Genereates a new text phrase to be displayed in the user
     /// </summary>
     /// <returns>random text phrase to display</returns>
-    string GenerateText()
+    Label GenerateComboLabel()
     {
         //random is max exclusive
+        //get text to add
         int index = Random.Range(0, words.Length);
-        //make sure new words display each time
-        while (words[index] == combo_label.text)
-        {
-            //redo 
-            index = Random.Range(0, words.Length);
-        }
-        return words[index];
+        return new Label { text = words[index] };
     }
 
     public void Awake()
     {
         _document = GetComponent<UIDocument>();
     }
+
+    public void Update()
+    {
+        if((Time.time - timeSinceComboItem) >= comboDisplayDuration)
+        {
+            combo_container?.Clear();
+        }
+    }
+
     //using ref to pass by reference so we get the direct value of the timer, not a copy
     public void powerUpTimerLength(ref float powerUpTimer)
     {
@@ -85,6 +96,4 @@ public class DisplayComboText : MonoBehaviour
             progressBar.value = powerUpTimer;
         }
     }
-
-
 }

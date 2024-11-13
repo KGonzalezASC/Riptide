@@ -32,3 +32,12 @@
     color: rgb(255, 255, 255);
     -unity-text-outline-color: rgb(72, 72, 72);
 }
+
+.label-combo {
+    background-image: url("project://database/Assets/Sprites/UI%20Sprites/LetterBackground.png?fileID=2800000&guid=0728d782f54f9724cb5240477dd7e2a9&type=3#LetterBackground");
+    font-size: 25px;
+    width: auto;
+    height: auto;
+    color: rgb(255, 255, 255);
+    -unity-text-align: middle-center;
+}
