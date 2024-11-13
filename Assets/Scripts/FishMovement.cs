@@ -102,8 +102,9 @@ public class FishMovement : MonoBehaviour
     private int hazardBounceCounter = 0;
     private Vector2 moveDirection = Vector2.zero;
     private Vector2 trickDirection = Vector2.zero;
-    private Vector2 spinDir = Vector2.zero;
-    private float spinSpeed = 360.0f;
+    private Vector3 spinDir = Vector3.zero;
+    private float spinSpeed = 720.0f;
+    private float trickTimer = 0.0f;
     private int trickCounter = 0;
     private float activeJumpForce;
     private Vector2 distFromAnchor;
@@ -193,27 +194,37 @@ public class FishMovement : MonoBehaviour
 
             if (state == FishMovementState.JUMPING && trickDirection != Vector2.zero)
             {
+                bool firstTrick = false;
+                
+                if (trickCounter == 0)
+                {
+                    firstTrick = true;
+                }
+
                 if(trickDirection.y > 0)
                 {
-                    startTrick(1);
+                    startTrick(1, firstTrick);
                 }
                 else if (trickDirection.y < 0)
                 {
-                    startTrick(2);
+                    startTrick(2, firstTrick);
                 }
                 else if (trickDirection.x > 0)
                 {
-                    startTrick(3);
+                    startTrick(3, firstTrick);
                 }
                 else if (trickDirection.x < 0)
                 {
-                    startTrick(4);
+                    startTrick(4, firstTrick);
                 }
             }
         }
 
-        rb.rotation = Quaternion.Euler(0f, -180f, 0f);
-        transform.rotation = Quaternion.Euler(0f, -180f, 0f);
+        if (state != FishMovementState.TRICK)
+        {
+            rb.rotation = Quaternion.Euler(0f, -180f, 0f);
+            transform.rotation = Quaternion.Euler(0f, -180f, 0f);
+        }
 
         transform.position.Set(transform.position.x, transform.position.y, 0);
         rb.position.Set(rb.position.x, rb.position.y, 0);
@@ -298,9 +309,18 @@ public class FishMovement : MonoBehaviour
             state = FishMovementState.DIVING;
             buoyancy = baseBouyancy; // Ensure bouyancy is reset
 
-            scoreTracker.gainTrickScore(false);
+            if (state == FishMovementState.JUMPING)
+            {
+                scoreTracker.gainTrickScore(false);
+            }
+            else
+            {
+                scoreTracker.loseTrickScore();
+            }
+
             hazardBounceCounter = 0;
             perfectDismountReady = false;
+            trickCounter = 0;
         }
         else if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
         {
@@ -360,9 +380,15 @@ public class FishMovement : MonoBehaviour
 
         if (state == FishMovementState.TRICK)
         {
-            transform.Rotate(spinDir.y * spinSpeed * Time.deltaTime, 0, spinDir.x * spinSpeed * Time.deltaTime, Space.Self);
+            Vector3 spin = spinDir * spinSpeed;
 
-            if (Math.Abs(transform.rotation.x) >= 360 || Math.Abs(transform.rotation.y) >= 360)
+            Quaternion deltaRotation = Quaternion.Euler(spin * Time.deltaTime);
+
+            rb.MoveRotation(rb.rotation * deltaRotation);
+
+            trickTimer += Time.deltaTime;
+
+            if (trickTimer >= 0.5f)
             {
                 completeTrick();
             }
@@ -442,25 +468,38 @@ public class FishMovement : MonoBehaviour
         setHazardBounceReady(false);
     }
 
-    private void startTrick(int direction)
+    private void startTrick(int direction, bool first)
     {
+        if (first)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2.2f, rb.velocity.z);
+        }
+
         switch (direction)
         {
             case 1:
                 UnityEngine.Debug.Log("Front Flip");
-                spinDir.y = 1;
+                spinDir.x = -1;
+                spinDir.y = 0;
+                spinDir.z = 0;
                 break;
             case 2:
                 UnityEngine.Debug.Log("Back Flip");
-                spinDir.y = -1;
+                spinDir.x = 1;
+                spinDir.y = 0;
+                spinDir.z = 0;
                 break;
             case 3:
                 UnityEngine.Debug.Log("Clockwise Barrel Roll");
-                spinDir.x = 1;
+                spinDir.x = 0;
+                spinDir.y = 0;
+                spinDir.z = 1;
                 break;
             case 4:
                 UnityEngine.Debug.Log("Counterclockwise Barrel Roll");
-                spinDir.x = -1;
+                spinDir.x = 0;
+                spinDir.y = 0;
+                spinDir.z = -1;
                 break;
         }
 
@@ -474,10 +513,15 @@ public class FishMovement : MonoBehaviour
         scoreTracker.buildTrickScore(100);
         trickCounter++;
 
+        trickTimer = 0.0f;
+
         if (trickCounter > 1)
         {
             scoreTracker.buildTrickMultiplier(0.1f);
         }
+
+        rb.rotation = Quaternion.Euler(0f, -180f, 0f);
+        transform.rotation = Quaternion.Euler(0f, -180f, 0f);
 
         spinDir = Vector2.zero;
         state = FishMovementState.JUMPING;
