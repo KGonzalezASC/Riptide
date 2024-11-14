@@ -15,7 +15,8 @@ public enum FishMovementState
     SURFACE,
     JUMPING,
     DIVING,
-    GRINDING
+    GRINDING,
+    TRICK
 }
 
 public enum FishPowerUpState
@@ -32,6 +33,9 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private InputAction jumpAction; // Input for jumping
+    
+    [SerializeField]
+    private InputAction trickControls;
 
     [SerializeField]
     private float movementSpeed = 100f;
@@ -97,7 +101,11 @@ public class FishMovement : MonoBehaviour
     private bool perfectDismountReady = false;
     private bool bounceReady = false;
     private int hazardBounceCounter = 0;
-    private Vector2 moveDirection = Vector2.zero;
+    private Vector2 moveDirection = Vector2.zero; private Vector2 trickDirection = Vector2.zero;
+    private Vector3 spinDir = Vector3.zero;
+    private float spinSpeed = 720.0f;
+    private float trickTimer = 0.0f;
+    private int trickCounter = 0;
     private float activeJumpForce;
     private Vector2 distFromAnchor;
 
@@ -106,6 +114,7 @@ public class FishMovement : MonoBehaviour
     {
         playerControls.Enable();
         jumpAction.Enable();
+        trickControls.Enable();
         state = FishMovementState.SURFACE;
 
         if (scoreTracker == null && GameObject.FindWithTag("UI") != null)
@@ -124,6 +133,7 @@ public class FishMovement : MonoBehaviour
     {
         playerControls.Disable();
         jumpAction.Disable();
+        trickControls.Disable();
     }
 
     private void Update()
@@ -170,8 +180,39 @@ public class FishMovement : MonoBehaviour
 
                 hazardBounceCounter++;
             }
+
+            trickDirection = trickControls.ReadValue<Vector2>();
+
+            //UnityEngine.Debug.Log("trickdir x: " + trickDirection.x + ", trickdir y: " + trickDirection.y);
+
+            if (state == FishMovementState.JUMPING && trickDirection != Vector2.zero)
+            {
+                bool firstTrick = false;
+
+                if (trickCounter == 0)
+                {
+                    firstTrick = true;
+                }
+
+                if (trickDirection.y > 0)
+                {
+                    startTrick(1, firstTrick);
+                }
+                else if (trickDirection.y < 0)
+                {
+                    startTrick(2, firstTrick);
+                }
+                else if (trickDirection.x > 0)
+                {
+                    startTrick(3, firstTrick);
+                }
+                else if (trickDirection.x < 0)
+                {
+                    startTrick(4, firstTrick);
+                }
+            }
         }
-        if (gameObject.name == "FishBoard(Clone)")
+        if (gameObject.name == "FishBoard(Clone)" && state != FishMovementState.TRICK)
         {
             rb.rotation = Quaternion.Euler(0f, -180f, 0f);
             transform.rotation = Quaternion.Euler(0f, -180f, 0f);
@@ -248,15 +289,29 @@ public class FishMovement : MonoBehaviour
 
 
         // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
-        if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING))
+        if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING || state == FishMovementState.TRICK))
         {
             BottleImpact();
+
+            if (scoreTracker != null)
+            {
+                if (state == FishMovementState.JUMPING)
+                {
+                    scoreTracker.gainTrickScore(false);
+                }
+                else if (state == FishMovementState.TRICK)
+                {
+                    scoreTracker.loseTrickScore();
+                }
+
+                hazardBounceCounter = 0;
+                perfectDismountReady = false;
+                trickCounter = 0;
+            }
+
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
             state = FishMovementState.DIVING;
             buoyancy = baseBouyancy; // Ensure bouyancy is reset
-            if (scoreTracker != null)
-                scoreTracker.gainTrickScore(false);
-            hazardBounceCounter = 0;
         }
         else if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
         {
@@ -316,6 +371,22 @@ public class FishMovement : MonoBehaviour
         if (rb.velocity.x < 0f - Math.Pow(maxLateralSpeed, 2))
         {
             rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
+        }
+
+        if (state == FishMovementState.TRICK)
+        {
+            Vector3 spin = spinDir * spinSpeed;
+
+            Quaternion deltaRotation = Quaternion.Euler(spin * Time.deltaTime);
+
+            rb.MoveRotation(rb.rotation * deltaRotation);
+
+            trickTimer += Time.deltaTime;
+
+            if (trickTimer >= 0.5f)
+            {
+                completeTrick();
+            }
         }
     }
 
@@ -406,6 +477,65 @@ public class FishMovement : MonoBehaviour
         // Apply a smaller fixed upward force for a hazard bounce 
         rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.325f, rb.velocity.z);
         setHazardBounceReady(false);
+    }
+
+    private void startTrick(int direction, bool first)
+    {
+        if (first)
+        {
+            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2.2f, rb.velocity.z);
+        }
+
+        switch (direction)
+        {
+            case 1:
+                UnityEngine.Debug.Log("Front Flip");
+                spinDir.x = -1;
+                spinDir.y = 0;
+                spinDir.z = 0;
+                break;
+            case 2:
+                UnityEngine.Debug.Log("Back Flip");
+                spinDir.x = 1;
+                spinDir.y = 0;
+                spinDir.z = 0;
+                break;
+            case 3:
+                UnityEngine.Debug.Log("Clockwise Barrel Roll");
+                spinDir.x = 0;
+                spinDir.y = 0;
+                spinDir.z = 1;
+                break;
+            case 4:
+                UnityEngine.Debug.Log("Counterclockwise Barrel Roll");
+                spinDir.x = 0;
+                spinDir.y = 0;
+                spinDir.z = -1;
+                break;
+        }
+
+        state = FishMovementState.TRICK;
+    }
+
+    private void completeTrick()
+    {
+        UnityEngine.Debug.Log("Trick done");
+
+        scoreTracker.buildTrickScore(100);
+        trickCounter++;
+
+        trickTimer = 0.0f;
+
+        if (trickCounter > 1)
+        {
+            scoreTracker.buildTrickMultiplier(0.1f);
+        }
+
+        rb.rotation = Quaternion.Euler(0f, -180f, 0f);
+        transform.rotation = Quaternion.Euler(0f, -180f, 0f);
+
+        spinDir = Vector2.zero;
+        state = FishMovementState.JUMPING;
     }
 
     public void resetState()
