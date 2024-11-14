@@ -141,7 +141,7 @@ public class FishMovement : MonoBehaviour
         if (GameManager.instance.topState.GetName() == "Game")
         {
             moveDirection = playerControls.ReadValue<Vector2>();
-            if (jumpAction.triggered && state != FishMovementState.JUMPING)
+            if (jumpAction.triggered && (state != FishMovementState.JUMPING && state != FishMovementState.TRICK))
             {
                 if (perfectDismountReady && state == FishMovementState.GRINDING)
                 {
