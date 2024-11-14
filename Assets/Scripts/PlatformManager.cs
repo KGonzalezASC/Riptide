@@ -476,7 +476,7 @@ public class PlatformManager : MonoBehaviour
         FlyWeight pole = FlyWeightFactory.Spawn(hazards[2]);
         MeshRenderer meshRenderer = pole.transform.GetChild(0).GetComponent<MeshRenderer>();
         float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
-        pole.transform.position = polePosition + new Vector3(0, .3f, halfwayPointZ);
+        pole.transform.position = polePosition + new Vector3(0, .3f, halfwayPointZ +2f);
         pole.transform.Rotate(-3.5f, 0f, 0f, Space.World); // Rotate by -30 degrees on the X-axis in world space
         (pole as Hazard).isIgnored = false;
         trackHandler.occupiedPositions.Add(polePosition);
