@@ -404,7 +404,7 @@ public class FishMovement : MonoBehaviour
     public void hazardBounce()
     {
         // Apply a smaller fixed upward force for a hazard bounce 
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.36f, rb.velocity.z);
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.325f, rb.velocity.z);
         setHazardBounceReady(false);
     }
 

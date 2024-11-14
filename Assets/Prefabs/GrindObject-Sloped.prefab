@@ -110,8 +110,8 @@ Transform:
   m_GameObject: {fileID: 4964591875561112709}
   serializedVersion: 2
   m_LocalRotation: {x: -0.23123845, y: 0, z: 0, w: 0.9728972}
-  m_LocalPosition: {x: 0, y: -2.42, z: -3.68}
-  m_LocalScale: {x: 1, y: 1, z: 1.45}
+  m_LocalPosition: {x: 0, y: -2.44, z: -3}
+  m_LocalScale: {x: 1, y: 1, z: 1.085064}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4062384526006364555}
@@ -403,6 +403,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   grindStartHeight: -1
+  sloped: 0
   grindDirX: 0
   grindDirY: 0.558
 --- !u!1 &7957267472113406262

@@ -29,6 +29,15 @@ public class YouLoseState : gState
         // Initialize score container
         scoreContainer = loseUIDocument.rootVisualElement.Q<VisualElement>("container-score"); // Replace with actual container ID
         PopulateScores();
+
+
+        if (from.co != null)
+            StopCoroutine(from.co);
+        //set this camera coroutine
+        this.co = CameraTransition(cameraTransform, transitionDuration, loadPos, loadRotation);
+
+        //move camera after setup
+        StartCoroutine(this.co);
     }
 
 

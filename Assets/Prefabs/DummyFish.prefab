@@ -221,7 +221,7 @@ MonoBehaviour:
     m_SingletonActionBindings: []
     m_Flags: 0
   movementSpeed: 7.7
-  jumpForce: 6.42
+  jumpForce: 6.415
   maxUnderwaterSpeed: 3
   maxLateralSpeed: 1.1
   surfaceAlignmentForce: -20

@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 //all gstates are monobehaviours wrappeers for the state machine
@@ -21,14 +23,18 @@ public class LoadState : gState
 
     //might reference MainMenuEvents here
     protected int m_UsedAccessory = -1;
+    private GameObject activeBottle;
+
 
     //private game object for dummy bottle
     [SerializeField]
     private GameObject dummyBottle;
 
-    private GameObject activeBottle;
     [SerializeField]
     private GameObject demoRoom;
+
+    [SerializeField]
+    private Volume volume;
 
 
     public override void Enter(gState from)
@@ -37,11 +43,24 @@ public class LoadState : gState
         uiGameObject.OnPlayButtonClicked += LoadGame;
 
         this.co = CameraTransition(cameraTransform, transitionDuration, endPosition, endRotation);
-        StopCoroutine(from.co);
+        //if coroutine is not null stop it
+        if (this.co != null)
+            StopCoroutine(this.co);
+
         StartCoroutine(this.co);
 
         //set demo room to active
         demoRoom.SetActive(true);
+    }
+
+    //reset global volume
+    public void ResetVolume()
+    {
+        if (volume.profile.TryGet(out Bloom bloomEffect))
+        {
+            bloomEffect.intensity.value = 0.75f;
+            bloomEffect.dirtIntensity.value = 0;
+        }
     }
 
 
@@ -64,6 +83,7 @@ public class LoadState : gState
     public override void Exit(gState to)
     {
         demoRoom.SetActive(false);
+        ResetVolume();
     }
 
 

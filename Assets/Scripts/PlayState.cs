@@ -110,7 +110,8 @@ public class PlayState : gState
         difficultyCoroutine = StartCoroutine(DifficultyHandler(6f));
 
         //ensure previous camera routine has been stopped
-        StopCoroutine(from.co);
+        if (from.co != null)
+            StopCoroutine(from.co);
         //set this camera coroutine
         this.co = CameraTransition(cameraTransform, transitionDuration, gameplayCamPos, gameplayCamRotation);
 
@@ -140,6 +141,11 @@ public class PlayState : gState
         FlyWeightFactory.ClearPool(FlyWeightType.PowerUp);
         StopCoroutine(difficultyCoroutine);
         Time.timeScale = 1;
+        
+        //destroy fishboard ?
+        //Destroy(GameObject.Find("FishBoard(Clone)"));
+       
+
     }
     public override string GetName()
     {

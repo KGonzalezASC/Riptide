@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpawnGrindingHazard
   m_EditorClassIdentifier: 
   type: 2
-  prefab: {fileID: 7199849796211610501, guid: 77ecc531d8a465149bcc3a4bdcdeee4e, type: 3}
+  prefab: {fileID: 1731601034464743876, guid: 5a40a3719a6ab994da73ef811a0b0f78, type: 3}
   despawnDelay: 1
   speed: 7
-  damage: 10
+  impactParticle: {fileID: 0}
