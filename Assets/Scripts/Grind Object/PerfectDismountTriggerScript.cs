@@ -27,7 +27,7 @@ public class PerfectDismountTriggerScript : MonoBehaviour
             Debug.Log("demo jump");
             if (GameManager.instance.topState.GetName() == "Load")
                 other.GetComponent<FishMovement>().DemoJump();
-                other.GetComponent<FishMovement>().DemoFlip();
+               
 
         }
     }
