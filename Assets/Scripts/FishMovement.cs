@@ -488,6 +488,11 @@ public class FishMovement : MonoBehaviour
         {
             return;
         }
+        //max height to prevent infinite jump... //doesnt solve jumping from grind rail flat or angle early and jumping super high
+        if (rb.position.y > 7)
+        {
+            return;
+        }
 
         if (first)
         {
@@ -524,6 +529,17 @@ public class FishMovement : MonoBehaviour
 
         state = FishMovementState.TRICK;
     }
+
+
+    public void DemoFlip() {
+        //perform a front flip
+        if (state == FishMovementState.JUMPING)
+        {
+            startTrick(1, true);
+        }
+    }
+
+
 
     private void completeTrick()
     {
