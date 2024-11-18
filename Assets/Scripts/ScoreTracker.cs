@@ -14,6 +14,7 @@ public class ScoreTracker : MonoBehaviour
     private float scoreMult = 1.0f;
     private UIDocument _document;
 
+
     public UIDocument Document
     {
         get { return _document; }
@@ -29,6 +30,9 @@ public class ScoreTracker : MonoBehaviour
     private GameObject pipe;
     [SerializeField]
     private Light directionalLight;
+
+    [SerializeField]
+    private DisplayComboText textDisplay;
 
 
     /// <summary>
@@ -113,6 +117,7 @@ public class ScoreTracker : MonoBehaviour
     {
         scoreSum += addedAmount;
         //Debug.Log("scoreSum: " + scoreSum);
+        textDisplay.ChangeText();
     }
 
     /// <summary>

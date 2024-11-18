@@ -9,8 +9,8 @@ using UnityEngine.UIElements;
 //all gstates are monobehaviours wrappeers for the state machine
 public class PlayState : gState
 {
-    [SerializeField] MainMenuEvents uiGameObject; 
-    private DisplayComboText comboText;
+    [SerializeField] MainMenuEvents uiGameObject;
+    //private DisplayComboText comboText;
     private ScoreTracker scoreTracker;
 
     /// read only public reference to score tracker
@@ -34,15 +34,17 @@ public class PlayState : gState
 
     public void Awake() //gstates are monobehaviours so they can an have awake
     {
-        comboText = uiGameObject.GetComponent<DisplayComboText>();
+        //comboText = uiGameObject.GetComponent<DisplayComboText>();
         scoreTracker = uiGameObject.GetComponent<ScoreTracker>();
         scoreTracker.Document = uiGameObject.GetComponent<UIDocument>();
     }
 
-    public void showComboText()
-    {
-        comboText.ChangeText();
-    }
+    ////Code used for coin collection combo text
+    ////commented out in case reimplemented
+    //public void showComboText()
+    //{
+    //    //comboText.ChangeText();
+    //}
 
     public void IncreaseScore()
     {
@@ -63,7 +65,7 @@ public class PlayState : gState
 
     }
 
-    public void ExtendTimer() => powerUpTimer +=.45f;
+    public void ExtendTimer() => powerUpTimer += .45f;
 
     private IEnumerator PowerUpTimer(FishMovement player)
     {
@@ -73,7 +75,8 @@ public class PlayState : gState
             powerUpTimer -= Time.deltaTime;
             //pass reference to powerup timer since we need to change the value of the progress bar and a copy of the value would not work
             comboText.powerUpTimerLength(ref powerUpTimer);
-            if (powerUpTimer < 2f) {
+            if (powerUpTimer < 2f)
+            {
                 //if close to 2 seconds left, invoke player raycast method to check for hazards
                 player.CheckForHazards();
             }
@@ -141,10 +144,10 @@ public class PlayState : gState
         FlyWeightFactory.ClearPool(FlyWeightType.PowerUp);
         StopCoroutine(difficultyCoroutine);
         Time.timeScale = 1;
-        
+
         //destroy fishboard ?
         //Destroy(GameObject.Find("FishBoard(Clone)"));
-       
+
 
     }
     public override string GetName()
