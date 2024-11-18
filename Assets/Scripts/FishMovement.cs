@@ -35,7 +35,7 @@ public class FishMovement : MonoBehaviour
     private InputAction jumpAction; // Input for jumping
     
     [SerializeField]
-    private InputAction trickControls;
+    private InputAction trickControls; // Input for tricks
 
     [SerializeField]
     private float movementSpeed = 100f;
@@ -64,7 +64,8 @@ public class FishMovement : MonoBehaviour
     [SerializeField]
     private float friction = 0.05f; // Friction factor for slowing down
 
-    [SerializeField] private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
+    [SerializeField]
+    private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
 
 
     [Header("Movement Constraints")]
@@ -77,7 +78,7 @@ public class FishMovement : MonoBehaviour
     [Header("Misc")]
 
     [SerializeField]
-    private FishMovementState state = FishMovementState.SURFACE;
+    private FishMovementState movementState = FishMovementState.SURFACE;
     public FishPowerUpState powerUpState = FishPowerUpState.NONE;
     [SerializeField]
     private Rigidbody rb;
@@ -115,7 +116,8 @@ public class FishMovement : MonoBehaviour
         playerControls.Enable();
         jumpAction.Enable();
         trickControls.Enable();
-        state = FishMovementState.SURFACE;
+
+        resetState();
 
         if (scoreTracker == null && GameObject.FindWithTag("UI") != null)
         {
@@ -141,85 +143,11 @@ public class FishMovement : MonoBehaviour
         if (GameManager.instance.topState.GetName() == "Game")
         {
             moveDirection = playerControls.ReadValue<Vector2>();
-            if (jumpAction.triggered && (state != FishMovementState.JUMPING && state != FishMovementState.TRICK))
-            {
-                if (perfectDismountReady && state == FishMovementState.GRINDING)
-                {
-                    //Debug.Log("Perfect dismount!");
-                    scoreTracker.buildTrickMultiplier(0.5f);
-                }
 
-                // If underwater and jump is pressed check for depth in some way
-                if (state == FishMovementState.DIVING)
-                {
-                    float currentDepth = rb.position.y;
-                    float diveRange = minHeight - maxDiveDepth;
-                    float depthPercentage = (minHeight - currentDepth) / diveRange;
+            HandleJumpActions();
 
-                    // Allow jump cancel if within the first 20% of the dive depth range
-                    if (depthPercentage <= 0.2f)
-                    {
-                        // Zero out vertical forces and reset height
-                        rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);  // Set vertical velocity to 0
-                        rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);  // Reset height
-                        activeJumpForce = jumpForce;  // Reset jump force
-                    }
-                }
-
-                Jump();
-            }
-            else if (bounceReady && jumpAction.triggered && state == FishMovementState.JUMPING)
-            {
-                hazardBounce();
-                scoreTracker.buildTrickScore(100);
-
-                if (hazardBounceCounter >= 1)
-                {
-                    scoreTracker.buildTrickMultiplier(0.1f);
-                }
-
-                hazardBounceCounter++;
-            }
-
-            trickDirection = trickControls.ReadValue<Vector2>();
-
-            //UnityEngine.Debug.Log("trickdir x: " + trickDirection.x + ", trickdir y: " + trickDirection.y);
-
-            if (state == FishMovementState.JUMPING && trickDirection != Vector2.zero)
-            {
-                bool firstTrick = false;
-
-                if (trickCounter == 0)
-                {
-                    firstTrick = true;
-                }
-
-                if (trickDirection.y > 0)
-                {
-                    startTrick(1, firstTrick);
-                }
-                else if (trickDirection.y < 0)
-                {
-                    startTrick(2, firstTrick);
-                }
-                else if (trickDirection.x > 0)
-                {
-                    startTrick(3, firstTrick);
-                }
-                else if (trickDirection.x < 0)
-                {
-                    startTrick(4, firstTrick);
-                }
-            }
+            HandleTrickActions();
         }
-        if (gameObject.name == "FishBoard(Clone)" && state != FishMovementState.TRICK)
-        {
-            rb.rotation = Quaternion.Euler(0f, -180f, 0f);
-            transform.rotation = Quaternion.Euler(0f, -180f, 0f);
-        }
-
-        transform.position.Set(transform.position.x, transform.position.y, 0);
-        rb.position.Set(rb.position.x, rb.position.y, 0);
     }
 
     private void FixedUpdate()
@@ -231,7 +159,7 @@ public class FishMovement : MonoBehaviour
         float verticalVelocity = currentVelocity.y;
 
         // Apply horizontal movement based on input
-        if (moveDirection != Vector2.zero && state != FishMovementState.GRINDING)
+        if (moveDirection != Vector2.zero && movementState != FishMovementState.GRINDING)
         {
             // Smoothly interpolate the horizontal movement
             float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
@@ -240,7 +168,7 @@ public class FishMovement : MonoBehaviour
 
         Vector3 newPosition = rb.position;
 
-        if (state != FishMovementState.GRINDING)
+        if (movementState != FishMovementState.GRINDING)
         {
             // Calculate new position after applying horizontal velocity
             newPosition += new Vector3(currentVelocity.x, 0, 0); // Z component is zero
@@ -270,7 +198,7 @@ public class FishMovement : MonoBehaviour
             newPosition = anchorPoint + directionToNewPosition;
         }
 
-        if (state == FishMovementState.GRINDING)
+        if (movementState == FishMovementState.GRINDING)
         {
             newPosition.x = grindSnapX;
         }
@@ -289,17 +217,17 @@ public class FishMovement : MonoBehaviour
 
 
         // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
-        if (rb.position.y < minHeight - 0.1f && (state == FishMovementState.JUMPING || state == FishMovementState.DIVING || state == FishMovementState.TRICK))
+        if (rb.position.y < minHeight - 0.1f && (movementState == FishMovementState.JUMPING || movementState == FishMovementState.DIVING || movementState == FishMovementState.TRICK))
         {
             BottleImpact();
 
             if (scoreTracker != null)
             {
-                if (state == FishMovementState.JUMPING)
+                if (movementState == FishMovementState.JUMPING)
                 {
                     scoreTracker.gainTrickScore(false);
                 }
-                else if (state == FishMovementState.TRICK)
+                else if (movementState == FishMovementState.TRICK)
                 {
                     scoreTracker.loseTrickScore();
                 }
@@ -310,16 +238,16 @@ public class FishMovement : MonoBehaviour
             }
 
             rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
-            state = FishMovementState.DIVING;
+            movementState = FishMovementState.DIVING;
             buoyancy = baseBouyancy; // Ensure bouyancy is reset
         }
-        else if (rb.position.y >= minHeight && state == FishMovementState.DIVING) // Stop vertical movement when surfacing
+        else if (rb.position.y >= minHeight && movementState == FishMovementState.DIVING) // Stop vertical movement when surfacing
         {
             //rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
-            state = FishMovementState.SURFACE;
+            movementState = FishMovementState.SURFACE;
             NormalJump();
         }
-        else if (state == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
+        else if (movementState == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
         {
             //if tag is player
             if (gameObject.name == "FishBoard(Clone)")
@@ -337,7 +265,7 @@ public class FishMovement : MonoBehaviour
                 rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
             }
         }
-        else if (state == FishMovementState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
+        else if (movementState == FishMovementState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
         {
             Vector3 correctedPosition = rb.position;
             correctedPosition.y = grindHeight;
@@ -349,17 +277,17 @@ public class FishMovement : MonoBehaviour
                 scoreTracker.buildTrickScore(5);
         }
 
-        if (state == FishMovementState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
+        if (movementState == FishMovementState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
         {
             rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
         }
 
-        if (state == FishMovementState.JUMPING || state == FishMovementState.DIVING)
+        if (movementState == FishMovementState.JUMPING || movementState == FishMovementState.DIVING)
         {
             rb.useGravity = true;
         }
 
-        if (state != FishMovementState.JUMPING)
+        if (movementState != FishMovementState.JUMPING)
         {
             setHazardBounceReady(false);
         }
@@ -373,7 +301,7 @@ public class FishMovement : MonoBehaviour
             rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
         }
 
-        if (state == FishMovementState.TRICK)
+        if (movementState == FishMovementState.TRICK)
         {
             Vector3 spin = spinDir * spinSpeed;
 
@@ -390,11 +318,89 @@ public class FishMovement : MonoBehaviour
         }
     }
 
+    private void HandleJumpActions()
+    {
+
+        if (jumpAction.triggered && (movementState != FishMovementState.JUMPING && movementState != FishMovementState.TRICK))
+        {
+            if (perfectDismountReady && movementState == FishMovementState.GRINDING)
+            {
+                //Debug.Log("Perfect dismount!");
+                scoreTracker.buildTrickMultiplier(0.5f);
+            }
+
+            // If underwater and jump is pressed check for depth in some way
+            if (movementState == FishMovementState.DIVING)
+            {
+                float currentDepth = rb.position.y;
+                float diveRange = minHeight - maxDiveDepth;
+                float depthPercentage = (minHeight - currentDepth) / diveRange;
+
+                // Allow jump cancel if within the first 20% of the dive depth range
+                if (depthPercentage <= 0.2f)
+                {
+                    // Zero out vertical forces and reset height
+                    rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);  // Set vertical velocity to 0
+                    rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);  // Reset height
+                    activeJumpForce = jumpForce;  // Reset jump force
+                }
+            }
+
+            Jump();
+        }
+        else if (bounceReady && jumpAction.triggered && movementState == FishMovementState.JUMPING)
+        {
+            hazardBounce();
+            scoreTracker.buildTrickScore(100);
+
+            if (hazardBounceCounter >= 1)
+            {
+                scoreTracker.buildTrickMultiplier(0.1f);
+            }
+
+            hazardBounceCounter++;
+        }
+    }
+
+    private void HandleTrickActions()
+    {
+        trickDirection = trickControls.ReadValue<Vector2>();
+
+        //UnityEngine.Debug.Log("trickdir x: " + trickDirection.x + ", trickdir y: " + trickDirection.y);
+
+        if (movementState == FishMovementState.JUMPING && trickDirection != Vector2.zero)
+        {
+            bool firstTrick = false;
+
+            if (trickCounter == 0)
+            {
+                firstTrick = true;
+            }
+
+            if (trickDirection.y > 0)
+            {
+                startTrick(1, firstTrick);
+            }
+            else if (trickDirection.y < 0)
+            {
+                startTrick(2, firstTrick);
+            }
+            else if (trickDirection.x > 0)
+            {
+                startTrick(3, firstTrick);
+            }
+            else if (trickDirection.x < 0)
+            {
+                startTrick(4, firstTrick);
+            }
+        }
+    }
+
     public void Jump()
     {
         // Only apply a fixed upward force for the jump
         rb.velocity = new Vector3(rb.velocity.x, activeJumpForce, rb.velocity.z);
-        state = FishMovementState.JUMPING;
+        movementState = FishMovementState.JUMPING;
         if (perfectDismountReady)
         {
             StartCoroutine(FishAscension());
@@ -405,9 +411,29 @@ public class FishMovement : MonoBehaviour
     public void DemoJump()
     {
         //if on surface jump
-        if (state == FishMovementState.SURFACE || state == FishMovementState.GRINDING)
+        if (movementState == FishMovementState.SURFACE || movementState == FishMovementState.GRINDING)
         {
             Jump();
+        }
+    }
+
+    private void updateRotations()
+    {
+        if (gameObject.name == "FishBoard(Clone)" && movementState != FishMovementState.TRICK)
+        {
+            rb.rotation = Quaternion.Euler(0f, -180f, 0f);
+            transform.rotation = Quaternion.Euler(0f, -180f, 0f);
+        }
+
+        transform.position.Set(transform.position.x, transform.position.y, 0);
+        rb.position.Set(rb.position.x, rb.position.y, 0);
+    }
+
+    private void HandleHorizontalMovement()
+    {
+        if (movementState != FishMovementState.GRINDING)
+        {
+
         }
     }
 
@@ -421,7 +447,7 @@ public class FishMovement : MonoBehaviour
 
     public void startGrind(float snapXTo, float snapYTo, Vector3 moveDir)
     {
-        if (state != FishMovementState.GRINDING)
+        if (movementState != FishMovementState.GRINDING)
         {
             grindSnapX = snapXTo;
             grindDir = moveDir;
@@ -440,14 +466,14 @@ public class FishMovement : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, grindDir.y, 0);
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
-            state = FishMovementState.GRINDING;
+            movementState = FishMovementState.GRINDING;
             //Debug.Log("Started grinding, x snap loc is: " + snapXTo);
         }
     }
 
     public void stopGrind()
     {
-        state = FishMovementState.JUMPING;
+        movementState = FishMovementState.JUMPING;
 
         if (perfectDismountReady)
         {
@@ -456,7 +482,7 @@ public class FishMovement : MonoBehaviour
     }
 
     public void BottleImpact() {
-        if (state != FishMovementState.DIVING)
+        if (movementState != FishMovementState.DIVING)
         {
             Instantiate(splash, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
         }
@@ -527,13 +553,13 @@ public class FishMovement : MonoBehaviour
                 break;
         }
 
-        state = FishMovementState.TRICK;
+        movementState = FishMovementState.TRICK;
     }
 
 
     public void DemoFlip() {
         //perform a front flip
-        if (state == FishMovementState.JUMPING)
+        if (movementState == FishMovementState.JUMPING)
         {
             startTrick(1, true);
         }
@@ -559,17 +585,17 @@ public class FishMovement : MonoBehaviour
         transform.rotation = Quaternion.Euler(0f, -180f, 0f);
 
         spinDir = Vector2.zero;
-        state = FishMovementState.JUMPING;
+        movementState = FishMovementState.JUMPING;
     }
 
     public void resetState()
     {
-        state = FishMovementState.SURFACE;
+        movementState = FishMovementState.SURFACE;
     }
 
     public void SetFishState(FishMovementState state) {
         //set movement state
-        this.state = state;
+        this.movementState = state;
     }
 
   
@@ -618,7 +644,7 @@ public class FishMovement : MonoBehaviour
     {
         stopGrind();
         NormalJump();
-        state = FishMovementState.SURFACE;
+        movementState = FishMovementState.SURFACE;
         powerUpState = FishPowerUpState.NONE;
         hazardBounceCounter = 0;
         rb.velocity = Vector3.zero;
