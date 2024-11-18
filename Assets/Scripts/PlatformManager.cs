@@ -61,7 +61,6 @@ public class PlatformManager : MonoBehaviour
             {
                 trackHandler => SpawnGrindingPole(trackHandler),
                 trackHandler => SpawnGrindingPolesCoin(trackHandler),
-                //trackHandler => SpawnGrindRailCenter(trackHandler),
                 trackHandler => SpawnGrindRailSloped(trackHandler) // Just method 1 but sloped. Please feel free to edit
             }
         }
@@ -484,12 +483,16 @@ public class PlatformManager : MonoBehaviour
 
 
 
-        // Spawn and position the power-up
-        FlyWeight powerUp = FlyWeightFactory.Spawn(hazards[3]);
-        powerUp.transform.position = polePosition + new Vector3(0, 2f, halfwayPointZ-10f);
-        (powerUp as Hazard).isIgnored = false;
-        trackHandler.occupiedPositions.Add(powerUp.transform.position);
-        powerUp.transform.SetParent(emptyParentCoin.transform);
+        // Spawn and position the power-up use random chance
+        float powerUpChance = Random.Range(0f, 1f);
+        if (powerUpChance < 0.5f) // 50% chance
+        {
+            FlyWeight powerUp = FlyWeightFactory.Spawn(hazards[3]);
+            powerUp.transform.position = polePosition + new Vector3(0, 2f, halfwayPointZ - 10f);
+            (powerUp as Hazard).isIgnored = false;
+            trackHandler.occupiedPositions.Add(powerUp.transform.position);
+            powerUp.transform.SetParent(emptyParentCoin.transform);
+        }
 
         return PlatformType.GrindingPattern;
     }
@@ -590,7 +593,7 @@ public class PlatformManager : MonoBehaviour
         grindRail.transform.position = railPosition + new Vector3(0, .3f, halfwayPointZ);
         (grindRail as Hazard).isIgnored = false;
         //rotate grind rail 30 degrees on y
-        grindRail.transform.Rotate(0, 10f, 0, Space.World);
+        grindRail.transform.Rotate(0, 5f, 0, Space.World);
 
 
         trackHandler.occupiedPositions.Add(railPosition);
@@ -620,14 +623,15 @@ public class PlatformManager : MonoBehaviour
         trackHandler.occupiedPositions.Add(polePosition);
         pole.transform.SetParent(emptyParentHazard.transform);
 
-
-
-        // Spawn and position the power-up
-        FlyWeight powerUp = FlyWeightFactory.Spawn(hazards[3]);
-        powerUp.transform.position = polePosition + new Vector3(0, 2f, halfwayPointZ - 10f);
-        (powerUp as Hazard).isIgnored = false;
-        trackHandler.occupiedPositions.Add(powerUp.transform.position);
-        powerUp.transform.SetParent(emptyParentCoin.transform);
+        // Spawn and position the power-up with chance
+        if(Random.Range(0f, 1f) < 0.5f) // 50% chance
+        {
+            FlyWeight powerUp = FlyWeightFactory.Spawn(hazards[3]);
+            powerUp.transform.position = polePosition + new Vector3(0, 2f, halfwayPointZ - 10f);
+            (powerUp as Hazard).isIgnored = false;
+            trackHandler.occupiedPositions.Add(powerUp.transform.position);
+            powerUp.transform.SetParent(emptyParentCoin.transform);
+        }
 
         return PlatformType.GrindingPattern;
     }

@@ -168,7 +168,7 @@ public class FishMovement : MonoBehaviour
 
                 Jump();
             }
-            else if (jumpAction.triggered && state == FishMovementState.JUMPING && bounceReady)
+            else if (bounceReady && jumpAction.triggered && state == FishMovementState.JUMPING)
             {
                 hazardBounce();
                 scoreTracker.buildTrickScore(100);
@@ -436,6 +436,8 @@ public class FishMovement : MonoBehaviour
             }
             //rotate player.rotation.y to match to grind direction.y
             grindDir.y = moveDir.y;
+            //rotate the y direction to match the grind direction
+            transform.rotation = Quaternion.Euler(0, grindDir.y, 0);
 
             rb.position = new Vector3(snapXTo, grindHeight, rb.position.z);
             state = FishMovementState.GRINDING;
@@ -481,6 +483,12 @@ public class FishMovement : MonoBehaviour
 
     private void startTrick(int direction, bool first)
     {
+        //check is player is atleast .3 above min height before tricking
+        if(rb.position.y < minHeight + 0.3f)
+        {
+            return;
+        }
+
         if (first)
         {
             rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2.2f, rb.velocity.z);
