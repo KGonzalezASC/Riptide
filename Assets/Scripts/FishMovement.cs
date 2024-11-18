@@ -593,6 +593,7 @@ public class FishMovement : MonoBehaviour
     public void OnFishDeath()
     {
         stopGrind();
+        NormalJump();
         state = FishMovementState.SURFACE;
         powerUpState = FishPowerUpState.NONE;
         hazardBounceCounter = 0;

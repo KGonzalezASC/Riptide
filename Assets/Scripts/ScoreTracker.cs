@@ -177,6 +177,6 @@ public class ScoreTracker : MonoBehaviour
         Material pipeMaterial = pipe.GetComponent<Renderer>().material;
         pipeMaterial.color = colors[0];
         //reset light intensity
-        directionalLight.intensity = 0.5f;
+        directionalLight.intensity = .79f;
     }
 }

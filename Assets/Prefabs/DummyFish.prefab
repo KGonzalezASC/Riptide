@@ -220,6 +220,15 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+  trickControls:
+    m_Name: Trick Controls
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 60efd625-99dc-4b5a-8bd7-0a506955ce0a
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
   movementSpeed: 7.7
   jumpForce: 6.415
   maxUnderwaterSpeed: 3

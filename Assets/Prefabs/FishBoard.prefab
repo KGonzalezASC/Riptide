@@ -280,7 +280,7 @@ MonoBehaviour:
   jumpForce: 6.41
   maxUnderwaterSpeed: 3
   maxLateralSpeed: 1.1
-  surfaceAlignmentForce: -20
+  surfaceAlignmentForce: -22
   minHeight: -0.1
   maxDiveDepth: -4.235
   friction: 0.1
@@ -291,7 +291,7 @@ MonoBehaviour:
   powerUpState: 0
   rb: {fileID: 7141695999175163664}
   volume: {fileID: 0}
-  hazardCheckDistance: 4
+  hazardCheckDistance: 3
   splash: {fileID: 766498622860441890, guid: 7c29bedb328f45349a320351c69a988f, type: 3}
 --- !u!65 &9010484434768118025
 BoxCollider:
@@ -312,5 +312,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.555, y: 0.78, z: 0.8}
-  m_Center: {x: 0, y: 0.1, z: 0.3}
+  m_Size: {x: 0.555, y: 0.79, z: 0.8}
+  m_Center: {x: 0, y: 0.12, z: 0.3}
