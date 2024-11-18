@@ -74,7 +74,7 @@ public class PlayState : gState
         {
             powerUpTimer -= Time.deltaTime;
             //pass reference to powerup timer since we need to change the value of the progress bar and a copy of the value would not work
-            comboText.powerUpTimerLength(ref powerUpTimer);
+            //comboText.powerUpTimerLength(ref powerUpTimer);
             if (powerUpTimer < 2f)
             {
                 //if close to 2 seconds left, invoke player raycast method to check for hazards

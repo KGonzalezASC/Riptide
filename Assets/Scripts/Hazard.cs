@@ -117,7 +117,7 @@ public class Hazard : FlyWeight
         var playState = GameManager.instance.topState as PlayState;
         if (GameManager.instance.topState.GetName() == "Game")
         {
-            playState.showComboText();
+            //playState.showComboText();
             playState.IncreaseScore();
         }
         isIgnored = true;
