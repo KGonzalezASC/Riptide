@@ -9,6 +9,7 @@ using UnityEngine.Assertions.Must;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using Debug = UnityEngine.Debug;
 
 public enum FishMovementState
 {
@@ -87,6 +88,8 @@ public class FishMovement : MonoBehaviour
     private float hazardCheckDistance = 8.0f;
     [SerializeField]
     private ParticleSystem splash;
+    [SerializeField]
+    private ParticleSystem badJumpParticles; //for buffered jump..
 
 
 
@@ -108,12 +111,15 @@ public class FishMovement : MonoBehaviour
     private int trickCounter = 0;
     private float activeJumpForce;
     private Vector2 distFromAnchor;
+    private float lastReleaseTime = -1f; // Stores the time when the jump action was last released
+    private bool hasBufferJumped = false;
 
 
     private void OnEnable()
     {
         playerControls.Enable();
         jumpAction.Enable();
+        jumpAction.canceled += OnJumpReleased; // Listen for the release of the button
         trickControls.Enable();
         state = FishMovementState.SURFACE;
 
@@ -129,11 +135,21 @@ public class FishMovement : MonoBehaviour
         activeJumpForce = jumpForce;
     }
 
+    private void OnJumpReleased(InputAction.CallbackContext context)
+    {
+        lastReleaseTime = Time.time; // Record the time of release
+    }
+
     private void OnDisable()
     {
         playerControls.Disable();
         jumpAction.Disable();
         trickControls.Disable();
+
+        //clear jump release time
+        lastReleaseTime = -1f;
+        //clear canceled event
+        jumpAction.canceled -= OnJumpReleased;
     }
 
     private void Update()
@@ -224,6 +240,18 @@ public class FishMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (GameManager.instance.topState.GetName() == "Game") //we want this only for the actual player not dummy demos
+        {
+            if (state == FishMovementState.JUMPING)
+            {
+                HazardBounceBuffer();
+            }
+            //if y position is > 1.3 reset hasbufferjumped
+            if (rb.position.y > 1.3f)
+            {
+                hasBufferJumped = false;
+            }
+        }
         // Get the current velocity
         Vector3 currentVelocity = rb.velocity;
 
@@ -462,6 +490,13 @@ public class FishMovement : MonoBehaviour
         }
     }
 
+    public void BufferJumpParticle() {
+        Instantiate(badJumpParticles, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
+        NormalJump();
+    }
+
+
+
     public void preparePerfectDismount()
     {
         perfectDismountReady = true;
@@ -618,6 +653,7 @@ public class FishMovement : MonoBehaviour
     {
         stopGrind();
         NormalJump();
+        hasBufferJumped = false;
         state = FishMovementState.SURFACE;
         powerUpState = FishPowerUpState.NONE;
         hazardBounceCounter = 0;
@@ -660,9 +696,64 @@ public class FishMovement : MonoBehaviour
                 }
             }
         }
-
-
     }
+
+    public void HazardBounceBuffer()
+    {
+        RaycastHit[] hits = Physics.SphereCastAll(transform.position, 1.5f, -transform.up, 1.5f);
+        UnityEngine.Debug.DrawRay(transform.position, -transform.up * 1.0f, Color.yellow);
+
+        // Check if any of the objects hit are Hazard objects
+        if (hits.Length > 0 && !hasBufferJumped) // Ensure it hasn't already bounced
+        {
+            foreach (RaycastHit hit in hits)
+            {
+                // Try to get the Hazard component safely
+                if (hit.collider.gameObject.TryGetComponent<Hazard>(out Hazard hazard))
+                {
+                    // Check the flyweight type of the Hazard object
+                    if (hazard.settings.type == FlyWeightType.Hazard)
+                    {
+                        float timeSinceRelease = Time.time - lastReleaseTime;
+                        //check if velocity is going negative
+                        if (rb.velocity.y < 0 && rb.position.y < 1.6)
+                        {
+                            //check if buffer jump is not already running
+                            //check if time since release is less than .1f
+                            if (timeSinceRelease < 0.1f)
+                            {
+                                Debug.Log("Hazard Bounce safety net");
+                                setHazardBounceReady(true); //force below is optional still thinking bout it
+                                rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2f, rb.velocity.z);
+                                hasBufferJumped = true;
+                                StartCoroutine(BufferJump());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+    public IEnumerator BufferJump() 
+    {
+        //turn collision off to prevent death
+        rb.detectCollisions = false;
+        BufferJumpParticle();
+        //wait for .1f
+        yield return Helpers.GetWaitForSeconds(.35f);
+        //turn collision back on
+        rb.detectCollisions = true;
+        yield return null;
+        //subtract score
+        scoreTracker.buildTrickScore(-200);
+        StopCoroutine(BufferJump());
+    }
+
+
 
     public IEnumerator FishAscension()
     {
