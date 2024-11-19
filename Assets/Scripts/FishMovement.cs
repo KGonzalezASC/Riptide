@@ -724,7 +724,7 @@ public class FishMovement : MonoBehaviour
                             {
                                 Debug.Log("Hazard Bounce safety net");
                                 setHazardBounceReady(true); //force below is optional still thinking bout it
-                                rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2f, rb.velocity.z);
+                                rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.8f, rb.velocity.z);
                                 hasBufferJumped = true;
                                 StartCoroutine(BufferJump());
                             }
