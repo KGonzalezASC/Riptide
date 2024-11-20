@@ -20,18 +20,22 @@ public class DisplayComboText : MonoBehaviour
     //time combo text remains on screen in-between combo-worthy actions
     [SerializeField]float comboDisplayDuration = 0.8f;
     //labels being displayed in combo
-    List<Label> comboList = new List<Label>();
+    List<Label> comboList = new();
 
     /// <summary>
     /// Changes the text displayed in the combo UI container
     /// </summary>
     public void ChangeText()
     {
-        combo_container = _document.rootVisualElement.Q<VisualElement>("container-combo"); //we need to this because the document changes when we switch states
-        Label newLabel = GenerateComboLabel();
-        newLabel.AddToClassList("label-combo");
-        combo_container.Add(newLabel);
-        timeSinceComboItem = Time.time;
+        //if in game state
+        if (GameManager.instance.topState.GetName() == "Game")
+        {
+            combo_container = _document.rootVisualElement.Q<VisualElement>("container-combo"); //we need to this because the document changes when we switch states
+            Label newLabel = GenerateComboLabel();
+            newLabel.AddToClassList("label-combo");
+            combo_container.Add(newLabel);
+            timeSinceComboItem = Time.time;
+        }
     }
 
 

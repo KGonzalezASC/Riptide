@@ -28,6 +28,8 @@ public class PlatformManager : MonoBehaviour
     [SerializeField]
     private GameObject emptyParentHazard;
 
+    private Vector3 babygap = new(0, 0, 55);
+
 
     //enum for type of plaform Spawn
     public enum PlatformType
@@ -130,11 +132,48 @@ public class PlatformManager : MonoBehaviour
 
     public void SpawnInitialPlatform() //we need for system to work
     {
-        GameObject firstPlatform = Instantiate(sectionPrefab, new Vector3(0, 0, 25), Quaternion.identity);
+        GameObject firstPlatform = Instantiate(sectionPrefab, new Vector3(0, 0, 55), Quaternion.identity);
         activePlatforms.Add(firstPlatform);
         // Spawn hazards on the first platform
-        SpawnHazardOnPlatform(firstPlatform);
+        TutorialPlatform(firstPlatform);
     }
+
+
+    Func<TrackHandler, PlatformType> GetRandomAction(PlatformType type)
+    {
+        var validMethods = platformPatterns[type];
+        return validMethods[Random.Range(0, validMethods.Count)];
+    }
+
+    Func<TrackHandler, PlatformType> GetRandomActionExcluded(PlatformType type, Func<TrackHandler, PlatformType> excludeMethod)
+    {
+        var validMethods = platformPatterns[type].Where(action => action != excludeMethod).ToList();
+        return validMethods[Random.Range(0, validMethods.Count)];
+    }
+
+
+    private void TutorialPlatform(GameObject platform) {
+        //do samething as spawn hazard on platform but on safe patterns or grind pattern
+        TrackHandler trackHandler = platform.GetComponentInChildren<TrackHandler>();
+        if (trackHandler == null || hazards.Count == 0)
+        {
+            Debug.LogWarning("No valid TrackHandler or hazard available.");
+            return;
+        }
+        // Select a random action based on the platform type
+        Func<TrackHandler, PlatformType> selectedAction = null;
+        float randomValue = Random.Range(0f, 1f);
+        //50 on grind or safe pattern
+        selectedAction = randomValue < 0.5f ? GetRandomAction(PlatformType.SafePattern) :
+                         GetRandomAction(PlatformType.GrindingPattern);
+
+        if (selectedAction != null)
+        {
+            TrackLastThreeActions(selectedAction);
+            selectedAction(trackHandler);
+        }
+    }
+
 
     // Method to handle spawning hazards on a given platform
     private void SpawnHazardOnPlatform(GameObject platform)
@@ -150,17 +189,7 @@ public class PlatformManager : MonoBehaviour
         Func<TrackHandler, PlatformType> selectedAction = null;
         float randomValue = Random.Range(0f, 1f);
 
-        Func<TrackHandler, PlatformType> GetRandomAction(PlatformType type)
-        {
-            var validMethods = platformPatterns[type];
-            return validMethods[Random.Range(0, validMethods.Count)];
-        }
-
-        Func<TrackHandler, PlatformType> GetRandomActionExcluded(PlatformType type, Func<TrackHandler, PlatformType> excludeMethod)
-        {
-            var validMethods = platformPatterns[type].Where(action => action != excludeMethod).ToList();
-            return validMethods[Random.Range(0, validMethods.Count)];
-        }
+     
 
         bool hasTwoGrindingActions = lastThreeActions.Count > 1 &&
                                       IsGrindingPattern(lastThreeActions.ElementAt(0)) &&

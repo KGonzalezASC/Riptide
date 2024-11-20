@@ -24,7 +24,7 @@ public class DummyFish : MonoBehaviour
         if (GameManager.instance.topState.GetName() == "Load" && CompareTag("DummyBounce") && fishMovement != null)
         {
             fishMovement.DemoJump();
-        }
+        }    
     }
     //set bounce ready
     public void setHazardBounceReady(bool ready)

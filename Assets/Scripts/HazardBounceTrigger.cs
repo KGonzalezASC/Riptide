@@ -49,6 +49,8 @@ public class HazardBounceTrigger : MonoBehaviour
         if(other.CompareTag("DummyBounce"))
         {
            dummy.setHazardBounceReady(true);
+           light.intensity = 15;
+           transform.parent.GetComponent<MeshRenderer>().material = highlightedMaterial;
            dummy.bottleBounce();
         }
     }

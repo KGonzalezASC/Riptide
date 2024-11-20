@@ -11,6 +11,7 @@ public class SFXManager : MonoBehaviour
     public AudioClip collectCoinSFX;
     public AudioClip hitHazardSFX;
     public AudioClip bottleBreakerSFX;
+    public AudioClip bufferJumpSFX;
     private void Awake()
     {
         if (instance == null)
