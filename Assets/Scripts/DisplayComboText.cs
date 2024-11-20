@@ -27,6 +27,7 @@ public class DisplayComboText : MonoBehaviour
             Label newLabel = GenerateComboLabel();
             newLabel.AddToClassList("label-combo");
             combo_container.Add(newLabel);
+            AnimateLabel(newLabel);
         }
     }
 
@@ -36,6 +37,7 @@ public class DisplayComboText : MonoBehaviour
     /// </summary>
     public void ClearText()
     {
+        combo_container = _document.rootVisualElement.Q<VisualElement>("container-combo"); //we need to this because the document changes when we switch states
         //empty label
         combo_container.Clear();
 
@@ -84,4 +86,38 @@ public class DisplayComboText : MonoBehaviour
             progressBar.value = powerUpTimer;
         }
     }
+
+    /// <summary>
+    /// Animates the combo text
+    /// </summary>
+    /// <param name="label">label to animate</param>
+    private void AnimateLabel(Label label)
+    {
+        float duration = 2f; //total animation time in seconds
+        float elapsedTime = 0f; //time since animation started
+
+        label.schedule.Execute(() =>
+        {
+            //increment time
+            elapsedTime += Time.deltaTime;
+            //ensure label doesnt go past its finished angle
+            float progress = Mathf.Clamp01(elapsedTime / duration);
+
+            //update position (move in a sine wave path)
+            float x = Mathf.Sin(progress * Mathf.PI * 2) * 50; //horizontal movement
+            float y = Mathf.Cos(progress * Mathf.PI * 2) * 20; //vertical movement
+
+            //apply translation
+            label.style.translate = new StyleTranslate(new Translate(new Length(x, LengthUnit.Pixel), new Length(y, LengthUnit.Pixel), 0));
+
+            //apply rotation
+            label.style.rotate = new StyleRotate(new Rotate(new Angle(progress * 360f, AngleUnit.Degree)));
+            //is animation finished
+            if (progress >= 1f)
+            {
+                combo_container.Remove(label);
+            }
+        }).Until(() => elapsedTime >= duration);
+    }
+
 }
