@@ -15,13 +15,6 @@ public class DisplayComboText : MonoBehaviour
     //array of words that could be displayed
     string[] words = new string[] { "GNARLY", "SWAG-O-LICIOUS", "TUBULAR", "KABOOM", "FINCREDIBLE", "FLOP SHUV-IT", "FINSANE", "FISH OUT OF WATER" };
 
-    //time since combo-worthy event occurred
-    float timeSinceComboItem = 0.0f;
-    //time combo text remains on screen in-between combo-worthy actions
-    [SerializeField]float comboDisplayDuration = 0.8f;
-    //labels being displayed in combo
-    List<Label> comboList = new();
-
     /// <summary>
     /// Changes the text displayed in the combo UI container
     /// </summary>
@@ -34,7 +27,6 @@ public class DisplayComboText : MonoBehaviour
             Label newLabel = GenerateComboLabel();
             newLabel.AddToClassList("label-combo");
             combo_container.Add(newLabel);
-            timeSinceComboItem = Time.time;
         }
     }
 
@@ -73,14 +65,6 @@ public class DisplayComboText : MonoBehaviour
     public void Awake()
     {
         _document = GetComponent<UIDocument>();
-    }
-
-    public void Update()
-    {
-        if((Time.time - timeSinceComboItem) >= comboDisplayDuration)
-        {
-            combo_container?.Clear();
-        }
     }
 
     //using ref to pass by reference so we get the direct value of the timer, not a copy

@@ -154,6 +154,9 @@ public class ScoreTracker : MonoBehaviour
             scoreSum = 0;
             scoreMult = 1.0f;
         }
+
+        //combo is finished, clear combo text
+        textDisplay.ClearText();
     }
 
     /// <summary>
