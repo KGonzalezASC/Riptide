@@ -283,40 +283,66 @@ public class FishMovement : MonoBehaviour
 
         if (movementState != FishMovementState.GRINDING)
         {
+            float currentXDir = rb.velocity.x / MathF.Abs(rb.velocity.x);
+
             // Apply horizontal movement based on input
             if (moveDirection != Vector2.zero)
             {
                 // Smoothly interpolate the horizontal movement
                 float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
-                currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
+                //currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
+
+                float acceleration = 0.3f;
+
+                rb.AddForce(new Vector3(acceleration * moveDirection.x, 0, 0), ForceMode.Acceleration);
             }
+            else
+            {
+                if (rb.velocity.x <= 0.05f)
+                {
+                    rb.velocity.Set(0, rb.velocity.y, rb.velocity.z);
+                }
+
+                if (currentXDir != 0)
+                {
+                    rb.AddForce(new Vector3(-currentXDir * friction, 0, 0), ForceMode.Acceleration);
+                }
+
+            }
+
+            if (MathF.Abs(rb.velocity.x) > movementSpeed)
+            {
+                rb.velocity.Set(currentXDir * movementSpeed, rb.velocity.y, rb.velocity.z);
+            }
+
+            //rb.velocity.Set(currentVelocity.x, rb.velocity.y, rb.velocity.z);
 
             // Calculate new position after applying horizontal velocity
-            newPosition += new Vector3(currentVelocity.x, 0, 0); // Z component is zero
+            newPosition.x += rb.velocity.x;
 
-            // Calculate the direction from the anchor point to the new position
-            Vector3 directionToNewPosition = newPosition - anchorPoint;
-            directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
+            //// Calculate the direction from the anchor point to the new position
+            //Vector3 directionToNewPosition = newPosition - anchorPoint;
+            //directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
 
-            // Clamp the distance to the maximum range if necessary
-            if (directionToNewPosition.magnitude > maxRange)
-            {
-                directionToNewPosition = directionToNewPosition.normalized * maxRange;
-            }
+            //// Clamp the distance to the maximum range if necessary
+            //if (directionToNewPosition.magnitude > maxRange)
+            //{
+            //    directionToNewPosition = directionToNewPosition.normalized * maxRange;
+            //}
 
-            // Calculate the angle between the forward direction and the direction to the new position
-            float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
+            //// Calculate the angle between the forward direction and the direction to the new position
+            //float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
 
-            // Clamp the angle to the allowed range
-            if (Mathf.Abs(newAngle) > maxAngle)
-            {
-                float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
-                Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
-                directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
-            }
+            //// Clamp the angle to the allowed range
+            //if (Mathf.Abs(newAngle) > maxAngle)
+            //{
+            //    float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
+            //    Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
+            //    directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
+            //}
 
-            // Update the player's position after clamping (X and Z axes only)
-            newPosition = anchorPoint + directionToNewPosition;
+            //// Update the player's position after clamping (X and Z axes only)
+            //newPosition = anchorPoint + directionToNewPosition;
         }
         else
         {
