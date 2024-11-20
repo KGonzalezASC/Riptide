@@ -111,7 +111,7 @@ public class DisplayComboText : MonoBehaviour
             label.style.translate = new StyleTranslate(new Translate(new Length(x, LengthUnit.Pixel), new Length(y, LengthUnit.Pixel), 0));
 
             //apply rotation
-            label.style.rotate = new StyleRotate(new Rotate(new Angle(progress * 360f, AngleUnit.Degree)));
+            //label.style.rotate = new StyleRotate(new Rotate(new Angle(progress * 360f, AngleUnit.Degree)));
 
             //apply upscaling
             label.style.scale = new StyleScale(new Vector2(x / 20, 1));
