@@ -142,179 +142,25 @@ public class FishMovement : MonoBehaviour
     {
         if (GameManager.instance.topState.GetName() == "Game")
         {
-            moveDirection = playerControls.ReadValue<Vector2>();
-
             HandleJumpActions();
 
             HandleTrickActions();
+
+            updateRotations();
         }
     }
 
     private void FixedUpdate()
     {
-        // Get the current velocity
-        Vector3 currentVelocity = rb.velocity;
-
-        // Preserve the current vertical velocity (Y) so jumping and gravity aren't overwritten
-        float verticalVelocity = currentVelocity.y;
-
-        // Apply horizontal movement based on input
-        if (moveDirection != Vector2.zero && movementState != FishMovementState.GRINDING)
+        if (GameManager.instance.topState.GetName() == "Game")
         {
-            // Smoothly interpolate the horizontal movement
-            float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
-            currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
-        }
+            Vector3 currentVelocity = rb.velocity;
 
-        Vector3 newPosition = rb.position;
+            currentVelocity = HandleHorizontalMovement(currentVelocity);
 
-        if (movementState != FishMovementState.GRINDING)
-        {
-            // Calculate new position after applying horizontal velocity
-            newPosition += new Vector3(currentVelocity.x, 0, 0); // Z component is zero
+            currentVelocity = HandleVerticalMovement(currentVelocity);
 
-            // Calculate the direction from the anchor point to the new position
-            Vector3 directionToNewPosition = newPosition - anchorPoint;
-            directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
-
-            // Clamp the distance to the maximum range if necessary
-            if (directionToNewPosition.magnitude > maxRange)
-            {
-                directionToNewPosition = directionToNewPosition.normalized * maxRange;
-            }
-
-            // Calculate the angle between the forward direction and the direction to the new position
-            float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
-
-            // Clamp the angle to the allowed range
-            if (Mathf.Abs(newAngle) > maxAngle)
-            {
-                float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
-                Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
-                directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
-            }
-
-            // Update the player's position after clamping (X and Z axes only)
-            newPosition = anchorPoint + directionToNewPosition;
-        }
-
-        if (movementState == FishMovementState.GRINDING)
-        {
-            newPosition.x = grindSnapX;
-        }
-
-        newPosition.y = rb.position.y; // Keep the current Y position unchanged
-        newPosition.z = rb.position.z; // Ensure Z position stays the same
-
-        // Apply the new position to the Rigidbody
-        rb.MovePosition(newPosition);
-
-        //UnityEngine.Debug.Log("x vel = " + currentVelocity.x);
-
-        // Handle vertical physics (gravity, jumping)
-        rb.velocity = new Vector3(currentVelocity.x, verticalVelocity, 0); // Ensure Z velocity remains zero
-
-
-
-        // After the player jumps, they'll dive below the surface after they hit the min height, and start going back up
-        if (rb.position.y < minHeight - 0.1f && (movementState == FishMovementState.JUMPING || movementState == FishMovementState.DIVING || movementState == FishMovementState.TRICK))
-        {
-            BottleImpact();
-
-            if (scoreTracker != null)
-            {
-                if (movementState == FishMovementState.JUMPING)
-                {
-                    scoreTracker.gainTrickScore(false);
-                }
-                else if (movementState == FishMovementState.TRICK)
-                {
-                    scoreTracker.loseTrickScore();
-                }
-
-                hazardBounceCounter = 0;
-                perfectDismountReady = false;
-                trickCounter = 0;
-            }
-
-            rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
-            movementState = FishMovementState.DIVING;
-            buoyancy = baseBouyancy; // Ensure bouyancy is reset
-        }
-        else if (rb.position.y >= minHeight && movementState == FishMovementState.DIVING) // Stop vertical movement when surfacing
-        {
-            //rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop upward movement
-            movementState = FishMovementState.SURFACE;
-            NormalJump();
-        }
-        else if (movementState == FishMovementState.SURFACE) // Keep vertical movement steady at minHeight when on the surface
-        {
-            //if tag is player
-            if (gameObject.name == "FishBoard(Clone)")
-            {
-                rb.rotation = Quaternion.Euler(0f, -180f, 0f);
-            }
-            //Vector3 correctedPosition = rb.position;
-            //correctedPosition.y = minHeight;
-            //rb.position = correctedPosition;
-
-            rb.AddForce(Vector3.up * surfaceAlignmentForce * (rb.position.y - minHeight), ForceMode.Acceleration); // correction force
-            if (rb.position.y < minHeight)
-            {
-                rb.useGravity = false;
-                rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
-            }
-        }
-        else if (movementState == FishMovementState.GRINDING) // Keep vertical movement steady at grindHeight when grinding
-        {
-            Vector3 correctedPosition = rb.position;
-            correctedPosition.y = grindHeight;
-            grindHeight += grindDir.y * Time.deltaTime;
-            rb.position = correctedPosition;
-
-            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
-            if (scoreTracker != null)
-                scoreTracker.buildTrickScore(5);
-        }
-
-        if (movementState == FishMovementState.DIVING && rb.velocity.y > maxUnderwaterSpeed)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
-        }
-
-        if (movementState == FishMovementState.JUMPING || movementState == FishMovementState.DIVING)
-        {
-            rb.useGravity = true;
-        }
-
-        if (movementState != FishMovementState.JUMPING)
-        {
-            setHazardBounceReady(false);
-        }
-
-        if (rb.velocity.x > Math.Pow(maxLateralSpeed, 2))
-        {
-            rb.velocity.Set(maxLateralSpeed, rb.velocity.y, rb.velocity.z);
-        }
-        if (rb.velocity.x < 0f - Math.Pow(maxLateralSpeed, 2))
-        {
-            rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
-        }
-
-        if (movementState == FishMovementState.TRICK)
-        {
-            Vector3 spin = spinDir * spinSpeed;
-
-            Quaternion deltaRotation = Quaternion.Euler(spin * Time.deltaTime);
-
-            rb.MoveRotation(rb.rotation * deltaRotation);
-
-            trickTimer += Time.deltaTime;
-
-            if (trickTimer >= 0.5f)
-            {
-                completeTrick();
-            }
+            HandleSpin();
         }
     }
 
@@ -429,11 +275,235 @@ public class FishMovement : MonoBehaviour
         rb.position.Set(rb.position.x, rb.position.y, 0);
     }
 
-    private void HandleHorizontalMovement()
+    private Vector3 HandleHorizontalMovement(Vector3 currentVelocity)
     {
+        moveDirection = playerControls.ReadValue<Vector2>();
+
+        Vector3 newPosition = rb.position;
+
         if (movementState != FishMovementState.GRINDING)
         {
+            // Apply horizontal movement based on input
+            if (moveDirection != Vector2.zero)
+            {
+                // Smoothly interpolate the horizontal movement
+                float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
+                currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
+            }
 
+            // Calculate new position after applying horizontal velocity
+            newPosition += new Vector3(currentVelocity.x, 0, 0); // Z component is zero
+
+            // Calculate the direction from the anchor point to the new position
+            Vector3 directionToNewPosition = newPosition - anchorPoint;
+            directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
+
+            // Clamp the distance to the maximum range if necessary
+            if (directionToNewPosition.magnitude > maxRange)
+            {
+                directionToNewPosition = directionToNewPosition.normalized * maxRange;
+            }
+
+            // Calculate the angle between the forward direction and the direction to the new position
+            float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
+
+            // Clamp the angle to the allowed range
+            if (Mathf.Abs(newAngle) > maxAngle)
+            {
+                float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
+                Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
+                directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
+            }
+
+            // Update the player's position after clamping (X and Z axes only)
+            newPosition = anchorPoint + directionToNewPosition;
+        }
+        else
+        {
+            newPosition.x = grindSnapX;
+        }
+
+        newPosition.y = rb.position.y; // Keep the current Y position unchanged
+        newPosition.z = rb.position.z; // Ensure Z position stays the same
+
+        // Apply the new position to the Rigidbody
+        rb.MovePosition(newPosition);
+
+
+        if (rb.velocity.x > Math.Pow(maxLateralSpeed, 2))
+        {
+            rb.velocity.Set(maxLateralSpeed, rb.velocity.y, rb.velocity.z);
+        }
+        if (rb.velocity.x < 0f - Math.Pow(maxLateralSpeed, 2))
+        {
+            rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
+        }
+
+        return rb.velocity;
+    }
+
+    private Vector3 HandleVerticalMovement(Vector3 currentVelocity)
+    {
+        float verticalVelocity = currentVelocity.y;
+
+        currentVelocity.z = 0;
+
+        switch (movementState)
+        {
+            case FishMovementState.DIVING:
+
+                if (rb.position.y >= minHeight) // Stop vertical movement when surfacing
+                {
+                    movementState = FishMovementState.SURFACE;
+                    NormalJump();
+                }
+
+                if (rb.velocity.y > maxUnderwaterSpeed) // Cap underwater speed
+                {
+                    rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
+                }
+
+                rb.useGravity = true;
+
+                // Check for a landing
+                if (rb.position.y < minHeight - 0.1f)
+                {
+                    BottleImpact();
+
+                    if (scoreTracker != null)
+                    {
+                        if (movementState == FishMovementState.JUMPING)
+                        {
+                            scoreTracker.gainTrickScore(false);
+                        }
+                        else if (movementState == FishMovementState.TRICK)
+                        {
+                            scoreTracker.loseTrickScore();
+                        }
+
+                        hazardBounceCounter = 0;
+                        perfectDismountReady = false;
+                        trickCounter = 0;
+                    }
+
+                    rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
+                    movementState = FishMovementState.DIVING;
+                    buoyancy = baseBouyancy; // Ensure bouyancy is reset
+                }
+
+                break;
+            case FishMovementState.JUMPING:
+
+                rb.useGravity = true;
+
+                // Check for a landing
+                if (rb.position.y < minHeight - 0.1f)
+                {
+                    BottleImpact();
+
+                    if (scoreTracker != null)
+                    {
+                        if (movementState == FishMovementState.JUMPING)
+                        {
+                            scoreTracker.gainTrickScore(false);
+                        }
+                        else if (movementState == FishMovementState.TRICK)
+                        {
+                            scoreTracker.loseTrickScore();
+                        }
+
+                        hazardBounceCounter = 0;
+                        perfectDismountReady = false;
+                        trickCounter = 0;
+                    }
+
+                    rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
+                    movementState = FishMovementState.DIVING;
+                    buoyancy = baseBouyancy; // Ensure bouyancy is reset
+                }
+
+                break;
+            case FishMovementState.TRICK:
+
+                rb.useGravity = true;
+
+                // Check for a landing
+                if (rb.position.y < minHeight - 0.1f)
+                {
+                    BottleImpact();
+
+                    if (scoreTracker != null)
+                    {
+                        if (movementState == FishMovementState.JUMPING)
+                        {
+                            scoreTracker.gainTrickScore(false);
+                        }
+                        else if (movementState == FishMovementState.TRICK)
+                        {
+                            scoreTracker.loseTrickScore();
+                        }
+
+                        hazardBounceCounter = 0;
+                        perfectDismountReady = false;
+                        trickCounter = 0;
+                    }
+
+                    rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
+                    movementState = FishMovementState.DIVING;
+                    buoyancy = baseBouyancy; // Ensure bouyancy is reset
+                }
+
+                break;
+            case FishMovementState.SURFACE:
+                
+                //if tag is player
+                if (gameObject.name == "FishBoard(Clone)")
+                {
+                    rb.rotation = Quaternion.Euler(0f, -180f, 0f);
+                }
+
+                rb.AddForce(Vector3.up * surfaceAlignmentForce * (rb.position.y - minHeight), ForceMode.Acceleration); // correction force
+                if (rb.position.y < minHeight)
+                {
+                    rb.useGravity = false;
+                    rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
+                }
+
+                break;
+            case FishMovementState.GRINDING:
+                Vector3 correctedPosition = rb.position;
+                correctedPosition.y = grindHeight;
+                grindHeight += grindDir.y * Time.deltaTime;
+                rb.position = correctedPosition;
+
+                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
+                if (scoreTracker != null)
+                    scoreTracker.buildTrickScore(5);
+
+                break;
+        }
+
+        rb.velocity.Set(currentVelocity.x, currentVelocity.y, currentVelocity.z);
+
+        return currentVelocity;
+    }
+
+    private void HandleSpin()
+    {
+        if (movementState == FishMovementState.TRICK)
+        {
+            Vector3 spin = spinDir * spinSpeed;
+
+            Quaternion deltaRotation = Quaternion.Euler(spin * Time.deltaTime);
+
+            rb.MoveRotation(rb.rotation * deltaRotation);
+
+            trickTimer += Time.deltaTime;
+
+            if (trickTimer >= 0.5f)
+            {
+                completeTrick();
+            }
         }
     }
 
