@@ -112,6 +112,9 @@ public class DisplayComboText : MonoBehaviour
 
             //apply rotation
             label.style.rotate = new StyleRotate(new Rotate(new Angle(progress * 360f, AngleUnit.Degree)));
+
+            //apply upscaling
+            label.style.scale = new StyleScale(new Vector2(x / 20, 1));
             //is animation finished
             if (progress >= 1f)
             {
