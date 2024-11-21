@@ -243,7 +243,7 @@ MonoBehaviour:
   collectCoinSFX: {fileID: 8300000, guid: eac61db3d814bbe4cb8027222a14bd0b, type: 3}
   hitHazardSFX: {fileID: 8300000, guid: d5da6e8bd99afb94588203fbedf73f96, type: 3}
   bottleBreakerSFX: {fileID: 8300000, guid: 173235f24660cda488d53e106c76e927, type: 3}
-  bufferJumpSFX: {fileID: 0}
+  bufferJumpSFX: {fileID: 8300000, guid: 3fa9bb25286f45743b294e0c3a607d02, type: 3}
 --- !u!82 &77559453 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 3938468154874665724, guid: 9b4174813417b0a4db643dbe9d25632e,
