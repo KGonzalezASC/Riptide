@@ -14,7 +14,6 @@ public class ScoreTracker : MonoBehaviour
     private float scoreMult = 1.0f;
     private UIDocument _document;
 
-
     public UIDocument Document
     {
         get { return _document; }
@@ -62,8 +61,7 @@ public class ScoreTracker : MonoBehaviour
         //ensure values are reset
         score = 0;
         time = 0;
-
-        //other fields are set in the game manager's game state OnPlay()
+        GenerateGradientColors();
     }
 
     private void Update()
@@ -78,31 +76,38 @@ public class ScoreTracker : MonoBehaviour
 
 
     /// <param name="baseAmount">base value added to the player's score</param>
+    private int lastIntensityDecreaseThreshold = 0;
+
     public void IncrementScore(int baseAmount)
     {
         // Increment the score based on the provided formula
         score += (int)(baseAmount + baseAmount * (time * timeScale));
 
-        // Calculate the next threshold the score should reach for color change
-        int nextThreshold = ((score / 5000) + 1) * 5000;
+        // Calculate the next threshold for color change
+        int nextThreshold = ((score / 3000) + 1) * 3000;
 
-        // If the score has crossed a 5000-point boundary
-        if (score >= nextThreshold - 5000)
+        // If the score has crossed a 3000-point boundary
+        if (score >= nextThreshold - 3000)
         {
             // Get the pipe's material
             Material pipeMaterial = pipe.GetComponent<Renderer>().material;
 
             // Calculate the index in the colors array
-            int colorIndex = (score / 5000) % colors.Length;
+            int colorIndex = (score / 3000) % colors.Length;
 
             // Set the pipe's color to the new color
             pipeMaterial.color = colors[colorIndex];
+        }
 
+        // Decrement the light intensity every 6000 points
+        int intensityDecreaseThreshold = (score / 3000) * 3000;
 
-            //decerment light intensity up to .03f by substracting .1f every 5000 points
-            if (directionalLight.intensity > .03f && score % 5000 == 0)
+        if (intensityDecreaseThreshold > lastIntensityDecreaseThreshold)
+        {
+            if (directionalLight.intensity > 0.03f)
             {
-                directionalLight.intensity -= .03f;
+                directionalLight.intensity -= 0.13f;
+                lastIntensityDecreaseThreshold = intensityDecreaseThreshold; // Update the threshold
             }
         }
     }
@@ -175,15 +180,28 @@ public class ScoreTracker : MonoBehaviour
     }
 
 
-    //array of colors 
-    public Color[] colors = new Color[]
-   {
-        new(255f / 255f, 0f / 255f, 204f / 255f), // FF00CC
-        new(125f / 255f, 70f / 255f, 0f / 255f),   // 7D4600
-        new(245f / 255f, 143f / 255f, 41f / 255f),  // F58F29
-        new(164f / 255f, 176f / 255f, 245f / 255f),// A4B0F5
-        new(68f / 255f, 100f / 255f, 173f / 255f)   // 4464AD
-   };
+    private Color[] colors;
+
+    private void GenerateGradientColors()
+    {
+        int stepsPerSegment = 3;
+        colors = new Color[40];
+
+        // Define key colors for gradient
+        Color green = new (0f / 255f, 255f / 255f, 0f / 255f);  // Green
+        Color blue = new (0f / 255f, 0f / 255f, 255f / 255f);   // Blue
+        Color yellow = new (255f / 255f, 255f / 255f, 0f / 255f); // Yellow
+        Color red = new (255f / 255f, 0f / 255f, 0f / 255f);    // Red
+        Color black = new (0f / 255f, 0f / 255f, 0f / 255f);    // Black
+
+        // Gradually interpolate between each color pair
+        int index = 0;
+        for (int i = 0; i < stepsPerSegment; i++) colors[index++] = Color.Lerp(green, blue, (float)i / stepsPerSegment);
+        for (int i = 0; i < stepsPerSegment; i++) colors[index++] = Color.Lerp(blue, yellow, (float)i / stepsPerSegment);
+        for (int i = 0; i < stepsPerSegment; i++) colors[index++] = Color.Lerp(yellow, red, (float)i / stepsPerSegment);
+        for (int i = 0; i < stepsPerSegment; i++) colors[index++] = Color.Lerp(red, black, (float)i / stepsPerSegment);
+    }
+
 
     //set reset color method to first color in array
     public void resetColor()
@@ -191,6 +209,7 @@ public class ScoreTracker : MonoBehaviour
         Material pipeMaterial = pipe.GetComponent<Renderer>().material;
         pipeMaterial.color = colors[0];
         //reset light intensity
-        directionalLight.intensity = .79f;
+        directionalLight.intensity = 2.4f;
+        lastIntensityDecreaseThreshold = 0;
     }
 }

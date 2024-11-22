@@ -91,3 +91,55 @@ MonoBehaviour:
     - h
     - h
     - h
+  - pattern:
+    - c
+    - c
+    - c
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
+    - h
+    - h
+    - h
+  - pattern:
+    - h
+    - h
+    - h
+    - 
+    - 
+    - 
+    - c
+    - c
+    - c
+    - c
+    - c
+    - c
+  - pattern:
+    - h
+    - 
+    - 
+    - c
+    - h
+    - h
+    - c
+    - h
+    - h
+    - h
+    - 
+    - 
+  - pattern:
+    - 
+    - 
+    - h
+    - h
+    - h
+    - c
+    - h
+    - h
+    - c
+    - 
+    - 
+    - h

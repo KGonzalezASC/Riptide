@@ -132,6 +132,7 @@ public class FishMovement : MonoBehaviour
             volume = GameObject.FindObjectOfType<Volume>();
         }
         activeJumpForce = jumpForce;
+
     }
 
     private void OnJumpReleased(InputAction.CallbackContext context)
@@ -456,6 +457,8 @@ public class FishMovement : MonoBehaviour
         {
             grindSnapX = snapXTo;
             grindDir = moveDir;
+            //reset bouyancy if not it stacks if you grind into grind rail
+            buoyancy = baseBouyancy;
 
             if (snapYTo != -1.0f)
             {
@@ -516,6 +519,8 @@ public class FishMovement : MonoBehaviour
     {
         // Apply a smaller fixed upward force for a hazard bounce 
         rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.325f, rb.velocity.z);
+        //also reset the bouyancy for predictable behaviour
+        buoyancy = baseBouyancy;
         setHazardBounceReady(false);
         hasBufferJumped = false;
     }
@@ -642,7 +647,7 @@ public class FishMovement : MonoBehaviour
 
             // Calculate the box center and half extents based on your method
             Vector3 boxCenter = transform.position + Vector3.down * 0.5f; // Match the box center in HazardBounceBuffer
-            Vector3 boxHalfExtents = new Vector3(0.15f, 0.3f, 2f);       // Match the box size
+            Vector3 boxHalfExtents = new(0.15f, 0.3f, 2f);       // Match the box size
 
             // Draw the detection box
             Gizmos.matrix = Matrix4x4.TRS(boxCenter, transform.rotation, Vector3.one); // Apply object rotation
@@ -711,6 +716,7 @@ public class FishMovement : MonoBehaviour
         hazardBounceCounter = 0;
         rb.velocity = Vector3.zero;
         scoreTracker.loseTrickScore();
+        buoyancy = baseBouyancy;
     }
 
     //super jump
@@ -718,15 +724,14 @@ public class FishMovement : MonoBehaviour
     {
         //increase jump force
         activeJumpForce = jumpForce * 1.33f;
-        //decrease bouyancy for slower rise
-        buoyancy *= .56f;
+        //decrease bouyancy for slower rise, EDIT:// people did not like this in last couple playtest so it the effective swim up speed is now faster
+        buoyancy *= 9f;
     }
 
     //normal jump
     public void NormalJump()
     {
         activeJumpForce = jumpForce;
-        buoyancy = baseBouyancy;
     }
 
     public void CheckForHazards()
@@ -755,13 +760,13 @@ public class FishMovement : MonoBehaviour
     public void HazardBounceBuffer()
     {
         Vector3 boxCenter = transform.position + Vector3.down * 0.5f;   // Adjust center for downward bias
-        Vector3 boxHalfExtents = new Vector3(0.15f, 0.4f, 2f);      // Adjust dimensions for forward detection
+        Vector3 boxHalfExtents = new (0.15f, 0.4f, 2f);      // Adjust dimensions for forward detection
 
         RaycastHit[] hits = new RaycastHit[3];
         int hitCount = Physics.BoxCastNonAlloc(
             boxCenter,
             boxHalfExtents,
-            transform.forward,         // Forward direction
+            Vector3.back,         // prevent player rotation from affecting
             hits,
             Quaternion.identity,       // No rotation for simplicity
             2.5f                       // Forward range
