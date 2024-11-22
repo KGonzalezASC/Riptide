@@ -100,7 +100,7 @@ public class ScoreTracker : MonoBehaviour
 
 
             //decerment light intensity up to .03f by substracting .1f every 5000 points
-            if (directionalLight.intensity > .03f && score % 5000==0)
+            if (directionalLight.intensity > .03f && score % 5000 == 0)
             {
                 directionalLight.intensity -= .03f;
             }
@@ -117,7 +117,13 @@ public class ScoreTracker : MonoBehaviour
     {
         scoreSum += addedAmount;
         //Debug.Log("scoreSum: " + scoreSum);
-        textDisplay.ChangeText();
+
+        //quick and dirty fix so that grinding on a rail doesnt overload screen
+        //also prevents it from showing up when dismounting
+        if (addedAmount > 5)
+        {
+            textDisplay.ChangeText();
+        }
     }
 
     /// <summary>
@@ -154,6 +160,9 @@ public class ScoreTracker : MonoBehaviour
             scoreSum = 0;
             scoreMult = 1.0f;
         }
+
+        //combo is finished, clear combo text
+        textDisplay.ClearText();
     }
 
     /// <summary>

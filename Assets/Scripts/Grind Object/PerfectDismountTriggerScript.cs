@@ -29,6 +29,7 @@ public class PerfectDismountTriggerScript : MonoBehaviour
                 other.GetComponent<FishMovement>().DemoJump();
                 other.GetComponent<FishMovement>().DemoFlip();
 
+
         }
     }
 }

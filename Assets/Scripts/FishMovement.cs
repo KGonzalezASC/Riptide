@@ -9,6 +9,7 @@ using UnityEngine.Assertions.Must;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using Debug = UnityEngine.Debug;
 
 public enum FishMovementState
 {
@@ -52,7 +53,6 @@ public class FishMovement : MonoBehaviour
     [SerializeField]
     private float surfaceAlignmentForce = -20f;
 
-    [SerializeField]
     private const float baseBouyancy = 40f;
     private float buoyancy = baseBouyancy;
 
@@ -88,6 +88,8 @@ public class FishMovement : MonoBehaviour
     private float hazardCheckDistance = 8.0f;
     [SerializeField]
     private ParticleSystem splash;
+    [SerializeField]
+    private ParticleSystem badJumpParticles; //for buffered jump..
 
 
 
@@ -98,7 +100,7 @@ public class FishMovement : MonoBehaviour
     private ScoreTracker scoreTracker;
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
-    private Vector3 grindDir = new Vector3(0, 0, 0);
+    private Vector3 grindDir = new (0, 0, 0);
     private bool perfectDismountReady = false;
     private bool bounceReady = false;
     private int hazardBounceCounter = 0;
@@ -109,12 +111,15 @@ public class FishMovement : MonoBehaviour
     private int trickCounter = 0;
     private float activeJumpForce;
     private Vector2 distFromAnchor;
+    private float lastReleaseTime = -1f; // Stores the time when the jump action was last released
+    private bool hasBufferJumped = false;
 
 
     private void OnEnable()
     {
         playerControls.Enable();
         jumpAction.Enable();
+        jumpAction.canceled += OnJumpReleased; // Listen for the release of the button
         trickControls.Enable();
 
         resetState();
@@ -131,11 +136,21 @@ public class FishMovement : MonoBehaviour
         activeJumpForce = jumpForce;
     }
 
+    private void OnJumpReleased(InputAction.CallbackContext context)
+    {
+        lastReleaseTime = Time.time; // Record the time of release
+    }
+
     private void OnDisable()
     {
         playerControls.Disable();
         jumpAction.Disable();
         trickControls.Disable();
+
+        //clear jump release time
+        lastReleaseTime = -1f;
+        //clear canceled event
+        jumpAction.canceled -= OnJumpReleased;
     }
 
     private void Update()
@@ -431,31 +446,17 @@ public class FishMovement : MonoBehaviour
 
                 rb.useGravity = true;
 
-                // Check for a landing
+                // Apply buoyancy
                 if (rb.position.y < minHeight - 0.1f)
                 {
                     BottleImpact();
-
-                    if (scoreTracker != null)
-                    {
-                        if (movementState == FishMovementState.JUMPING)
-                        {
-                            scoreTracker.gainTrickScore(false);
-                        }
-                        else if (movementState == FishMovementState.TRICK)
-                        {
-                            scoreTracker.loseTrickScore();
-                        }
-
-                        hazardBounceCounter = 0;
-                        perfectDismountReady = false;
-                        trickCounter = 0;
-                    }
 
                     rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
                     movementState = FishMovementState.DIVING;
                     buoyancy = baseBouyancy; // Ensure bouyancy is reset
                 }
+
+                setHazardBounceReady(false);
 
                 break;
             case FishMovementState.JUMPING:
@@ -481,6 +482,8 @@ public class FishMovement : MonoBehaviour
                     buoyancy = baseBouyancy; // Ensure bouyancy is reset
                 }
 
+                HazardBounceBuffer();
+
                 break;
             case FishMovementState.TRICK:
 
@@ -505,6 +508,8 @@ public class FishMovement : MonoBehaviour
                     buoyancy = baseBouyancy; // Ensure bouyancy is reset
                 }
 
+                setHazardBounceReady(false);
+
                 break;
             case FishMovementState.SURFACE:
                 
@@ -521,6 +526,8 @@ public class FishMovement : MonoBehaviour
                     rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
                 }
 
+                setHazardBounceReady(false);
+
                 break;
             case FishMovementState.GRINDING:
                 Vector3 correctedPosition = rb.position;
@@ -532,7 +539,15 @@ public class FishMovement : MonoBehaviour
                 if (scoreTracker != null)
                     scoreTracker.buildTrickScore(5);
 
+                setHazardBounceReady(false);
+
                 break;
+        }
+
+        //if y position is > 1.3 reset hasbufferjumped
+        if (rb.position.y > 1.3f)
+        {
+            hasBufferJumped = false;
         }
 
         rb.velocity.Set(currentVelocity.x, currentVelocity.y, currentVelocity.z);
@@ -554,7 +569,10 @@ public class FishMovement : MonoBehaviour
 
             if (trickTimer >= 0.5f)
             {
-                completeTrick();
+               if(gameObject.name == "FishBoard(Clone)")
+                {
+                   completeTrick();
+                }
             }
         }
     }
@@ -610,6 +628,13 @@ public class FishMovement : MonoBehaviour
         }
     }
 
+    public void BufferJumpParticle() {
+        Instantiate(badJumpParticles, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
+        NormalJump();
+    }
+
+
+
     public void preparePerfectDismount()
     {
         perfectDismountReady = true;
@@ -627,6 +652,7 @@ public class FishMovement : MonoBehaviour
         // Apply a smaller fixed upward force for a hazard bounce 
         rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.325f, rb.velocity.z);
         setHazardBounceReady(false);
+        hasBufferJumped = false;
     }
 
     private void startTrick(int direction, bool first)
@@ -683,7 +709,7 @@ public class FishMovement : MonoBehaviour
         //perform a front flip
         if (movementState == FishMovementState.JUMPING)
         {
-            startTrick(1, true);
+            StartCoroutine(DemoFlipDelay());
         }
     }
 
@@ -692,7 +718,6 @@ public class FishMovement : MonoBehaviour
     private void completeTrick()
     {
         UnityEngine.Debug.Log("Trick done");
-
         scoreTracker.buildTrickScore(100);
         trickCounter++;
 
@@ -709,6 +734,11 @@ public class FishMovement : MonoBehaviour
         spinDir = Vector2.zero;
         movementState = FishMovementState.JUMPING;
     }
+
+
+
+
+
 
     public void resetState()
     {
@@ -740,6 +770,50 @@ public class FishMovement : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawLine(anchorPoint, anchorPoint + leftLimit);  // Left constraint
         Gizmos.DrawLine(anchorPoint, anchorPoint + rightLimit); // Right constraint
+
+        if (rb != null)
+        {
+            Gizmos.color = Color.cyan;
+
+            // Calculate the box center and half extents based on your method
+            Vector3 boxCenter = transform.position + Vector3.down * 0.5f; // Match the box center in HazardBounceBuffer
+            Vector3 boxHalfExtents = new Vector3(0.15f, 0.3f, 2f);       // Match the box size
+
+            // Draw the detection box
+            Gizmos.matrix = Matrix4x4.TRS(boxCenter, transform.rotation, Vector3.one); // Apply object rotation
+            Gizmos.DrawWireCube(Vector3.zero, boxHalfExtents * 2f); // Gizmos expect full size, not half extents
+
+            // Reset Gizmos matrix to world coordinates
+            Gizmos.matrix = Matrix4x4.identity;
+
+            // Draw the forward direction line
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawLine(boxCenter, boxCenter + -transform.forward * 2.5f); // Match the forward detection range
+
+            // Visualize hit results (if in play mode or hitCount > 0)
+            if (Application.isPlaying)
+            {
+                RaycastHit[] hits = new RaycastHit[3];
+                int hitCount = Physics.BoxCastNonAlloc(
+                    boxCenter,
+                    boxHalfExtents,
+                    -transform.forward,
+                    hits,
+                    Quaternion.identity,
+                    2.5f
+                );
+
+                if (hitCount > 0)
+                {
+                    Gizmos.color = Color.red;
+                    for (int i = 0; i < hitCount; i++)
+                    {
+                        // Draw a sphere at the hit points
+                        Gizmos.DrawSphere(hits[i].point, 0.1f);
+                    }
+                }
+            }
+        }
     }
 
     public IEnumerator PowerupTime(float delay)
@@ -767,6 +841,7 @@ public class FishMovement : MonoBehaviour
         stopGrind();
         NormalJump();
         movementState = FishMovementState.SURFACE;
+        hasBufferJumped = false;
         powerUpState = FishPowerUpState.NONE;
         hazardBounceCounter = 0;
         rb.velocity = Vector3.zero;
@@ -791,15 +866,16 @@ public class FishMovement : MonoBehaviour
 
     public void CheckForHazards()
     {
-        //draw raycast mactching gizmos line and collecting length of objects hit
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, -transform.forward, hazardCheckDistance);
+        //draw raycast matching gizmos line and collecting length of objects hit
+        RaycastHit[] hits = new RaycastHit[10]; // Adjust the size as needed
+        int hitCount = Physics.RaycastNonAlloc(transform.position, -transform.forward, hits, hazardCheckDistance);
         UnityEngine.Debug.DrawRay(transform.position, -transform.forward * hazardCheckDistance, Color.yellow);
         //check if any of the objects hit are Hazard objects
-        if (hits.Length > 0)
+        if (hitCount > 0)
         {
-            foreach (RaycastHit hit in hits)
+            for (int i = 0; i < hitCount; i++)
             {
-                if (hit.collider.name == "Hazard")
+                if (hits[i].collider.name == "Hazard")
                 {
                     var playState = GameManager.instance.topState as PlayState;
                     playState.ExtendTimer();
@@ -808,9 +884,86 @@ public class FishMovement : MonoBehaviour
                 }
             }
         }
-
-
     }
+
+
+    public void HazardBounceBuffer()
+    {
+        Vector3 boxCenter = transform.position + Vector3.down * 0.5f;   // Adjust center for downward bias
+        Vector3 boxHalfExtents = new Vector3(0.15f, 0.4f, 2f);      // Adjust dimensions for forward detection
+
+        RaycastHit[] hits = new RaycastHit[3];
+        int hitCount = Physics.BoxCastNonAlloc(
+            boxCenter,
+            boxHalfExtents,
+            transform.forward,         // Forward direction
+            hits,
+            Quaternion.identity,       // No rotation for simplicity
+            2.5f                       // Forward range
+        );
+
+        UnityEngine.Debug.DrawLine(boxCenter, boxCenter + transform.forward * 2.0f, Color.yellow);
+
+        if (hitCount > 0 && hasBufferJumped ==false)
+        {
+            for (int i = 0; i < hitCount; i++)
+            {
+                if (hits[i].collider.gameObject.TryGetComponent<Hazard>(out Hazard hazard))
+                {
+                    if (hazard.settings.type == FlyWeightType.Hazard)
+                    {
+                        float timeSinceRelease = Time.time - lastReleaseTime;
+                        if (hazard.getSpeed() > 20f && rb.velocity.y <= 0 && timeSinceRelease<.3f) {
+                            //to fast to detect buffer jump
+                            Debug.Log("Too fast to buffer jump");
+                            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.45f, rb.velocity.z);
+                            hasBufferJumped = true;
+                            StartCoroutine(BufferJump());
+                            break;
+                        }
+
+                        //print how the hit object was in its z velocity based on its transform component
+                        if (rb.velocity.y < 0 && timeSinceRelease < .33f && rb.position.y < .97f)
+                        {
+                            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.45f, rb.velocity.z);
+                            hasBufferJumped = true;
+                            StartCoroutine(BufferJump());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    //public getter for hasBufferJumped
+    public bool getHasBufferJumped()
+    {
+        return hasBufferJumped;
+    }
+
+    public IEnumerator BufferJump() 
+    {
+        //turn collision off to prevent death
+        rb.detectCollisions = false;
+        SFXManager.instance.playSFXClip(SFXManager.instance.bufferJumpSFX, transform, .2f);
+        BufferJumpParticle();
+        hasBufferJumped = false;
+        yield return Helpers.GetWaitForSeconds(.07f);
+        rb.detectCollisions = true;
+        scoreTracker.buildTrickScore(-200);
+        yield return null;
+    }
+
+    public IEnumerator DemoFlipDelay() {
+        yield return Helpers.GetWaitForSeconds(.5f);
+        //pick a random flip direction to call to start trick
+        int flipDirection = UnityEngine.Random.Range(1, 3);
+        startTrick(flipDirection, true);
+
+        yield return null;
+    }
+
 
     public IEnumerator FishAscension()
     {

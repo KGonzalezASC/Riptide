@@ -314,3 +314,5 @@ MonoBehaviour:
   volume: {fileID: 0}
   hazardCheckDistance: 3
   splash: {fileID: 766498622860441890, guid: 7c29bedb328f45349a320351c69a988f, type: 3}
+  badJumpParticles: {fileID: 766498622860441890, guid: 41a7b7d59940f3b49b0baea764cdae10,
+    type: 3}

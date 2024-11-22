@@ -15,23 +15,20 @@ public class DisplayComboText : MonoBehaviour
     //array of words that could be displayed
     string[] words = new string[] { "GNARLY", "SWAG-O-LICIOUS", "TUBULAR", "KABOOM", "FINCREDIBLE", "FLOP SHUV-IT", "FINSANE", "FISH OUT OF WATER" };
 
-    //time since combo-worthy event occurred
-    float timeSinceComboItem = 0.0f;
-    //time combo text remains on screen in-between combo-worthy actions
-    [SerializeField]float comboDisplayDuration = 0.8f;
-    //labels being displayed in combo
-    List<Label> comboList = new List<Label>();
-
     /// <summary>
     /// Changes the text displayed in the combo UI container
     /// </summary>
     public void ChangeText()
     {
-        combo_container = _document.rootVisualElement.Q<VisualElement>("container-combo"); //we need to this because the document changes when we switch states
-        Label newLabel = GenerateComboLabel();
-        newLabel.AddToClassList("label-combo");
-        combo_container.Add(newLabel);
-        timeSinceComboItem = Time.time;
+        //if in game state
+        if (GameManager.instance.topState.GetName() == "Game")
+        {
+            combo_container = _document.rootVisualElement.Q<VisualElement>("container-combo"); //we need to this because the document changes when we switch states
+            Label newLabel = GenerateComboLabel();
+            newLabel.AddToClassList("label-combo");
+            combo_container.Add(newLabel);
+            AnimateLabel(newLabel);
+        }
     }
 
 
@@ -40,6 +37,7 @@ public class DisplayComboText : MonoBehaviour
     /// </summary>
     public void ClearText()
     {
+        combo_container = _document.rootVisualElement.Q<VisualElement>("container-combo"); //we need to this because the document changes when we switch states
         //empty label
         combo_container.Clear();
 
@@ -71,14 +69,6 @@ public class DisplayComboText : MonoBehaviour
         _document = GetComponent<UIDocument>();
     }
 
-    public void Update()
-    {
-        if((Time.time - timeSinceComboItem) >= comboDisplayDuration)
-        {
-            combo_container?.Clear();
-        }
-    }
-
     //using ref to pass by reference so we get the direct value of the timer, not a copy
     public void powerUpTimerLength(ref float powerUpTimer)
     {
@@ -96,4 +86,41 @@ public class DisplayComboText : MonoBehaviour
             progressBar.value = powerUpTimer;
         }
     }
+
+    /// <summary>
+    /// Animates the combo text
+    /// </summary>
+    /// <param name="label">label to animate</param>
+    private void AnimateLabel(Label label)
+    {
+        float duration = 2f; //total animation time in seconds
+        float elapsedTime = 0f; //time since animation started
+
+        label.schedule.Execute(() =>
+        {
+            //increment time
+            elapsedTime += Time.deltaTime;
+            //ensure label doesnt go past its finished angle
+            float progress = Mathf.Clamp01(elapsedTime / duration);
+
+            //update position (move in a sine wave path)
+            float x = Mathf.Sin(progress * Mathf.PI * 2) * 50; //horizontal movement
+            float y = Mathf.Cos(progress * Mathf.PI * 2) * 20; //vertical movement
+
+            //apply translation
+            label.style.translate = new StyleTranslate(new Translate(new Length(x, LengthUnit.Pixel), new Length(y, LengthUnit.Pixel), 0));
+
+            //apply rotation
+            //label.style.rotate = new StyleRotate(new Rotate(new Angle(progress * 360f, AngleUnit.Degree)));
+
+            //apply upscaling
+            label.style.scale = new StyleScale(new Vector2(x / 20, 1));
+            //is animation finished
+            if (progress >= 1f)
+            {
+                combo_container.Remove(label);
+            }
+        }).Until(() => elapsedTime >= duration);
+    }
+
 }

@@ -107,6 +107,10 @@ public class Hazard : FlyWeight
     }
 
 
+    public float getSpeed() {
+        return Settings.speed + PlayState.speedIncrement;
+    }
+
 
 
     private void HandleCollectibleCollision()
