@@ -171,7 +171,11 @@ public class FishMovement : MonoBehaviour
         {
             Vector3 currentVelocity = rb.velocity;
 
-            currentVelocity = HandleHorizontalMovement(currentVelocity);
+            if (friction != 0)
+            {
+                currentVelocity = HandleHorizontalMovement(currentVelocity);
+
+            }
 
             currentVelocity = HandleVerticalMovement(currentVelocity);
 
@@ -296,56 +300,52 @@ public class FishMovement : MonoBehaviour
 
         Vector3 newPosition = rb.position;
 
+        float currentXDir;
+
         if (movementState != FishMovementState.GRINDING)
         {
-            float currentXDir = rb.velocity.x / MathF.Abs(rb.velocity.x);
+            currentXDir = rb.velocity.x / MathF.Abs(rb.velocity.x);
+
+            UnityEngine.Debug.Log("current x dir: " + currentXDir);
 
             // Apply horizontal movement based on input
             if (moveDirection != Vector2.zero)
             {
-                // Smoothly interpolate the horizontal movement
                 float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
-                //currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
 
                 float acceleration = 1.2f;
 
                 UnityEngine.Debug.Log("Setting rb.velocity.x to: " + rb.velocity.x + (acceleration * moveDirection.x + (-moveDirection.x * friction)));
-                UnityEngine.Debug.Log((acceleration * moveDirection.x + (-moveDirection.x * friction)));
 
-                rb.velocity.Set((rb.velocity.x + (acceleration * moveDirection.x + (-moveDirection.x * friction))), rb.velocity.y, rb.velocity.z);
-                //rb.AddForce(new Vector3((acceleration * moveDirection.x + (-moveDirection.x * friction)), 0, 0), ForceMode.Acceleration);
+                rb.AddForce(new Vector3(acceleration * moveDirection.x, 0, 0), ForceMode.Acceleration);
 
-                UnityEngine.Debug.Log(rb.velocity.x);
+                UnityEngine.Debug.Log("x velocity after input: " + rb.velocity.x);
             }
-            else
+            else if (MathF.Abs(rb.velocity.x) <= 0.1f)
             {
-                if (rb.velocity.x <= 0.1f)
-                {
-                    UnityEngine.Debug.Log("Zeroing out move speed");
+                rb.velocity = new Vector3(0.0f, rb.velocity.y, rb.velocity.z);
+            }
 
-                    rb.velocity.Set(0, rb.velocity.y, rb.velocity.z);
+            if (currentXDir != 0 && rb.velocity.x != 0.0f)
+            {
+                UnityEngine.Debug.Log("Slowing with friction");
+                UnityEngine.Debug.Log("Friction: " + friction);
 
-                    UnityEngine.Debug.Log(rb.velocity.x);
-                }
+                float frictionAndDir = -currentXDir * friction;
+                UnityEngine.Debug.Log("Friction and direction: " + frictionAndDir);
 
-                if (currentXDir != 0)
-                {
-                    UnityEngine.Debug.Log("Slowing with friction");
+                rb.AddForce(new Vector3(frictionAndDir, 0.0f, 0.0f), ForceMode.Acceleration);
 
-                    rb.velocity.Set(rb.velocity.x + (-currentXDir * friction), rb.velocity.y, rb.velocity.z);
-                    //rb.AddForce(new Vector3(-currentXDir * friction, 0, 0), ForceMode.Acceleration);
-
-                    UnityEngine.Debug.Log(rb.velocity.x);
-                }
+                UnityEngine.Debug.Log("x velocity after applying friction: " + rb.velocity.x);
             }
 
             if (MathF.Abs(rb.velocity.x) > movementSpeed)
             {
                 UnityEngine.Debug.Log("Capping move speed");
 
-                rb.velocity.Set(currentXDir * movementSpeed, rb.velocity.y, rb.velocity.z);
+                rb.AddForce(new Vector3(-currentXDir * movementSpeed, 0.0f, 0.0f), ForceMode.VelocityChange);
 
-                UnityEngine.Debug.Log(rb.velocity.x);
+                UnityEngine.Debug.Log("x velocity after velocity cap: " + rb.velocity.x);
             }
 
             if (Mathf.Abs(rb.position.x) > maxRange)
@@ -365,39 +365,15 @@ public class FishMovement : MonoBehaviour
 
                 newPosition.x = maxRange * side;
 
-                rb.velocity.Set(0.0f, rb.velocity.y, rb.velocity.z);
+                rb.AddForce(new Vector3(-rb.velocity.x, 0.0f, 0.0f), ForceMode.VelocityChange);
 
-                UnityEngine.Debug.Log(rb.velocity.x);
+                UnityEngine.Debug.Log("x velocity after containment: " + rb.velocity.x);
             }
 
-            UnityEngine.Debug.Log(rb.velocity.x);
+            UnityEngine.Debug.Log("Final x velocity: " + rb.velocity.x);
 
             // Calculate new position after applying horizontal velocity
             newPosition.x += rb.velocity.x;
-
-            //// Calculate the direction from the anchor point to the new position
-            //Vector3 directionToNewPosition = newPosition - anchorPoint;
-            //directionToNewPosition.y = 0; // Ignore vertical component for horizontal constraints
-
-            //// Clamp the distance to the maximum range if necessary
-            //if (directionToNewPosition.magnitude > maxRange)
-            //{
-            //    directionToNewPosition = directionToNewPosition.normalized * maxRange;
-            //}
-
-            //// Calculate the angle between the forward direction and the direction to the new position
-            //float newAngle = Vector3.SignedAngle(Vector3.forward, directionToNewPosition, Vector3.up);
-
-            //// Clamp the angle to the allowed range
-            //if (Mathf.Abs(newAngle) > maxAngle)
-            //{
-            //    float clampedAngle = Mathf.Clamp(newAngle, -maxAngle, maxAngle);
-            //    Quaternion rotation = Quaternion.Euler(0, clampedAngle, 0);
-            //    directionToNewPosition = rotation * Vector3.forward * directionToNewPosition.magnitude;
-            //}
-
-            //// Update the player's position after clamping (X and Z axes only)
-            //newPosition.x = anchorPoint.x + directionToNewPosition.x;
         }
         else
         {
@@ -409,16 +385,6 @@ public class FishMovement : MonoBehaviour
 
         // Apply the new position to the Rigidbody
         rb.MovePosition(newPosition);
-
-
-        if (rb.velocity.x > Math.Pow(maxLateralSpeed, 2))
-        {
-            rb.velocity.Set(maxLateralSpeed, rb.velocity.y, rb.velocity.z);
-        }
-        if (rb.velocity.x < 0f - Math.Pow(maxLateralSpeed, 2))
-        {
-            rb.velocity.Set(0 - maxLateralSpeed, rb.velocity.y, rb.velocity.z);
-        }
 
         return rb.velocity;
     }
