@@ -304,7 +304,7 @@ MonoBehaviour:
   surfaceAlignmentForce: -22
   minHeight: -0.1
   maxDiveDepth: -4.235
-  friction: 0.3
+  friction: 0.6
   anchorPoint: {x: 0, y: -2, z: 0}
   maxAngle: 65
   maxRange: 4.3

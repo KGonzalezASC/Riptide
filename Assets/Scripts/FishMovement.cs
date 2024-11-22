@@ -292,30 +292,70 @@ public class FishMovement : MonoBehaviour
                 float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
                 //currentVelocity.x = Mathf.Lerp(currentVelocity.x, targetXVelocity, friction);
 
-                float acceleration = 0.3f;
+                float acceleration = 1.2f;
 
-                rb.AddForce(new Vector3(acceleration * moveDirection.x, 0, 0), ForceMode.Acceleration);
+                UnityEngine.Debug.Log("Setting rb.velocity.x to: " + rb.velocity.x + (acceleration * moveDirection.x + (-moveDirection.x * friction)));
+                UnityEngine.Debug.Log((acceleration * moveDirection.x + (-moveDirection.x * friction)));
+
+                rb.velocity.Set((rb.velocity.x + (acceleration * moveDirection.x + (-moveDirection.x * friction))), rb.velocity.y, rb.velocity.z);
+                //rb.AddForce(new Vector3((acceleration * moveDirection.x + (-moveDirection.x * friction)), 0, 0), ForceMode.Acceleration);
+
+                UnityEngine.Debug.Log(rb.velocity.x);
             }
             else
             {
-                if (rb.velocity.x <= 0.05f)
+                if (rb.velocity.x <= 0.1f)
                 {
+                    UnityEngine.Debug.Log("Zeroing out move speed");
+
                     rb.velocity.Set(0, rb.velocity.y, rb.velocity.z);
+
+                    UnityEngine.Debug.Log(rb.velocity.x);
                 }
 
                 if (currentXDir != 0)
                 {
-                    rb.AddForce(new Vector3(-currentXDir * friction, 0, 0), ForceMode.Acceleration);
-                }
+                    UnityEngine.Debug.Log("Slowing with friction");
 
+                    rb.velocity.Set(rb.velocity.x + (-currentXDir * friction), rb.velocity.y, rb.velocity.z);
+                    //rb.AddForce(new Vector3(-currentXDir * friction, 0, 0), ForceMode.Acceleration);
+
+                    UnityEngine.Debug.Log(rb.velocity.x);
+                }
             }
 
             if (MathF.Abs(rb.velocity.x) > movementSpeed)
             {
+                UnityEngine.Debug.Log("Capping move speed");
+
                 rb.velocity.Set(currentXDir * movementSpeed, rb.velocity.y, rb.velocity.z);
+
+                UnityEngine.Debug.Log(rb.velocity.x);
             }
 
-            //rb.velocity.Set(currentVelocity.x, rb.velocity.y, rb.velocity.z);
+            if (Mathf.Abs(rb.position.x) > maxRange)
+            {
+                UnityEngine.Debug.Log("Containing x pos");
+
+                float side = 0.0f;
+
+                if (rb.position.x > 0)
+                {
+                    side = 1.0f;
+                }
+                else
+                {
+                    side = -1.0f;
+                }
+
+                newPosition.x = maxRange * side;
+
+                rb.velocity.Set(0.0f, rb.velocity.y, rb.velocity.z);
+
+                UnityEngine.Debug.Log(rb.velocity.x);
+            }
+
+            UnityEngine.Debug.Log(rb.velocity.x);
 
             // Calculate new position after applying horizontal velocity
             newPosition.x += rb.velocity.x;
@@ -342,7 +382,7 @@ public class FishMovement : MonoBehaviour
             //}
 
             //// Update the player's position after clamping (X and Z axes only)
-            //newPosition = anchorPoint + directionToNewPosition;
+            //newPosition.x = anchorPoint.x + directionToNewPosition.x;
         }
         else
         {
@@ -429,14 +469,7 @@ public class FishMovement : MonoBehaviour
 
                     if (scoreTracker != null)
                     {
-                        if (movementState == FishMovementState.JUMPING)
-                        {
-                            scoreTracker.gainTrickScore(false);
-                        }
-                        else if (movementState == FishMovementState.TRICK)
-                        {
-                            scoreTracker.loseTrickScore();
-                        }
+                        scoreTracker.gainTrickScore(false);
 
                         hazardBounceCounter = 0;
                         perfectDismountReady = false;
@@ -460,14 +493,7 @@ public class FishMovement : MonoBehaviour
 
                     if (scoreTracker != null)
                     {
-                        if (movementState == FishMovementState.JUMPING)
-                        {
-                            scoreTracker.gainTrickScore(false);
-                        }
-                        else if (movementState == FishMovementState.TRICK)
-                        {
-                            scoreTracker.loseTrickScore();
-                        }
+                        scoreTracker.loseTrickScore();
 
                         hazardBounceCounter = 0;
                         perfectDismountReady = false;
