@@ -109,35 +109,56 @@ public abstract class gState : MonoBehaviour
     [HideInInspector]
     public GameManager gm;
 
-    //Stores the Coroutine for camera transitions
-    public IEnumerator co;
-
     // State transition methods
     public abstract void Enter(gState from);
     public abstract void Execute(); // Tick function for the state 
     public abstract void Exit(gState to);
     public abstract string GetName();
 
-    protected IEnumerator CameraTransition(Transform cameraTransform, float transitionDuration, Vector3 loadPos, Vector3 loadRotation)
-    {
+    private Queue<(Vector3 endPos, Vector3 endRot, float duration)> transitionQueue = new Queue<(Vector3, Vector3, float)>();
+    private bool isTransitioning = false;
 
+    public void QueueCameraTransition(Vector3 endPosition, Vector3 endRotation, float duration)
+    {
+        transitionQueue.Enqueue((endPosition, endRotation, duration));
+        if (!isTransitioning)
+        {
+            StartCoroutine(ProcessTransitionQueue());
+        }
+    }
+
+    private IEnumerator ProcessTransitionQueue()
+    {
+        isTransitioning = true;
+
+        while (transitionQueue.Count > 0)
+        {
+            var transition = transitionQueue.Dequeue();
+            yield return StartCoroutine(CameraTransition(transition.endPos, transition.endRot, transition.duration));
+        }
+
+        isTransitioning = false;
+    }
+
+    private IEnumerator CameraTransition(Vector3 endPosition, Vector3 endRot, float transitionDuration)
+    {
+        Transform cameraTransform = Camera.main.transform;
         float elapsedTime = 0f;
         Vector3 startPos = cameraTransform.position;
-        Quaternion startRotation = cameraTransform.rotation;
+        Quaternion startRot = cameraTransform.rotation;
 
         while (elapsedTime < transitionDuration)
         {
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / transitionDuration;
 
-            cameraTransform.position = Vector3.Lerp(startPos, loadPos, t);
-            cameraTransform.rotation = Quaternion.Slerp(startRotation, Quaternion.Euler(loadRotation), t);
+            cameraTransform.position = Vector3.Lerp(startPos, endPosition, t);
+            cameraTransform.rotation = Quaternion.Slerp(startRot, Quaternion.Euler(endRot), t);
 
-            yield return null; //wait for the next frame
+            yield return null;
         }
 
-        cameraTransform.position = loadPos;
-        cameraTransform.rotation = Quaternion.Euler(loadRotation);
+        cameraTransform.position = endPosition;
+        cameraTransform.rotation = Quaternion.Euler(endRot);
     }
-
 }

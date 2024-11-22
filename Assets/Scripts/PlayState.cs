@@ -111,17 +111,12 @@ public class PlayState : gState
         speedIncrement = 0.01f; //reset speed increment
         difficultyCoroutine = StartCoroutine(DifficultyHandler(6f));
 
-        //ensure previous camera routine has been stopped
-        if (from.co != null)
-            StopCoroutine(from.co);
+
         //set this camera coroutine
-        this.co = CameraTransition(cameraTransform, transitionDuration, gameplayCamPos, gameplayCamRotation);
-
-        //move camera after setup
-        StartCoroutine(this.co);
+        QueueCameraTransition(gameplayCamPos, gameplayCamRotation, this.transitionDuration);
 
 
-       //Color shallowColor = new(176f / 255f, 137f / 255f, 85f / 255f); // RGB: B08955
+        //Color shallowColor = new(176f / 255f, 137f / 255f, 85f / 255f); // RGB: B08955
     }
     public override void Execute()
     {
@@ -169,7 +164,7 @@ public class PlayState : gState
         while (GameManager.instance.topState.GetName() == "Game")
         {
             yield return Helpers.GetWaitForSeconds(delay);
-         
+
 
             // Increase speed increment, but cap it at a maximum of 7? playtest ig idk
             if (speedIncrement < 18f)
@@ -191,7 +186,7 @@ public class PlayState : gState
         Debug.Log("DifficultyHandler coroutine stopped because the game state changed.");
     }
     [SerializeField]
-    Color defaultWaterColor = new(106f / 255f, 113f / 255f, 159f / 255f, 199f/ 255f); 
-    Color dirtyWaterColor = new(176f / 255f, 137f / 255f, 85f / 255f, 255f/255f); // RGB: B08955
+    Color defaultWaterColor = new(106f / 255f, 113f / 255f, 159f / 255f, 199f / 255f);
+    Color dirtyWaterColor = new(176f / 255f, 137f / 255f, 85f / 255f, 255f / 255f); // RGB: B08955
 
 }

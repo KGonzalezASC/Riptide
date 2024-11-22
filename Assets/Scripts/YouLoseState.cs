@@ -30,14 +30,7 @@ public class YouLoseState : gState
         scoreContainer = loseUIDocument.rootVisualElement.Q<VisualElement>("container-score"); // Replace with actual container ID
         PopulateScores();
 
-
-        if (from.co != null)
-            StopCoroutine(from.co);
-        //set this camera coroutine
-        this.co = CameraTransition(cameraTransform, transitionDuration, loadPos, loadRotation);
-
-        //move camera after setup
-        StartCoroutine(this.co);
+        QueueCameraTransition(loadPos, loadRotation, transitionDuration);
     }
 
 
@@ -70,7 +63,7 @@ public class YouLoseState : gState
         //TODO: implement some way to type in name
         PlayerSaveData.Instance.Save();
         //transition to load camera position
-        StartCoroutine(CameraTransition(cameraTransform, transitionDuration, loadPos, loadRotation));
+        QueueCameraTransition(loadPos, loadRotation, transitionDuration);
     }
 
     public override string GetName()
