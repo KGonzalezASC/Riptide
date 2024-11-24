@@ -307,7 +307,7 @@ MonoBehaviour:
   friction: 0.6
   anchorPoint: {x: 0, y: -2, z: 0}
   maxAngle: 65
-  maxRange: 4.3
+  maxRange: 4.12
   movementState: 0
   powerUpState: 0
   rb: {fileID: 7141695999175163664}

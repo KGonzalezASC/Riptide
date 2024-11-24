@@ -157,10 +157,13 @@ public class FishMovement : MonoBehaviour
     {
         if (GameManager.instance.topState.GetName() == "Game")
         {
+            // Check for space bar input
             HandleJumpActions();
 
+            // Check for arrow key input
             HandleTrickActions();
 
+            // Set rotations to default if not in a trick
             updateRotations();
         }
     }
@@ -171,23 +174,20 @@ public class FishMovement : MonoBehaviour
         {
             Vector3 currentVelocity = rb.velocity;
 
-            if (friction != 0)
-            {
-                currentVelocity = HandleHorizontalMovement(currentVelocity);
+            currentVelocity = HandleHorizontalMovement(currentVelocity); // Handle A & D key movement
 
-            }
+            currentVelocity = HandleVerticalMovement(currentVelocity); // Handle movement when jumping/doing tricks
 
-            currentVelocity = HandleVerticalMovement(currentVelocity);
-
-            HandleSpin();
+            HandleSpin(); // Rotate if in a trick
         }
     }
 
     private void HandleJumpActions()
     {
-
+        // Jump, if in a state that allows it
         if (jumpAction.triggered && (movementState != FishMovementState.JUMPING && movementState != FishMovementState.TRICK))
         {
+            // Gain extra score on a perfect dismount from a rail
             if (perfectDismountReady && movementState == FishMovementState.GRINDING)
             {
                 //Debug.Log("Perfect dismount!");
@@ -213,9 +213,12 @@ public class FishMovement : MonoBehaviour
 
             Jump();
         }
+        // Check for a hazard bounce next
         else if (bounceReady && jumpAction.triggered && movementState == FishMovementState.JUMPING)
         {
             hazardBounce();
+
+            // Adjust score and multiplier
             scoreTracker.buildTrickScore(100);
 
             if (hazardBounceCounter >= 1)
@@ -229,10 +232,12 @@ public class FishMovement : MonoBehaviour
 
     private void HandleTrickActions()
     {
+        // Get the direction in which to do the trick
         trickDirection = trickControls.ReadValue<Vector2>();
 
         //UnityEngine.Debug.Log("trickdir x: " + trickDirection.x + ", trickdir y: " + trickDirection.y);
 
+        // Only do a trick when in jump state
         if (movementState == FishMovementState.JUMPING && trickDirection != Vector2.zero)
         {
             bool firstTrick = false;
@@ -242,6 +247,7 @@ public class FishMovement : MonoBehaviour
                 firstTrick = true;
             }
 
+            // Perform a trick based on direction
             if (trickDirection.y > 0)
             {
                 startTrick(1, firstTrick);
@@ -282,6 +288,7 @@ public class FishMovement : MonoBehaviour
         }
     }
 
+    // Set rotations to default (may be deprecated soon)
     private void updateRotations()
     {
         if (gameObject.name == "FishBoard(Clone)" && movementState != FishMovementState.TRICK)
@@ -296,14 +303,17 @@ public class FishMovement : MonoBehaviour
 
     private Vector3 HandleHorizontalMovement(Vector3 currentVelocity)
     {
+        // Get horizontal move direction
         moveDirection = playerControls.ReadValue<Vector2>();
 
         Vector3 newPosition = rb.position;
 
         float currentXDir;
 
+        // Only allow horizontal movement when not grinding
         if (movementState != FishMovementState.GRINDING)
         {
+            // Get the current direction in which the fish is moving
             currentXDir = rb.velocity.x / MathF.Abs(rb.velocity.x);
 
             UnityEngine.Debug.Log("current x dir: " + currentXDir);
@@ -313,19 +323,20 @@ public class FishMovement : MonoBehaviour
             {
                 float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
 
-                float acceleration = 1.2f;
+                float acceleration = 1.2f; // This should move to serialized fields soon
 
                 UnityEngine.Debug.Log("Setting rb.velocity.x to: " + rb.velocity.x + (acceleration * moveDirection.x + (-moveDirection.x * friction)));
 
-                rb.AddForce(new Vector3(acceleration * moveDirection.x, 0, 0), ForceMode.Acceleration);
+                rb.AddForce(new Vector3(acceleration * moveDirection.x, 0, 0), ForceMode.Acceleration); // Apply acceleration
 
                 UnityEngine.Debug.Log("x velocity after input: " + rb.velocity.x);
             }
             else if (MathF.Abs(rb.velocity.x) <= 0.1f)
             {
-                rb.velocity = new Vector3(0.0f, rb.velocity.y, rb.velocity.z);
+                rb.velocity = new Vector3(0.0f, rb.velocity.y, rb.velocity.z); // Set velocity to 0 when it's low enough
             }
 
+            // Apply friction in the opposite direction of movement
             if (currentXDir != 0 && rb.velocity.x != 0.0f)
             {
                 UnityEngine.Debug.Log("Slowing with friction");
@@ -339,6 +350,7 @@ public class FishMovement : MonoBehaviour
                 UnityEngine.Debug.Log("x velocity after applying friction: " + rb.velocity.x);
             }
 
+            // Cap movement speed if it's too high
             if (MathF.Abs(rb.velocity.x) > movementSpeed)
             {
                 UnityEngine.Debug.Log("Capping move speed");
@@ -348,6 +360,7 @@ public class FishMovement : MonoBehaviour
                 UnityEngine.Debug.Log("x velocity after velocity cap: " + rb.velocity.x);
             }
 
+            // Contain the x position within specified boundaries
             if (Mathf.Abs(rb.position.x) > maxRange)
             {
                 UnityEngine.Debug.Log("Containing x pos");
@@ -436,7 +449,7 @@ public class FishMovement : MonoBehaviour
 
                     if (scoreTracker != null)
                     {
-                        scoreTracker.gainTrickScore(false);
+                        scoreTracker.gainTrickScore(false); // Score is awarded when landing while in this state
 
                         hazardBounceCounter = 0;
                         perfectDismountReady = false;
@@ -462,7 +475,7 @@ public class FishMovement : MonoBehaviour
 
                     if (scoreTracker != null)
                     {
-                        scoreTracker.loseTrickScore();
+                        scoreTracker.loseTrickScore(); // Score is lost when landing while in this state
 
                         hazardBounceCounter = 0;
                         perfectDismountReady = false;
@@ -479,13 +492,14 @@ public class FishMovement : MonoBehaviour
                 break;
             case FishMovementState.SURFACE:
                 
-                //if tag is player
+                // if tag is player
                 if (gameObject.name == "FishBoard(Clone)")
                 {
                     rb.rotation = Quaternion.Euler(0f, -180f, 0f);
                 }
 
                 rb.AddForce(Vector3.up * surfaceAlignmentForce * (rb.position.y - minHeight), ForceMode.Acceleration); // correction force
+
                 if (rb.position.y < minHeight)
                 {
                     rb.useGravity = false;
@@ -496,10 +510,13 @@ public class FishMovement : MonoBehaviour
 
                 break;
             case FishMovementState.GRINDING:
-                Vector3 correctedPosition = rb.position;
+
+                Vector3 correctedPosition = rb.position; // Control y position when grinding
                 correctedPosition.y = grindHeight;
-                grindHeight += grindDir.y * Time.deltaTime;
-                rb.position = correctedPosition;
+
+                grindHeight += grindDir.y * Time.deltaTime; // Apply grind rail slope if relevant
+
+                rb.position = correctedPosition; // Adjust position
 
                 rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
                 if (scoreTracker != null)
@@ -523,6 +540,7 @@ public class FishMovement : MonoBehaviour
 
     private void HandleSpin()
     {
+        // Spin while in trick state
         if (movementState == FishMovementState.TRICK)
         {
             Vector3 spin = spinDir * spinSpeed;
@@ -634,11 +652,13 @@ public class FishMovement : MonoBehaviour
             return;
         }
 
+        // Gain a small vertical boost, but only on the first trick in a combo
         if (first)
         {
             rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2.2f, rb.velocity.z);
         }
 
+        // Determine spin direction
         switch (direction)
         {
             case 1:
@@ -680,7 +700,7 @@ public class FishMovement : MonoBehaviour
     }
 
 
-
+    // Apply score for completing a trick successfully
     private void completeTrick()
     {
         UnityEngine.Debug.Log("Trick done");
