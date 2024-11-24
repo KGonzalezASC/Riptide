@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class DummyPole : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -17,7 +12,7 @@ public class DummyPole : MonoBehaviour
         {
             if(transform.position.z > -10f)
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, -39f);
+                transform.position = new Vector3(transform.position.x, transform.position.y, -43f);
             }
             MoveInLoadState();
         }

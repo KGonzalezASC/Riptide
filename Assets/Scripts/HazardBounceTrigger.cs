@@ -11,7 +11,7 @@ public class HazardBounceTrigger : MonoBehaviour
     private FishMovement player = null;
     private DummyFish dummy = null;
 
-    private Light light;
+    private new Light light;
     [SerializeField] private Material regularMaterial;
     [SerializeField] private Material highlightedMaterial;
 

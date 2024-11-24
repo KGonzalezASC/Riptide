@@ -161,7 +161,7 @@ public class PlatformManager : MonoBehaviour
             return;
         }
         // Select a random action based on the platform type
-        Func<TrackHandler, PlatformType> selectedAction = null;
+        Func<TrackHandler, PlatformType> selectedAction;
         float randomValue = Random.Range(0f, 1f);
         //50 on grind or safe pattern
         selectedAction = randomValue < 0.5f ? GetRandomAction(PlatformType.SafePattern) :

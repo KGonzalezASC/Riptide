@@ -42,12 +42,7 @@ public class LoadState : gState
         uiGameObject.gameObject.SetActive(true);
         uiGameObject.OnPlayButtonClicked += LoadGame;
 
-        this.co = CameraTransition(cameraTransform, transitionDuration, endPosition, endRotation);
-        //if coroutine is not null stop it
-        if (this.co != null)
-            StopCoroutine(this.co);
-
-        StartCoroutine(this.co);
+        QueueCameraTransition(endPosition, endRotation, transitionDuration);
 
         //set demo room to active
         demoRoom.SetActive(true);
