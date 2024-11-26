@@ -297,17 +297,17 @@ MonoBehaviour:
       m_Action: Trick Controls
       m_Flags: 8
     m_Flags: 0
-  movementSpeed: 1
+  maxHorizontalMoveSpeed: 40
+  horizontalAcceleration: 1.2
+  horizontalFriction: 0.5
   jumpForce: 6.41
   maxUnderwaterSpeed: 3
-  maxLateralSpeed: 1.1
   surfaceAlignmentForce: -22
   minHeight: -0.1
   maxDiveDepth: -4.235
-  friction: 0.6
   anchorPoint: {x: 0, y: -2, z: 0}
   maxAngle: 65
-  maxRange: 4.12
+  maxRange: 1.5
   movementState: 0
   powerUpState: 0
   rb: {fileID: 7141695999175163664}

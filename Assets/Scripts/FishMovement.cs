@@ -39,7 +39,13 @@ public class FishMovement : MonoBehaviour
     private InputAction trickControls; // Input for tricks
 
     [SerializeField]
-    private float movementSpeed = 100f;
+    private float maxHorizontalMoveSpeed = 100f;
+
+    [SerializeField]
+    private float horizontalAcceleration = 1.2f; // Acceleration for x movement
+
+    [SerializeField]
+    private float horizontalFriction = 0.05f; // Friction factor for slowing down
 
     [SerializeField]
     private float jumpForce = 5.8f; // The force applied when jumping
@@ -48,21 +54,15 @@ public class FishMovement : MonoBehaviour
     private float maxUnderwaterSpeed = 2.0f;
 
     [SerializeField]
-    private float maxLateralSpeed = 5.0f;
-
-    [SerializeField]
     private float surfaceAlignmentForce = -20f;
 
-    private const float baseBouyancy = 40f;
+    private const float baseBouyancy = 1.0f;
     private float buoyancy = baseBouyancy;
 
     [SerializeField]
     private float minHeight = 1f; // Define the minimum height
     [SerializeField]
     private float maxDiveDepth = -10f;  // Adjust based on the maximum dive depth you want
-
-    [SerializeField]
-    private float friction = 0.05f; // Friction factor for slowing down
 
     [SerializeField]
     private Vector3 anchorPoint = Vector3.zero;  // Anchor point to rotate around
@@ -175,9 +175,11 @@ public class FishMovement : MonoBehaviour
         {
             Vector3 currentVelocity = rb.velocity;
 
-            currentVelocity = HandleHorizontalMovement(currentVelocity); // Handle A & D key movement
+            currentVelocity.x = HandleHorizontalMovement(currentVelocity.x); // Handle A & D key movement
 
-            currentVelocity = HandleVerticalMovement(currentVelocity); // Handle movement when jumping/doing tricks
+            currentVelocity.y = HandleVerticalMovement(currentVelocity.y); // Handle movement when jumping/doing tricks
+
+            rb.velocity = currentVelocity;
 
             HandleSpin(); // Rotate if in a trick
         }
@@ -302,12 +304,10 @@ public class FishMovement : MonoBehaviour
         rb.position.Set(rb.position.x, rb.position.y, 0);
     }
 
-    private Vector3 HandleHorizontalMovement(Vector3 currentVelocity)
+    private float HandleHorizontalMovement(float currentXVelocity)
     {
         // Get horizontal move direction
         moveDirection = playerControls.ReadValue<Vector2>();
-
-        Vector3 newPosition = rb.position;
 
         float currentXDir;
 
@@ -315,57 +315,44 @@ public class FishMovement : MonoBehaviour
         if (movementState != FishMovementState.GRINDING)
         {
             // Get the current direction in which the fish is moving
-            currentXDir = rb.velocity.x / MathF.Abs(rb.velocity.x);
-
-            UnityEngine.Debug.Log("current x dir: " + currentXDir);
+            if (currentXVelocity != 0f)
+            {
+                currentXDir = currentXVelocity / MathF.Abs(currentXVelocity);
+            }
+            else
+            {
+                currentXDir = 0f;
+            }
 
             // Apply horizontal movement based on input
             if (moveDirection != Vector2.zero)
             {
-                float targetXVelocity = moveDirection.x * movementSpeed * Time.deltaTime;
+                float targetXVelocity = moveDirection.x * maxHorizontalMoveSpeed * Time.deltaTime;
 
-                float acceleration = 1.2f; // This should move to serialized fields soon
-
-                UnityEngine.Debug.Log("Setting rb.velocity.x to: " + rb.velocity.x + (acceleration * moveDirection.x + (-moveDirection.x * friction)));
-
-                rb.AddForce(new Vector3(acceleration * moveDirection.x, 0, 0), ForceMode.Acceleration); // Apply acceleration
-
-                UnityEngine.Debug.Log("x velocity after input: " + rb.velocity.x);
+                currentXVelocity += horizontalAcceleration * moveDirection.x; // Apply acceleration
             }
-            else if (MathF.Abs(rb.velocity.x) <= 0.1f)
+            else if (MathF.Abs(currentXVelocity) <= 0.4f)
             {
-                rb.velocity = new Vector3(0.0f, rb.velocity.y, rb.velocity.z); // Set velocity to 0 when it's low enough
+                currentXVelocity = 0.0f; // Set velocity to 0 when it's low enough
             }
 
             // Apply friction in the opposite direction of movement
-            if (currentXDir != 0 && rb.velocity.x != 0.0f)
+            if (currentXDir != 0 && currentXVelocity != 0.0f)
             {
-                UnityEngine.Debug.Log("Slowing with friction");
-                UnityEngine.Debug.Log("Friction: " + friction);
+                float frictionAndDir = -currentXDir * horizontalFriction;
 
-                float frictionAndDir = -currentXDir * friction;
-                UnityEngine.Debug.Log("Friction and direction: " + frictionAndDir);
-
-                rb.AddForce(new Vector3(frictionAndDir, 0.0f, 0.0f), ForceMode.Acceleration);
-
-                UnityEngine.Debug.Log("x velocity after applying friction: " + rb.velocity.x);
+                currentXVelocity += frictionAndDir;
             }
 
             // Cap movement speed if it's too high
-            if (MathF.Abs(rb.velocity.x) > movementSpeed)
+            if (MathF.Abs(rb.velocity.x) > maxHorizontalMoveSpeed)
             {
-                UnityEngine.Debug.Log("Capping move speed");
-
-                rb.AddForce(new Vector3(-currentXDir * movementSpeed, 0.0f, 0.0f), ForceMode.VelocityChange);
-
-                UnityEngine.Debug.Log("x velocity after velocity cap: " + rb.velocity.x);
+                currentXVelocity = currentXDir * maxHorizontalMoveSpeed;
             }
 
             // Contain the x position within specified boundaries
             if (Mathf.Abs(rb.position.x) > maxRange)
             {
-                UnityEngine.Debug.Log("Containing x pos");
-
                 float side = 0.0f;
 
                 if (rb.position.x > 0)
@@ -377,38 +364,21 @@ public class FishMovement : MonoBehaviour
                     side = -1.0f;
                 }
 
-                newPosition.x = maxRange * side;
+                rb.MovePosition(new Vector3(maxRange * side, rb.position.y, rb.position.z));
 
-                rb.AddForce(new Vector3(-rb.velocity.x, 0.0f, 0.0f), ForceMode.VelocityChange);
-
-                UnityEngine.Debug.Log("x velocity after containment: " + rb.velocity.x);
+                currentXVelocity = 0.0f;
             }
-
-            UnityEngine.Debug.Log("Final x velocity: " + rb.velocity.x);
-
-            // Calculate new position after applying horizontal velocity
-            newPosition.x += rb.velocity.x;
         }
         else
         {
-            newPosition.x = grindSnapX;
+            currentXVelocity = 0.0f; // No movement should occur on x axis when grinding
         }
 
-        newPosition.y = rb.position.y; // Keep the current Y position unchanged
-        newPosition.z = rb.position.z; // Ensure Z position stays the same
-
-        // Apply the new position to the Rigidbody
-        rb.MovePosition(newPosition);
-
-        return rb.velocity;
+        return currentXVelocity;
     }
 
-    private Vector3 HandleVerticalMovement(Vector3 currentVelocity)
+    private float HandleVerticalMovement(float currentYVelocity)
     {
-        float verticalVelocity = currentVelocity.y;
-
-        currentVelocity.z = 0;
-
         switch (movementState)
         {
             case FishMovementState.DIVING:
@@ -421,7 +391,7 @@ public class FishMovement : MonoBehaviour
 
                 if (rb.velocity.y > maxUnderwaterSpeed) // Cap underwater speed
                 {
-                    rb.velocity = new Vector3(rb.velocity.x, maxUnderwaterSpeed, rb.velocity.z);
+                    currentYVelocity = maxUnderwaterSpeed;
                 }
 
                 rb.useGravity = true;
@@ -431,7 +401,7 @@ public class FishMovement : MonoBehaviour
                 {
                     BottleImpact();
 
-                    rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
+                    currentYVelocity += buoyancy;
                     movementState = FishMovementState.DIVING;
                     buoyancy = baseBouyancy; // Ensure bouyancy is reset
                 }
@@ -457,7 +427,7 @@ public class FishMovement : MonoBehaviour
                         trickCounter = 0;
                     }
 
-                    rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
+                    currentYVelocity += buoyancy;
                     movementState = FishMovementState.DIVING;
                     buoyancy = baseBouyancy; // Ensure bouyancy is reset
                 }
@@ -483,7 +453,7 @@ public class FishMovement : MonoBehaviour
                         trickCounter = 0;
                     }
 
-                    rb.AddForce(Vector3.up * buoyancy, ForceMode.Acceleration);
+                    currentYVelocity += buoyancy;
                     movementState = FishMovementState.DIVING;
                     buoyancy = baseBouyancy; // Ensure bouyancy is reset
                 }
@@ -499,7 +469,7 @@ public class FishMovement : MonoBehaviour
                     rb.rotation = Quaternion.Euler(0f, -180f, 0f);
                 }
 
-                rb.AddForce(Vector3.up * surfaceAlignmentForce * (rb.position.y - minHeight), ForceMode.Acceleration); // correction force
+                currentYVelocity += surfaceAlignmentForce * (rb.position.y - minHeight); // correction force
 
                 if (rb.position.y < minHeight)
                 {
@@ -519,7 +489,8 @@ public class FishMovement : MonoBehaviour
 
                 rb.position = correctedPosition; // Adjust position
 
-                rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z); // Stop downward movement
+                currentYVelocity = 0f;
+
                 if (scoreTracker != null)
                     scoreTracker.buildTrickScore(5);
 
@@ -534,9 +505,7 @@ public class FishMovement : MonoBehaviour
             hasBufferJumped = false;
         }
 
-        rb.velocity.Set(currentVelocity.x, currentVelocity.y, currentVelocity.z);
-
-        return currentVelocity;
+        return currentYVelocity;
     }
 
     private void HandleSpin()
@@ -846,7 +815,7 @@ public class FishMovement : MonoBehaviour
         //increase jump force
         activeJumpForce = jumpForce * 1.33f;
         //decrease bouyancy for slower rise, EDIT:// people did not like this in last couple playtest so it the effective swim up speed is now faster
-        buoyancy *= 9f;
+        buoyancy *= 0.5f;
     }
 
     //normal jump
