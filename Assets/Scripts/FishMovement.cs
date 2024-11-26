@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
@@ -34,7 +35,7 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private InputAction jumpAction; // Input for jumping
-    
+
     [SerializeField]
     private InputAction trickControls; // Input for tricks
 
@@ -100,7 +101,7 @@ public class FishMovement : MonoBehaviour
     private ScoreTracker scoreTracker;
     private float grindHeight = 0.0f; // Used for storing the height to maintain when grinding
     private float grindSnapX = 0.0f;
-    private Vector3 grindDir = new (0, 0, 0);
+    private Vector3 grindDir = new(0, 0, 0);
     private bool perfectDismountReady = false;
     private bool bounceReady = false;
     private int hazardBounceCounter = 0;
@@ -113,6 +114,8 @@ public class FishMovement : MonoBehaviour
     private Vector2 distFromAnchor;
     private float lastReleaseTime = -1f; // Stores the time when the jump action was last released
     private bool hasBufferJumped = false;
+
+    private GameObject meshObject;
 
 
     private void OnEnable()
@@ -135,6 +138,10 @@ public class FishMovement : MonoBehaviour
         }
         activeJumpForce = jumpForce;
 
+        if (transform.GetChild(0) != null)
+        {
+            meshObject = transform.GetChild(0).gameObject;
+        }
     }
 
     private void OnJumpReleased(InputAction.CallbackContext context)
@@ -462,7 +469,7 @@ public class FishMovement : MonoBehaviour
 
                 break;
             case FishMovementState.SURFACE:
-                
+
                 // if tag is player
                 if (gameObject.name == "FishBoard(Clone)")
                 {
@@ -515,17 +522,15 @@ public class FishMovement : MonoBehaviour
         {
             Vector3 spin = spinDir * spinSpeed;
 
-            Quaternion deltaRotation = Quaternion.Euler(spin * Time.deltaTime);
-
-            rb.MoveRotation(rb.rotation * deltaRotation);
+            meshObject.transform.Rotate(spin * Time.deltaTime, Space.Self);
 
             trickTimer += Time.deltaTime;
 
             if (trickTimer >= 0.5f)
             {
-               if(gameObject.name == "FishBoard(Clone)")
+                if (gameObject.name == "FishBoard(Clone)")
                 {
-                   completeTrick();
+                    completeTrick();
                 }
             }
         }
@@ -577,14 +582,16 @@ public class FishMovement : MonoBehaviour
         }
     }
 
-    public void BottleImpact() {
+    public void BottleImpact()
+    {
         if (movementState != FishMovementState.DIVING)
         {
             Instantiate(splash, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
         }
     }
 
-    public void BufferJumpParticle() {
+    public void BufferJumpParticle()
+    {
         Instantiate(badJumpParticles, rb.position + new Vector3(0f, 0.5f, -1.20f), Quaternion.identity);
         NormalJump();
     }
@@ -616,7 +623,7 @@ public class FishMovement : MonoBehaviour
     private void startTrick(int direction, bool first)
     {
         //check is player is atleast .3 above min height before tricking
-        if(rb.position.y < minHeight + 0.3f)
+        if (rb.position.y < minHeight + 0.3f)
         {
             return;
         }
@@ -636,25 +643,25 @@ public class FishMovement : MonoBehaviour
         switch (direction)
         {
             case 1:
-                UnityEngine.Debug.Log("Front Flip");
+                //UnityEngine.Debug.Log("Front Flip");
                 spinDir.x = -1;
                 spinDir.y = 0;
                 spinDir.z = 0;
                 break;
             case 2:
-                UnityEngine.Debug.Log("Back Flip");
+                //UnityEngine.Debug.Log("Back Flip");
                 spinDir.x = 1;
                 spinDir.y = 0;
                 spinDir.z = 0;
                 break;
             case 3:
-                UnityEngine.Debug.Log("Clockwise Barrel Roll");
+                //UnityEngine.Debug.Log("Clockwise Barrel Roll");
                 spinDir.x = 0;
                 spinDir.y = 0;
                 spinDir.z = 1;
                 break;
             case 4:
-                UnityEngine.Debug.Log("Counterclockwise Barrel Roll");
+                //UnityEngine.Debug.Log("Counterclockwise Barrel Roll");
                 spinDir.x = 0;
                 spinDir.y = 0;
                 spinDir.z = -1;
@@ -665,7 +672,8 @@ public class FishMovement : MonoBehaviour
     }
 
 
-    public void DemoFlip() {
+    public void DemoFlip()
+    {
         //perform a front flip
         if (movementState == FishMovementState.JUMPING)
         {
@@ -677,7 +685,7 @@ public class FishMovement : MonoBehaviour
     // Apply score for completing a trick successfully
     private void completeTrick()
     {
-        UnityEngine.Debug.Log("Trick done");
+        //UnityEngine.Debug.Log("Trick done");
         scoreTracker.buildTrickScore(100);
         trickCounter++;
 
@@ -688,8 +696,7 @@ public class FishMovement : MonoBehaviour
             scoreTracker.buildTrickMultiplier(0.1f);
         }
 
-        rb.rotation = Quaternion.Euler(0f, -180f, 0f);
-        transform.rotation = Quaternion.Euler(0f, -180f, 0f);
+        meshObject.transform.rotation = Quaternion.Euler(0f, -180f, 0f);
 
         spinDir = Vector2.zero;
         movementState = FishMovementState.JUMPING;
@@ -705,12 +712,13 @@ public class FishMovement : MonoBehaviour
         movementState = FishMovementState.SURFACE;
     }
 
-    public void SetFishState(FishMovementState state) {
+    public void SetFishState(FishMovementState state)
+    {
         //set movement state
         this.movementState = state;
     }
 
-  
+
 
     // This function will help visualize the anchor point and movement vector in the editor
     private void OnDrawGizmos()
@@ -850,7 +858,7 @@ public class FishMovement : MonoBehaviour
     public void HazardBounceBuffer()
     {
         Vector3 boxCenter = transform.position + Vector3.down * 0.5f;   // Adjust center for downward bias
-        Vector3 boxHalfExtents = new (0.15f, 0.4f, 2f);      // Adjust dimensions for forward detection
+        Vector3 boxHalfExtents = new(0.15f, 0.4f, 2f);      // Adjust dimensions for forward detection
 
         RaycastHit[] hits = new RaycastHit[3];
         int hitCount = Physics.BoxCastNonAlloc(
@@ -864,7 +872,7 @@ public class FishMovement : MonoBehaviour
 
         UnityEngine.Debug.DrawLine(boxCenter, boxCenter + transform.forward * 2.0f, Color.yellow);
 
-        if (hitCount > 0 && hasBufferJumped ==false)
+        if (hitCount > 0 && hasBufferJumped == false)
         {
             for (int i = 0; i < hitCount; i++)
             {
@@ -873,7 +881,8 @@ public class FishMovement : MonoBehaviour
                     if (hazard.settings.type == FlyWeightType.Hazard)
                     {
                         float timeSinceRelease = Time.time - lastReleaseTime;
-                        if (hazard.getSpeed() > 20f && rb.velocity.y <= 0 && timeSinceRelease<.3f) {
+                        if (hazard.getSpeed() > 20f && rb.velocity.y <= 0 && timeSinceRelease < .3f)
+                        {
                             //to fast to detect buffer jump
                             Debug.Log("Too fast to buffer jump");
                             rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.45f, rb.velocity.z);
@@ -902,7 +911,7 @@ public class FishMovement : MonoBehaviour
         return hasBufferJumped;
     }
 
-    public IEnumerator BufferJump() 
+    public IEnumerator BufferJump()
     {
         //turn collision off to prevent death
         rb.detectCollisions = false;
@@ -915,7 +924,8 @@ public class FishMovement : MonoBehaviour
         yield return null;
     }
 
-    public IEnumerator DemoFlipDelay() {
+    public IEnumerator DemoFlipDelay()
+    {
         yield return Helpers.GetWaitForSeconds(.5f);
         //pick a random flip direction to call to start trick
         int flipDirection = UnityEngine.Random.Range(1, 3);
