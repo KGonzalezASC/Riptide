@@ -138,7 +138,7 @@ public class FishMovement : MonoBehaviour
         }
         activeJumpForce = jumpForce;
 
-        if (transform.GetChild(0) != null)
+        if (gameObject.name == "FishBoard(Clone)" && transform.GetChild(0) != null)
         {
             meshObject = transform.GetChild(0).gameObject;
         }
