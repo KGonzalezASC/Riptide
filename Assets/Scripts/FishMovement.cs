@@ -10,6 +10,7 @@ using UnityEngine.Assertions.Must;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using static UnityEngine.ParticleSystem;
 using Debug = UnityEngine.Debug;
 
 public enum FishMovementState
@@ -40,6 +41,9 @@ public class FishMovement : MonoBehaviour
     private InputAction trickControls; // Input for tricks
 
     [SerializeField]
+    private InputAction diveControl; // Input for midair dive
+
+    [SerializeField]
     private float maxHorizontalMoveSpeed = 100f;
 
     [SerializeField]
@@ -50,6 +54,9 @@ public class FishMovement : MonoBehaviour
 
     [SerializeField]
     private float jumpForce = 5.8f; // The force applied when jumping
+
+    [SerializeField]
+    private float diveForce = 5.8f; // The force applied when midair diving
 
     [SerializeField]
     private float maxUnderwaterSpeed = 2.0f;
@@ -115,7 +122,7 @@ public class FishMovement : MonoBehaviour
     private float lastReleaseTime = -1f; // Stores the time when the jump action was last released
     private bool hasBufferJumped = false;
 
-    private GameObject meshObject;
+    private GameObject meshObject; // Child object with fish mesh
 
 
     private void OnEnable()
@@ -165,14 +172,18 @@ public class FishMovement : MonoBehaviour
     {
         if (GameManager.instance.topState.GetName() == "Game")
         {
+            Vector3 currentVelocity = rb.velocity;
+
             // Check for space bar input
-            HandleJumpActions();
+            currentVelocity.y = HandleJumpActions(currentVelocity.y);
 
             // Check for arrow key input
-            HandleTrickActions();
+            currentVelocity.y = HandleTrickActions(currentVelocity.y);
 
             // Set rotations to default if not in a trick
             updateRotations();
+
+            rb.velocity = currentVelocity;
         }
     }
 
@@ -192,7 +203,7 @@ public class FishMovement : MonoBehaviour
         }
     }
 
-    private void HandleJumpActions()
+    private float HandleJumpActions(float currentYVelocity)
     {
         // Jump, if in a state that allows it
         if (jumpAction.triggered && (movementState != FishMovementState.JUMPING && movementState != FishMovementState.TRICK))
@@ -215,18 +226,18 @@ public class FishMovement : MonoBehaviour
                 if (depthPercentage <= 0.2f)
                 {
                     // Zero out vertical forces and reset height
-                    rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);  // Set vertical velocity to 0
+                    currentYVelocity = 0; ;  // Set vertical velocity to 0
                     rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);  // Reset height
                     activeJumpForce = jumpForce;  // Reset jump force
                 }
             }
 
-            Jump();
+            currentYVelocity = Jump(currentYVelocity);
         }
         // Check for a hazard bounce next
         else if (bounceReady && jumpAction.triggered && movementState == FishMovementState.JUMPING)
         {
-            hazardBounce();
+            currentYVelocity = hazardBounce(currentYVelocity);
 
             // Adjust score and multiplier
             scoreTracker.buildTrickScore(100);
@@ -238,9 +249,11 @@ public class FishMovement : MonoBehaviour
 
             hazardBounceCounter++;
         }
+
+        return currentYVelocity;
     }
 
-    private void HandleTrickActions()
+    private float HandleTrickActions(float currentyVelocity)
     {
         // Get the direction in which to do the trick
         trickDirection = trickControls.ReadValue<Vector2>();
@@ -250,42 +263,51 @@ public class FishMovement : MonoBehaviour
         // Only do a trick when in jump state
         if (movementState == FishMovementState.JUMPING && trickDirection != Vector2.zero)
         {
-            bool firstTrick = false;
-
             if (trickCounter == 0)
             {
-                firstTrick = true;
+                currentyVelocity = jumpForce / 2.2f;
             }
 
             // Perform a trick based on direction
             if (trickDirection.y > 0)
             {
-                startTrick(1, firstTrick);
+                startTrick(1);
             }
             else if (trickDirection.y < 0)
             {
-                startTrick(2, firstTrick);
+                startTrick(2);
             }
             else if (trickDirection.x > 0)
             {
-                startTrick(3, firstTrick);
+                startTrick(3);
             }
             else if (trickDirection.x < 0)
             {
-                startTrick(4, firstTrick);
+                startTrick(4);
             }
         }
+
+        return currentyVelocity;
     }
 
-    public void Jump()
+    private void HandleDiveActions()
+    {
+
+    }
+
+    public float Jump(float currentYVelocity)
     {
         // Only apply a fixed upward force for the jump
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce, rb.velocity.z);
+        currentYVelocity += jumpForce;
+
         movementState = FishMovementState.JUMPING;
+
         if (perfectDismountReady)
         {
             StartCoroutine(FishAscension());
         }
+
+        return currentYVelocity;
     }
 
     //Demo jump call jump if grounded
@@ -294,8 +316,24 @@ public class FishMovement : MonoBehaviour
         //if on surface jump
         if (movementState == FishMovementState.SURFACE || movementState == FishMovementState.GRINDING)
         {
-            Jump();
+            // Only apply a fixed upward force for the jump
+            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce, rb.velocity.z);
+            movementState = FishMovementState.JUMPING;
+            if (perfectDismountReady)
+            {
+                StartCoroutine(FishAscension());
+            }
         }
+    }
+
+    public void DemoHazardBounce()
+    {
+        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.325f, rb.velocity.z);
+
+        buoyancy = baseBouyancy;
+
+        setHazardBounceReady(false);
+        hasBufferJumped = false;
     }
 
     // Set rotations to default (may be deprecated soon)
@@ -462,7 +500,7 @@ public class FishMovement : MonoBehaviour
 
                     currentYVelocity += buoyancy;
                     movementState = FishMovementState.DIVING;
-                    buoyancy = baseBouyancy; // Ensure bouyancy is reset
+                    buoyancy = baseBouyancy; // Ensure buoyancy is reset
                 }
 
                 setHazardBounceReady(false);
@@ -610,17 +648,21 @@ public class FishMovement : MonoBehaviour
         bounceReady = value;
     }
 
-    public void hazardBounce()
+    public float hazardBounce(float currentYVelocity)
     {
-        // Apply a smaller fixed upward force for a hazard bounce 
-        rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.325f, rb.velocity.z);
+        // Apply a smaller fixed upward force for a hazard bounce
+        currentYVelocity += jumpForce / 1.325f;
+
         //also reset the bouyancy for predictable behaviour
         buoyancy = baseBouyancy;
+
         setHazardBounceReady(false);
         hasBufferJumped = false;
+
+        return currentYVelocity;
     }
 
-    private void startTrick(int direction, bool first)
+    private void startTrick(int direction)
     {
         //check is player is atleast .3 above min height before tricking
         if (rb.position.y < minHeight + 0.3f)
@@ -631,12 +673,6 @@ public class FishMovement : MonoBehaviour
         if (rb.position.y > 7)
         {
             return;
-        }
-
-        // Gain a small vertical boost, but only on the first trick in a combo
-        if (first)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 2.2f, rb.velocity.z);
         }
 
         // Determine spin direction
@@ -929,7 +965,8 @@ public class FishMovement : MonoBehaviour
         yield return Helpers.GetWaitForSeconds(.5f);
         //pick a random flip direction to call to start trick
         int flipDirection = UnityEngine.Random.Range(1, 3);
-        startTrick(flipDirection, true);
+        startTrick(flipDirection);
+        rb.velocity = new Vector3(rb.velocity.x, jumpForce / 2.2f, rb.velocity.z);
 
         yield return null;
     }
