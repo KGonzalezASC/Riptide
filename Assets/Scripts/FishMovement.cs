@@ -793,9 +793,9 @@ public class FishMovement : MonoBehaviour
                         }
 
                         //print how the hit object was in its z velocity based on its transform component
-                        if (rb.velocity.y < 0 && timeSinceRelease < .33f && rb.position.y < .97f)
+                        if (rb.velocity.y < 0 && timeSinceRelease < .33f && rb.position.y < .962f)
                         {
-                            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.45f, rb.velocity.z);
+                            rb.velocity = new Vector3(rb.velocity.x, activeJumpForce / 1.43f, rb.velocity.z);
                             hasBufferJumped = true;
                             StartCoroutine(BufferJump());
                         }
