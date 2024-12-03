@@ -8,9 +8,9 @@ public class Hazard : FlyWeight
 {
     public bool isIgnored = false;
 
-    HazardSettings Settings => (HazardSettings)base.settings;
+    protected HazardSettings Settings => (HazardSettings)base.settings;
     
-    private void Update()
+    protected virtual void Update()
     {
         // Only move the hazard when in "Game" state and if it's not ignored
         if (!isIgnored && GameManager.instance.topState.GetName() == "Game")
@@ -19,7 +19,7 @@ public class Hazard : FlyWeight
         }
     }
 
-    private void MoveInPlayState()
+    protected virtual void MoveInPlayState()
     {
         // Adjust movement speed by adding the speed increment
         float adjustedSpeed = Settings.speed + PlayState.speedIncrement;
