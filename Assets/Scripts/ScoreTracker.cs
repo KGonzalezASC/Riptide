@@ -31,7 +31,7 @@ public class ScoreTracker : MonoBehaviour
     private Light directionalLight;
 
     [SerializeField]
-    private DisplayComboText textDisplay;
+    public DisplayComboText textDisplay;
 
 
     /// <summary>

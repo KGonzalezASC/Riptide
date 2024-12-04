@@ -116,7 +116,6 @@ public class PlayState : gState
         //set this camera coroutine
         QueueCameraTransition(gameplayCamPos, gameplayCamRotation, this.transitionDuration);
 
-
         //Color shallowColor = new(176f / 255f, 137f / 255f, 85f / 255f); // RGB: B08955
     }
     public override void Execute()
