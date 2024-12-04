@@ -41,7 +41,7 @@ public class FishMovement : MonoBehaviour
     private InputAction trickControls; // Input for tricks
 
     [SerializeField]
-    private InputAction diveControl; // Input for midair dive
+    private InputAction quickfallControl; // Input for midair dive
 
     [SerializeField]
     private float maxHorizontalMoveSpeed = 100f;
@@ -56,7 +56,7 @@ public class FishMovement : MonoBehaviour
     private float jumpForce = 5.8f; // The force applied when jumping
 
     [SerializeField]
-    private float diveForce = 5.8f; // The force applied when midair diving
+    private float quickfallForce = 5.8f; // The force applied when midair diving
 
     [SerializeField]
     private float maxUnderwaterSpeed = 2.0f;
@@ -98,7 +98,8 @@ public class FishMovement : MonoBehaviour
     private ParticleSystem splash;
     [SerializeField]
     private ParticleSystem badJumpParticles; //for buffered jump..
-
+    [SerializeField]
+    private float jumpActionDelay = 0.3f; // Length of delay after jump during which tricks and dives can't be done
 
 
 
@@ -112,7 +113,8 @@ public class FishMovement : MonoBehaviour
     private bool perfectDismountReady = false;
     private bool bounceReady = false;
     private int hazardBounceCounter = 0;
-    private Vector2 moveDirection = Vector2.zero; private Vector2 trickDirection = Vector2.zero;
+    private Vector2 moveDirection = Vector2.zero;
+    private Vector2 trickDirection = Vector2.zero;
     private Vector3 spinDir = Vector3.zero;
     private float spinSpeed = 720.0f;
     private float trickTimer = 0.0f;
@@ -121,6 +123,8 @@ public class FishMovement : MonoBehaviour
     private Vector2 distFromAnchor;
     private float lastReleaseTime = -1f; // Stores the time when the jump action was last released
     private bool hasBufferJumped = false;
+    private float jumpActionDelayTimer = 0.0f;
+    private bool quickfalling = false;
 
     private GameObject meshObject; // Child object with fish mesh
 
@@ -130,6 +134,7 @@ public class FishMovement : MonoBehaviour
         playerControls.Enable();
         jumpAction.Enable();
         jumpAction.canceled += OnJumpReleased; // Listen for the release of the button
+        quickfallControl.Enable();
         trickControls.Enable();
 
         resetState();
@@ -160,6 +165,7 @@ public class FishMovement : MonoBehaviour
     {
         playerControls.Disable();
         jumpAction.Disable();
+        quickfallControl.Disable();
         trickControls.Disable();
 
         //clear jump release time
@@ -179,6 +185,8 @@ public class FishMovement : MonoBehaviour
 
             // Check for arrow key input
             currentVelocity.y = HandleTrickActions(currentVelocity.y);
+
+            currentVelocity.y = HandleDiveActions(currentVelocity.y);
 
             // Set rotations to default if not in a trick
             updateRotations();
@@ -200,6 +208,11 @@ public class FishMovement : MonoBehaviour
             rb.velocity = currentVelocity;
 
             HandleSpin(); // Rotate if in a trick
+
+            if (jumpActionDelayTimer > 0.0f)
+            {
+                jumpActionDelayTimer -= Time.deltaTime;
+            }
         }
     }
 
@@ -208,6 +221,8 @@ public class FishMovement : MonoBehaviour
         // Jump, if in a state that allows it
         if (jumpAction.triggered && (movementState != FishMovementState.JUMPING && movementState != FishMovementState.TRICK))
         {
+            jumpActionDelayTimer = jumpActionDelay;
+
             // Gain extra score on a perfect dismount from a rail
             if (perfectDismountReady && movementState == FishMovementState.GRINDING)
             {
@@ -261,7 +276,7 @@ public class FishMovement : MonoBehaviour
         //UnityEngine.Debug.Log("trickdir x: " + trickDirection.x + ", trickdir y: " + trickDirection.y);
 
         // Only do a trick when in jump state
-        if (movementState == FishMovementState.JUMPING && trickDirection != Vector2.zero)
+        if (movementState == FishMovementState.JUMPING && trickDirection != Vector2.zero && jumpActionDelayTimer <= 0.0f)
         {
             if (trickCounter == 0)
             {
@@ -290,9 +305,23 @@ public class FishMovement : MonoBehaviour
         return currentyVelocity;
     }
 
-    private void HandleDiveActions()
+    private float HandleDiveActions(float currentyVelocity)
     {
+        if (quickfallControl.triggered && (movementState == FishMovementState.JUMPING || movementState == FishMovementState.TRICK) && jumpActionDelayTimer <= 0.0f && !quickfalling)
+        {
+            quickfalling = true;
+            
+            currentyVelocity = Dive(currentyVelocity);
+        }
 
+        return currentyVelocity;
+    }
+
+    private float Dive(float currentYVelocity)
+    {
+        currentYVelocity -= quickfallForce;
+
+        return currentYVelocity;
     }
 
     public float Jump(float currentYVelocity)
@@ -451,6 +480,8 @@ public class FishMovement : MonoBehaviour
                     buoyancy = baseBouyancy; // Ensure bouyancy is reset
                 }
 
+                quickfalling = false;
+
                 setHazardBounceReady(false);
 
                 break;
@@ -475,6 +506,8 @@ public class FishMovement : MonoBehaviour
                     currentYVelocity += buoyancy;
                     movementState = FishMovementState.DIVING;
                     buoyancy = baseBouyancy; // Ensure bouyancy is reset
+
+                    quickfalling = false;
                 }
 
                 HazardBounceBuffer();
@@ -501,6 +534,8 @@ public class FishMovement : MonoBehaviour
                     currentYVelocity += buoyancy;
                     movementState = FishMovementState.DIVING;
                     buoyancy = baseBouyancy; // Ensure buoyancy is reset
+
+                    quickfalling = false;
                 }
 
                 setHazardBounceReady(false);
@@ -522,6 +557,8 @@ public class FishMovement : MonoBehaviour
                     rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);
                 }
 
+                quickfalling = false;
+
                 setHazardBounceReady(false);
 
                 break;
@@ -538,6 +575,8 @@ public class FishMovement : MonoBehaviour
 
                 if (scoreTracker != null)
                     scoreTracker.buildTrickScore(5);
+
+                quickfalling = false;
 
                 setHazardBounceReady(false);
 
@@ -651,7 +690,7 @@ public class FishMovement : MonoBehaviour
     public float hazardBounce(float currentYVelocity)
     {
         // Apply a smaller fixed upward force for a hazard bounce
-        currentYVelocity += jumpForce / 1.325f;
+        currentYVelocity += (jumpForce / 1.1f);
 
         //also reset the bouyancy for predictable behaviour
         buoyancy = baseBouyancy;
