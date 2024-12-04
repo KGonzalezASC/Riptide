@@ -110,6 +110,7 @@ public class PlayState : gState
         scoreTracker.resetColor();
         speedIncrement = 0.01f; //reset speed increment
         difficultyCoroutine = StartCoroutine(DifficultyHandler(6f));
+        SFXManager.instance.PlayLevelMusic();
 
 
         //set this camera coroutine
@@ -139,14 +140,12 @@ public class PlayState : gState
         FlyWeightFactory.ClearPool(FlyWeightType.GrindablePole); //the idea for the pole is that we can make specicfic script that just switches between prefab on its own settings for different types of poles
         FlyWeightFactory.ClearPool(FlyWeightType.SlopedGrindablePole);
         FlyWeightFactory.ClearPool(FlyWeightType.PowerUp);
+        FlyWeightFactory.ClearPool(FlyWeightType.FlipTarget);
         StopCoroutine(difficultyCoroutine);
         Time.timeScale = 1;
         Material boraWater = waterMaterial.GetComponent<Renderer>().material;
         boraWater.SetColor("Color_F01C36BF", defaultWaterColor);
-
-        //destroy fishboard ?
-        //Destroy(GameObject.Find("FishBoard(Clone)"));
-
+        SFXManager.instance.StopLevelMusic();
 
     }
     public override string GetName()

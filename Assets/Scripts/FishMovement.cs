@@ -834,6 +834,12 @@ public class FishMovement : MonoBehaviour
         yield return null;
     }
 
+    //get fish state
+    public FishMovementState GetFishState()
+    {
+        return state;
+    }
+
 
     public IEnumerator FishAscension()
     {

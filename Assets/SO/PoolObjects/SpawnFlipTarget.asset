@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f00dea421d1a36429d22bf32f9a0b4e, type: 3}
   m_Name: SpawnFlipTarget
   m_EditorClassIdentifier: 
-  type: 0
-  prefab: {fileID: 0}
-  despawnDelay: 5
-  speed: 10
-  impactParticle: {fileID: 0}
+  type: 5
+  prefab: {fileID: 7590565605486423110, guid: a71e43adcb34d294aa958e26258a0ebc, type: 3}
+  despawnDelay: 0
+  speed: 5
+  impactParticle: {fileID: 766498622860441890, guid: 3a8d8f2a657cf5d458cbfbee94a762b6,
+    type: 3}

@@ -28,7 +28,7 @@ public class PlatformManager : MonoBehaviour
     [SerializeField]
     private GameObject emptyParentHazard;
 
-    private Vector3 babygap = new(0, 0, 55);
+    private Vector3 babygap = new(0, 0, 85);
 
 
     //enum for type of plaform Spawn
@@ -245,6 +245,13 @@ public class PlatformManager : MonoBehaviour
 
 
 
+    private void SpawnFlipTarget(Vector3 position)
+    {
+        FlyWeight flipTarget = FlyWeightFactory.Spawn(hazards[5]);
+        flipTarget.transform.position = position;
+        flipTarget.transform.SetParent(emptyParentCoin.transform);
+    }
+
 
     //used as helper method for spawning hazards
     private void SpawnCoinAtPosition(Vector3 position, TrackHandler t)
@@ -255,13 +262,15 @@ public class PlatformManager : MonoBehaviour
             coin.transform.position = position;
             (coin as Hazard).isIgnored = false; // reset isIgnored
             t.occupiedPositions.Add(position); // Mark this position as occupied
-            coin.transform.SetParent(emptyParentCoin.transform);
+            coin.transform.SetParent(emptyParentCoin.transform);            
         }
         else
         {
             Debug.LogWarning("Position already occupied, skipping spawn.");
         }
     }
+
+ 
 
     private void SpawnHazardAtPosition(Vector3 position, TrackHandler t)
     {
@@ -295,6 +304,18 @@ public class PlatformManager : MonoBehaviour
         // Spawn a hazard in a different position using spawn hazard at position with unique position
         var hazardPos = FindUniquePosition(trackHandler, nextPos, 10); // Ensure the hazard position is unique
         SpawnHazardAtPosition(hazardPos, trackHandler);
+
+        //use random column for flip target
+        //if speed is greater than 18 spawn flip target
+        if (PlayState.speedIncrement > 10)
+        {
+            int randomColumn = Random.Range(0, trackHandler.itemsPerRow);
+            var flipTargetPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], randomColumn);
+            SpawnFlipTarget(new Vector3(flipTargetPosition.x, 2.75f, flipTargetPosition.z));
+
+        }
+
+
 
         return PlatformType.SafePattern;
     }
@@ -369,6 +390,13 @@ public class PlatformManager : MonoBehaviour
             }
         }
 
+        if (PlayState.speedIncrement > 10)
+        {
+            var flipTargetPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], randomColumn);
+            SpawnFlipTarget(new Vector3(flipTargetPosition.x, 2.75f, flipTargetPosition.z));
+
+        }
+
         return PlatformType.SafePattern;
     }
 
@@ -401,6 +429,13 @@ public class PlatformManager : MonoBehaviour
 
         // Spawn the hazard at the unique position using SpawnHazardAtPosition
         SpawnHazardAtPosition(randomPos2, trackHandler);
+
+        if (PlayState.speedIncrement > 10)
+        {
+            var flipTargetPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], randomColumn);
+            SpawnFlipTarget(new Vector3(flipTargetPosition.x, 2.75f, flipTargetPosition.z));
+
+        }
 
         return PlatformType.HazardPattern;
     }
@@ -605,31 +640,19 @@ public class PlatformManager : MonoBehaviour
             grindRail.transform.SetParent(emptyParentHazard.transform);
         }
 
-        return PlatformType.GrindingPattern;
-    }
+        if (PlayState.speedIncrement > 10)
+        {
+            int randomColumn = Random.Range(0, trackHandler.itemsPerRow);
+            var flipTargetPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], randomColumn);
+            SpawnFlipTarget(new Vector3(flipTargetPosition.x, 2.75f, flipTargetPosition.z));
 
-    //spawn grind rail in center of platform
-    private PlatformType SpawnGrindRailCenter(TrackHandler trackHandler)
-    {
-        // Select the center column for the grind rail
-        int centerColumn = trackHandler.itemsPerRow / 2;
-        var railPosition = trackHandler.GetWorldPosition(trackHandler.obstaclePositions[0], centerColumn);
-
-        // Spawn and position the grind rail
-        FlyWeight grindRail = FlyWeightFactory.Spawn(hazards[2]);        
-        MeshRenderer meshRenderer = grindRail.transform.GetChild(0).GetComponent<MeshRenderer>();
-        float halfwayPointZ = meshRenderer.bounds.extents.z; // Halfway is the Z extents of the MeshRenderer
-        grindRail.transform.position = railPosition + new Vector3(0, .3f, halfwayPointZ);
-        (grindRail as Hazard).isIgnored = false;
-        //rotate grind rail 30 degrees on y
-        grindRail.transform.Rotate(0, 5f, 0, Space.World);
-
-
-        trackHandler.occupiedPositions.Add(railPosition);
-        grindRail.transform.SetParent(emptyParentHazard.transform);
+        }
 
         return PlatformType.GrindingPattern;
     }
+
+
+    
 
 
 

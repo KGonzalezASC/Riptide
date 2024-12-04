@@ -70,6 +70,21 @@ public class Hazard : FlyWeight
                 HandlePowerUpCollision(fish);
                 break;
 
+            case "FlipTarget":
+                if (fish.GetFishState() == FishMovementState.TRICK)
+                {
+                    Debug.Log("FlipTarget collision");
+                    SFXManager.instance.playSFXClip(SFXManager.instance.bottleBreakerSFX, transform, .35f);
+                    Instantiate(Settings.impactParticle, transform.position + new Vector3(0f, 0.0f, .5f), Quaternion.identity);
+                    HandleCollectibleCollision();
+                    fish.hazardBounce();
+                }
+                else
+                {
+                   HandleCollectibleCollision();
+                }
+                break;
+
             default: // Assume it is a collectible like a coin
                 HandleCollectibleCollision();
                 break;
