@@ -119,6 +119,7 @@ public class Hazard : FlyWeight
         MoveToSafeSpace();
         var playState = GameManager.instance.topState as PlayState;
         playState.PowerupTime(fish);
+
     }
 
 

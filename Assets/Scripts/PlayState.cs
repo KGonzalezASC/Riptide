@@ -10,7 +10,7 @@ using UnityEngine.UIElements;
 public class PlayState : gState
 {
     [SerializeField] MainMenuEvents uiGameObject;
-    //private DisplayComboText comboText;
+    private DisplayComboText comboText;
     private ScoreTracker scoreTracker;
 
     /// read only public reference to score tracker
@@ -34,7 +34,7 @@ public class PlayState : gState
 
     public void Awake() //gstates are monobehaviours so they can an have awake
     {
-        //comboText = uiGameObject.GetComponent<DisplayComboText>();
+        comboText = uiGameObject.GetComponent<DisplayComboText>();
         scoreTracker = uiGameObject.GetComponent<ScoreTracker>();
         scoreTracker.Document = uiGameObject.GetComponent<UIDocument>();
     }
@@ -74,7 +74,7 @@ public class PlayState : gState
         {
             powerUpTimer -= Time.deltaTime;
             //pass reference to powerup timer since we need to change the value of the progress bar and a copy of the value would not work
-            //comboText.powerUpTimerLength(ref powerUpTimer);
+            comboText.powerUpTimerLength(ref powerUpTimer);
             if (powerUpTimer < 2f)
             {
                 //if close to 2 seconds left, invoke player raycast method to check for hazards
