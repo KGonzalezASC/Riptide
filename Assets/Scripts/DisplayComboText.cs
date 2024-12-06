@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,6 +12,7 @@ public class DisplayComboText : MonoBehaviour
     private UIDocument _document;
     private VisualElement combo_container;
     private ProgressBar progressBar;
+    private VisualElement controlImage;
 
     //array of words that could be displayed
     string[] words = new string[] { "GNARLY", "SWAG-O-LICIOUS", "TUBULAR", "KABOOM", "FINCREDIBLE", "FLOP SHUV-IT", "FINSANE", "FISH OUT OF WATER" };
@@ -41,6 +43,7 @@ public class DisplayComboText : MonoBehaviour
         //empty label
         combo_container.Clear();
 
+        HideControlImage();
     }
     public void ClearBar()
     {
@@ -60,13 +63,19 @@ public class DisplayComboText : MonoBehaviour
     {
         //random is max exclusive
         //get text to add
-        int index = Random.Range(0, words.Length);
+        int index = UnityEngine.Random.Range(0, words.Length);
         return new Label { text = words[index] };
     }
 
     public void Awake()
     {
         _document = GetComponent<UIDocument>();
+    }
+
+    private void HideControlImage()
+    {
+        controlImage = _document.rootVisualElement.Q<VisualElement>("image-controls");
+        controlImage.style.visibility = Visibility.Hidden;
     }
 
     //using ref to pass by reference so we get the direct value of the timer, not a copy

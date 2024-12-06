@@ -20,7 +20,6 @@ public class LoadState : gState
     [SerializeField] private float transitionDuration = 0.3f;
 
 
-
     //might reference MainMenuEvents here
     protected int m_UsedAccessory = -1;
     private GameObject activeBottle;
@@ -43,6 +42,7 @@ public class LoadState : gState
         uiGameObject.OnPlayButtonClicked += LoadGame;
 
         QueueCameraTransition(endPosition, endRotation, transitionDuration);
+        SFXManager.instance.playIntroSong();
 
         //set demo room to active
         demoRoom.SetActive(true);
@@ -79,6 +79,8 @@ public class LoadState : gState
     {
         demoRoom.SetActive(false);
         ResetVolume();
+        //stop intro song
+        SFXManager.instance.stopIntroSong();
     }
 
 

@@ -10,7 +10,7 @@ using UnityEngine.UIElements;
 public class PlayState : gState
 {
     [SerializeField] MainMenuEvents uiGameObject;
-    //private DisplayComboText comboText;
+    private DisplayComboText comboText;
     private ScoreTracker scoreTracker;
 
     /// read only public reference to score tracker
@@ -34,7 +34,7 @@ public class PlayState : gState
 
     public void Awake() //gstates are monobehaviours so they can an have awake
     {
-        //comboText = uiGameObject.GetComponent<DisplayComboText>();
+        comboText = uiGameObject.GetComponent<DisplayComboText>();
         scoreTracker = uiGameObject.GetComponent<ScoreTracker>();
         scoreTracker.Document = uiGameObject.GetComponent<UIDocument>();
     }
@@ -74,7 +74,7 @@ public class PlayState : gState
         {
             powerUpTimer -= Time.deltaTime;
             //pass reference to powerup timer since we need to change the value of the progress bar and a copy of the value would not work
-            //comboText.powerUpTimerLength(ref powerUpTimer);
+            comboText.powerUpTimerLength(ref powerUpTimer);
             if (powerUpTimer < 2f)
             {
                 //if close to 2 seconds left, invoke player raycast method to check for hazards
@@ -110,11 +110,11 @@ public class PlayState : gState
         scoreTracker.resetColor();
         speedIncrement = 0.01f; //reset speed increment
         difficultyCoroutine = StartCoroutine(DifficultyHandler(6f));
+        SFXManager.instance.PlayLevelMusic();
 
 
         //set this camera coroutine
         QueueCameraTransition(gameplayCamPos, gameplayCamRotation, this.transitionDuration);
-
 
         //Color shallowColor = new(176f / 255f, 137f / 255f, 85f / 255f); // RGB: B08955
     }
@@ -139,14 +139,12 @@ public class PlayState : gState
         FlyWeightFactory.ClearPool(FlyWeightType.GrindablePole); //the idea for the pole is that we can make specicfic script that just switches between prefab on its own settings for different types of poles
         FlyWeightFactory.ClearPool(FlyWeightType.SlopedGrindablePole);
         FlyWeightFactory.ClearPool(FlyWeightType.PowerUp);
+        FlyWeightFactory.ClearPool(FlyWeightType.FlipTarget);
         StopCoroutine(difficultyCoroutine);
         Time.timeScale = 1;
         Material boraWater = waterMaterial.GetComponent<Renderer>().material;
         boraWater.SetColor("Color_F01C36BF", defaultWaterColor);
-
-        //destroy fishboard ?
-        //Destroy(GameObject.Find("FishBoard(Clone)"));
-
+        SFXManager.instance.StopLevelMusic();
 
     }
     public override string GetName()
