@@ -389,25 +389,41 @@ MonoBehaviour:
       m_Action: Trick Controls
       m_Flags: 8
     m_Flags: 0
-  movementSpeed: 12
+  quickfallControl:
+    m_Name: Quickfall Control
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 1b444263-132d-4f84-a8c5-810e81b1e1dc
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 2e2f27f0-21bb-4983-aa04-6ac9ba9dd44e
+      m_Path: <Keyboard>/s
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Quickfall Control
+      m_Flags: 0
+    m_Flags: 0
+  horizontalAcceleration: 1
+  horizontalFriction: 0.4
   jumpForce: 6.41
-  maxUnderwaterSpeed: 3
-  maxLateralSpeed: 5
+  quickfallForce: 7.25
   surfaceAlignmentForce: -22
+  maxRange: 1.5
   minHeight: -0.1
   maxDiveDepth: -4.235
-  friction: 0.05
-  anchorPoint: {x: 0, y: -2, z: 0}
-  maxAngle: 65
-  maxRange: 1.5
-  state: 0
-  powerUpState: 0
+  maxHorizontalMoveSpeed: 40
+  maxUnderwaterSpeed: 3
+  jumpActionDelay: 0.5
   rb: {fileID: 7141695999175163664}
   volume: {fileID: 0}
   hazardCheckDistance: 3
   splash: {fileID: 766498622860441890, guid: 7c29bedb328f45349a320351c69a988f, type: 3}
   badJumpParticles: {fileID: 766498622860441890, guid: 41a7b7d59940f3b49b0baea764cdae10,
     type: 3}
+  powerUpState: 0
 --- !u!4 &8881707460908606920 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,

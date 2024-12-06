@@ -42,6 +42,6 @@ public class DummyFish : MonoBehaviour
     public IEnumerator Delay(float delay)
     {
         yield return Helpers.GetWaitForSeconds(delay);
-        fishMovement.hazardBounce();
+        fishMovement.DemoHazardBounce();
     }
 }
