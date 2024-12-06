@@ -293,7 +293,7 @@ public class FishMovement : MonoBehaviour
     public float hazardBounce(float currentYVelocity)
     {
         // Apply a smaller fixed upward force for a hazard bounce
-        currentYVelocity += (jumpForce * 0.85f);
+        currentYVelocity += (jumpForce * 0.95f);
 
         //also reset the bouyancy for predictable behaviour
         buoyancy = baseBouyancy;
@@ -312,7 +312,7 @@ public class FishMovement : MonoBehaviour
 
     #region Buffer Jumping
 
-    public void HazardBounceBuffer()
+    public float HazardBounceBuffer(float currentYVelocity)
     {
         Vector3 boxCenter = transform.position + Vector3.down * 0.5f;   // Adjust center for downward bias
         Vector3 boxHalfExtents = new(0.15f, 0.4f, 2f);      // Adjust dimensions for forward detection
@@ -342,7 +342,7 @@ public class FishMovement : MonoBehaviour
                         {
                             //to fast to detect buffer jump
                             Debug.Log("Too fast to buffer jump");
-                            rb.velocity = new Vector3(rb.velocity.x, jumpForce / 1.45f, rb.velocity.z);
+                            currentYVelocity = hazardBounce(currentYVelocity);
                             hasBufferJumped = true;
                             StartCoroutine(BufferJump());
                             break;
@@ -351,7 +351,7 @@ public class FishMovement : MonoBehaviour
                         //print how the hit object was in its z velocity based on its transform component
                         if (rb.velocity.y < 0 && timeSinceRelease < .33f && rb.position.y < .97f)
                         {
-                            rb.velocity = new Vector3(rb.velocity.x, jumpForce / 1.45f, rb.velocity.z);
+                            currentYVelocity = hazardBounce(currentYVelocity);
                             hasBufferJumped = true;
                             StartCoroutine(BufferJump());
                         }
@@ -359,6 +359,8 @@ public class FishMovement : MonoBehaviour
                 }
             }
         }
+
+        return currentYVelocity;
     }
 
     //public getter for hasBufferJumped
@@ -717,7 +719,7 @@ public class FishMovement : MonoBehaviour
                     quickfalling = false;
                 }
 
-                HazardBounceBuffer();
+                currentYVelocity = HazardBounceBuffer(currentYVelocity);
 
                 break;
             case FishMovementState.TRICK:
@@ -818,6 +820,10 @@ public class FishMovement : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            meshObject.transform.rotation = Quaternion.Euler(0f, -180f, 0f);
+        }
     }
 
     // Set rotations to default (may be deprecated soon)
@@ -826,7 +832,6 @@ public class FishMovement : MonoBehaviour
         if (gameObject.name == "FishBoard(Clone)" && movementState != FishMovementState.TRICK)
         {
             rb.rotation = Quaternion.Euler(0f, -180f, 0f);
-            transform.rotation = Quaternion.Euler(0f, -180f, 0f);
         }
 
         transform.position.Set(transform.position.x, transform.position.y, 0);
