@@ -406,29 +406,24 @@ MonoBehaviour:
       m_Action: Quickfall Control
       m_Flags: 0
     m_Flags: 0
-  maxHorizontalMoveSpeed: 40
-  horizontalAcceleration: 1.2
-  horizontalFriction: 0.5
+  horizontalAcceleration: 1
+  horizontalFriction: 0.4
   jumpForce: 6.41
   quickfallForce: 7.25
-  maxUnderwaterSpeed: 3
-  maxLateralSpeed: 5
   surfaceAlignmentForce: -22
+  maxRange: 1.5
   minHeight: -0.1
   maxDiveDepth: -4.235
-  friction: 0.05
-  anchorPoint: {x: 0, y: -2, z: 0}
-  maxAngle: 65
-  maxRange: 1.5
-  state: 0
-  powerUpState: 0
+  maxHorizontalMoveSpeed: 40
+  maxUnderwaterSpeed: 3
+  jumpActionDelay: 0.5
   rb: {fileID: 7141695999175163664}
   volume: {fileID: 0}
   hazardCheckDistance: 3
   splash: {fileID: 766498622860441890, guid: 7c29bedb328f45349a320351c69a988f, type: 3}
   badJumpParticles: {fileID: 766498622860441890, guid: 41a7b7d59940f3b49b0baea764cdae10,
     type: 3}
-  jumpActionDelay: 0.5
+  powerUpState: 0
 --- !u!4 &8881707460908606920 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 90b14975e6f0ec8458519f79aa5cf4a5,
