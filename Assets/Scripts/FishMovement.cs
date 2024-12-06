@@ -89,6 +89,7 @@ public class FishMovement : MonoBehaviour
     private bool perfectDismountReady = false;
     private bool bounceReady = false;
     private int hazardBounceCounter = 0;
+    private bool flipTargetHazardBounce = false;
 
     private float spinSpeed = 720.0f;
     private float trickTimer = 0.0f;
@@ -299,8 +300,14 @@ public class FishMovement : MonoBehaviour
 
         setHazardBounceReady(false);
         hasBufferJumped = false;
+        flipTargetHazardBounce = false;
 
         return currentYVelocity;
+    }
+
+    public void promptFlipTargetHazardBounce()
+    {
+        flipTargetHazardBounce = true;
     }
 
     #region Buffer Jumping
@@ -684,6 +691,11 @@ public class FishMovement : MonoBehaviour
 
                 rb.useGravity = true;
 
+                if (flipTargetHazardBounce)
+                {
+                    currentYVelocity = hazardBounce(currentYVelocity);
+                }
+
                 // Check for a landing
                 if (rb.position.y < minHeight - 0.1f)
                 {
@@ -881,7 +893,7 @@ public class FishMovement : MonoBehaviour
     //get fish state
     public FishMovementState GetFishState()
     {
-        return state;
+        return movementState;
     }
 
     public void BottleImpact()

@@ -77,7 +77,7 @@ public class Hazard : FlyWeight
                     SFXManager.instance.playSFXClip(SFXManager.instance.bottleBreakerSFX, transform, .35f);
                     Instantiate(Settings.impactParticle, transform.position + new Vector3(0f, 0.0f, .5f), Quaternion.identity);
                     HandleCollectibleCollision();
-                    fish.hazardBounce();
+                    fish.promptFlipTargetHazardBounce();
                 }
                 else
                 {
