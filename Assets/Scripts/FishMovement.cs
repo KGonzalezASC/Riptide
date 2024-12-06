@@ -878,6 +878,12 @@ public class FishMovement : MonoBehaviour
         this.movementState = state;
     }
 
+    //get fish state
+    public FishMovementState GetFishState()
+    {
+        return state;
+    }
+
     public void BottleImpact()
     {
         if (movementState != FishMovementState.DIVING)
