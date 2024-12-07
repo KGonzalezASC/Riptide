@@ -221,19 +221,10 @@ public class FishMovement : MonoBehaviour
                 {
                     // Zero out vertical forces and reset height
                     rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);  // Reset height
-                    //reset force to an amount that is not 0
-                    currentYVelocity = 0.1f;
                 }
             }
 
-            if (!perfectDismountReady)
-            {
-                currentYVelocity = Jump(currentYVelocity, false);
-            }
-            else
-            {
-                currentYVelocity = Jump(currentYVelocity, true);
-            }
+            currentYVelocity = Jump(currentYVelocity, perfectDismountReady);
         }
         // Check for a hazard bounce next
         else if (bounceReady && jumpAction.triggered && movementState == FishMovementState.JUMPING)
@@ -265,15 +256,14 @@ public class FishMovement : MonoBehaviour
             //increase jump force
             currentYVelocity = jumpForce * 1.33f;
             //decrease bouyancy for slower rise, EDIT:// people did not like this in last couple playtest so it the effective swim up speed is now faster
-            buoyancy = 360f; //make solid value for consistent behaviour
-        }
+            buoyancy = 0.8f; //make solid value for consistent behaviour
 
-        movementState = FishMovementState.JUMPING;
-
-        if (perfectDismountReady)
-        {
             StartCoroutine(FishAscension());
         }
+
+        perfectDismountReady = false;
+
+        movementState = FishMovementState.JUMPING;
 
         return currentYVelocity;
     }
@@ -603,8 +593,6 @@ public class FishMovement : MonoBehaviour
             // Apply horizontal movement based on input
             if (moveDirection != Vector2.zero)
             {
-                float targetXVelocity = moveDirection.x * maxHorizontalMoveSpeed * Time.deltaTime;
-
                 currentXVelocity += horizontalAcceleration * moveDirection.x; // Apply acceleration
             }
             else if (MathF.Abs(currentXVelocity) <= 0.4f)
@@ -835,9 +823,6 @@ public class FishMovement : MonoBehaviour
         {
             rb.rotation = Quaternion.Euler(0f, -180f, 0f);
         }
-
-        transform.position.Set(transform.position.x, transform.position.y, 0);
-        rb.position.Set(rb.position.x, rb.position.y, 0);
     }
 
     #region Grinding
