@@ -723,6 +723,11 @@ public class FishMovement : MonoBehaviour
 
                 rb.useGravity = true;
 
+                if (flipTargetHazardBounce)
+                {
+                    currentYVelocity = hazardBounce(currentYVelocity);
+                }
+
                 // Check for a landing
                 if (rb.position.y < minHeight - 0.1f)
                 {
