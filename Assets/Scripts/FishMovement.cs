@@ -258,7 +258,7 @@ public class FishMovement : MonoBehaviour
     {
         if (!superJump)
         {
-            currentYVelocity += jumpForce;
+            currentYVelocity = jumpForce;
         }
         else
         {
@@ -311,7 +311,7 @@ public class FishMovement : MonoBehaviour
     {
         //Apply a smaller fixed upward force for a hazard bounce
         //adjusting to match similar version of before..
-        currentYVelocity = jumpForce / 1.325f;
+        currentYVelocity = jumpForce * 0.85f;
         //currentYVelocity += (jumpForce * 0.98f); /// when doing this consecutives bounces have falloff in height
         //this causes the hazardbuffer to be flagged as true due to y position causes it to apply a significant upwards force to the player model
         buoyancy = baseBouyancy;
@@ -440,10 +440,7 @@ public class FishMovement : MonoBehaviour
         // Only do a trick when in jump state
         if (movementState == FishMovementState.JUMPING && trickDirection != Vector2.zero && jumpActionDelayTimer <= 0.0f)
         {
-            //if (trickCounter == 0)
-            //{
-            //    currentyVelocity = jumpForce / 2.2f;
-            //}
+            currentyVelocity = jumpForce * 0.2f;
 
             // Perform a trick based on direction
             if (trickDirection.y > 0)
@@ -574,7 +571,7 @@ public class FishMovement : MonoBehaviour
 
     private float Quickfall(float currentYVelocity)
     {
-        currentYVelocity -= quickfallForce;
+        currentYVelocity = -quickfallForce;
 
         return currentYVelocity;
     }
