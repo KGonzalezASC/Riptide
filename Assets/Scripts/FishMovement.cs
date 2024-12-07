@@ -220,8 +220,9 @@ public class FishMovement : MonoBehaviour
                 if (depthPercentage <= 0.2f)
                 {
                     // Zero out vertical forces and reset height
-                    currentYVelocity = 0; ;  // Set vertical velocity to 0
                     rb.position = new Vector3(rb.position.x, minHeight, rb.position.z);  // Reset height
+                    //reset force to an amount that is not 0
+                    currentYVelocity = 0.1f;
                 }
             }
 
@@ -264,7 +265,7 @@ public class FishMovement : MonoBehaviour
             //increase jump force
             currentYVelocity = jumpForce * 1.33f;
             //decrease bouyancy for slower rise, EDIT:// people did not like this in last couple playtest so it the effective swim up speed is now faster
-            buoyancy *= 0.5f;
+            buoyancy = 360f; //make solid value for consistent behaviour
         }
 
         movementState = FishMovementState.JUMPING;
@@ -275,6 +276,22 @@ public class FishMovement : MonoBehaviour
         }
 
         return currentYVelocity;
+    }
+
+    //Demo jump call jump if grounded
+    public void DemoJump()
+    {
+        //if on surface jump
+        if (movementState == FishMovementState.SURFACE || movementState == FishMovementState.GRINDING)
+        {
+            // Only apply a fixed upward force for the jump
+            rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+            movementState = FishMovementState.JUMPING;
+            if (perfectDismountReady)
+            {
+                StartCoroutine(FishAscension());
+            }
+        }
     }
 
     public void preparePerfectDismount()
@@ -292,12 +309,12 @@ public class FishMovement : MonoBehaviour
 
     public float hazardBounce(float currentYVelocity)
     {
-        // Apply a smaller fixed upward force for a hazard bounce
-        currentYVelocity += (jumpForce * 0.95f);
-
-        //also reset the bouyancy for predictable behaviour
+        //Apply a smaller fixed upward force for a hazard bounce
+        //adjusting to match similar version of before..
+        currentYVelocity = jumpForce / 1.325f;
+        //currentYVelocity += (jumpForce * 0.98f); /// when doing this consecutives bounces have falloff in height
+        //this causes the hazardbuffer to be flagged as true due to y position causes it to apply a significant upwards force to the player model
         buoyancy = baseBouyancy;
-
         setHazardBounceReady(false);
         hasBufferJumped = false;
         flipTargetHazardBounce = false;
@@ -315,7 +332,7 @@ public class FishMovement : MonoBehaviour
     public float HazardBounceBuffer(float currentYVelocity)
     {
         Vector3 boxCenter = transform.position + Vector3.down * 0.5f;   // Adjust center for downward bias
-        Vector3 boxHalfExtents = new(0.15f, 0.4f, 2f);      // Adjust dimensions for forward detection
+        Vector3 boxHalfExtents = new(0.05f, 0.4f, 2f);      // Adjust dimensions for forward detection
 
         RaycastHit[] hits = new RaycastHit[3];
         int hitCount = Physics.BoxCastNonAlloc(
@@ -398,28 +415,11 @@ public class FishMovement : MonoBehaviour
 
     #region Demo Jump Actions
 
-    //Demo jump call jump if grounded
-    public void DemoJump()
-    {
-        //if on surface jump
-        if (movementState == FishMovementState.SURFACE || movementState == FishMovementState.GRINDING)
-        {
-            // Only apply a fixed upward force for the jump
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
-            movementState = FishMovementState.JUMPING;
-            if (perfectDismountReady)
-            {
-                StartCoroutine(FishAscension());
-            }
-        }
-    }
+
 
     public void DemoHazardBounce()
     {
         rb.velocity = new Vector3(rb.velocity.x, jumpForce / 1.325f, rb.velocity.z);
-
-        buoyancy = baseBouyancy;
-
         setHazardBounceReady(false);
         hasBufferJumped = false;
     }
@@ -440,10 +440,10 @@ public class FishMovement : MonoBehaviour
         // Only do a trick when in jump state
         if (movementState == FishMovementState.JUMPING && trickDirection != Vector2.zero && jumpActionDelayTimer <= 0.0f)
         {
-            if (trickCounter == 0)
-            {
-                currentyVelocity = jumpForce / 2.2f;
-            }
+            //if (trickCounter == 0)
+            //{
+            //    currentyVelocity = jumpForce / 2.2f;
+            //}
 
             // Perform a trick based on direction
             if (trickDirection.y > 0)
@@ -714,7 +714,7 @@ public class FishMovement : MonoBehaviour
 
                     currentYVelocity += buoyancy;
                     movementState = FishMovementState.DIVING;
-                    buoyancy = baseBouyancy; // Ensure bouyancy is reset
+                    //buoyancy = baseBouyancy; // Ensure bouyancy is reset
 
                     quickfalling = false;
                 }
@@ -742,7 +742,7 @@ public class FishMovement : MonoBehaviour
 
                     currentYVelocity += buoyancy;
                     movementState = FishMovementState.DIVING;
-                    buoyancy = baseBouyancy; // Ensure buoyancy is reset
+                    //buoyancy = baseBouyancy; // Ensure buoyancy is reset
 
                     quickfalling = false;
                 }

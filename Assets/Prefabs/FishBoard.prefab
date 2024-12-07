@@ -226,7 +226,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8073257913005948786}
   serializedVersion: 4
-  m_Mass: 0.89
+  m_Mass: 0.92
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -276,7 +276,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.555, y: 0.79, z: 1.2}
+  m_Size: {x: 0.44, y: 0.79, z: 1.2}
   m_Center: {x: 0, y: 0.12, z: 0.25}
 --- !u!114 &477622571402236769
 MonoBehaviour:
@@ -406,20 +406,20 @@ MonoBehaviour:
       m_Action: Quickfall Control
       m_Flags: 0
     m_Flags: 0
-  horizontalAcceleration: 1
-  horizontalFriction: 0.4
+  horizontalAcceleration: 1.1
+  horizontalFriction: 0.46
   jumpForce: 6.41
   quickfallForce: 7.25
   surfaceAlignmentForce: -22
   maxRange: 1.5
   minHeight: -0.1
-  maxDiveDepth: -4.235
-  maxHorizontalMoveSpeed: 40
+  maxDiveDepth: -3.235
+  maxHorizontalMoveSpeed: 4.125
   maxUnderwaterSpeed: 3
-  jumpActionDelay: 0.5
+  jumpActionDelay: 0.23
   rb: {fileID: 7141695999175163664}
   volume: {fileID: 0}
-  hazardCheckDistance: 3
+  hazardCheckDistance: 2.9
   splash: {fileID: 766498622860441890, guid: 7c29bedb328f45349a320351c69a988f, type: 3}
   badJumpParticles: {fileID: 766498622860441890, guid: 41a7b7d59940f3b49b0baea764cdae10,
     type: 3}

@@ -23,6 +23,7 @@ public class DummyFish : MonoBehaviour
     {
         if (GameManager.instance.topState.GetName() == "Load" && CompareTag("DummyBounce") && fishMovement != null)
         {
+            //if fish isnt jumping, make it jump
             fishMovement.DemoJump();
         }    
     }
